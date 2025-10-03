@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'JOURNI'),
     );
   }
 }
@@ -55,17 +55,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _selectedIndex = 0; // primer item de la bottom navigation bar seleccionado por defecto
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  void _createNewTravel() {
+
   }
 
   @override
@@ -77,14 +70,21 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      backgroundColor: Colors.teal[200],
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
         // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.teal[200],
+        centerTitle: true,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('JOURNI',
+          style: TextStyle(
+            color: Colors.black,       // color del texto
+            fontSize: 22,              // tamaño del texto
+            fontWeight: FontWeight.bold // negrita
+        ),),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -106,20 +106,47 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              'No tienes ningún viaje registrado.',
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: _createNewTravel,
+        tooltip: 'New travel',
         child: const Icon(Icons.add),
+
       ), // This trailing comma makes auto-formatting nicer for build methods.
+        bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex, // le indicamos qué botón debe aparecer como seleccionado
+        backgroundColor: Color(0xFFEDE5D0),
+        unselectedItemColor: Colors.black,
+        selectedItemColor: Colors.teal[500],
+        iconSize: 35,
+        type: BottomNavigationBarType.fixed, // Para que todas las etiquetas de todos los botones aparezcan siempre (no solo si se seleccionan)
+        items: [
+        BottomNavigationBarItem(
+        icon: Icon(Icons.folder),
+        label: 'Mis viajes'),
+        BottomNavigationBarItem(
+        icon: Icon(Icons.map),
+        label: 'Mapa'),
+        BottomNavigationBarItem(
+        icon: Icon(Icons.add),
+        label: 'Nuevo viaje'),
+        BottomNavigationBarItem(
+        icon: Icon(Icons.equalizer),
+        label: 'Datos'),
+        BottomNavigationBarItem(
+        icon: Icon(Icons.person),
+        label: 'Mi perfil'),
+        ],
+        onTap: (int inIndex) {
+          setState(() {
+            _selectedIndex = inIndex; // guardamos el boton que se pulsó y redibujamos la interfaz
+
+          });
+        })
     );
   }
 }
