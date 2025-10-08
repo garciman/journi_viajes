@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:journi/crear_viaje.dart';
+import 'package:journi/viaje.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,13 +34,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'JOURNI'),
+      home: const MyHomePage(title: 'JOURNI', viajes: []),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, required this.viajes});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -51,6 +52,7 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final List<Viaje> viajes;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -152,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) =>
-                    Crear_Viaje(selectedIndex: _selectedIndex)),
+                    Crear_Viaje(selectedIndex: _selectedIndex, viajes: widget.viajes)),
               );
             }
           });

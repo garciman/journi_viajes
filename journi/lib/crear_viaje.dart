@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:journi/main.dart';
+import 'package:journi/viaje.dart';
 
 class Crear_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
+  List<Viaje> viajes;
   final _titulo = TextEditingController();
   final _fecha_ini = TextEditingController();
   final _fecha_fin = TextEditingController();
 
-  Crear_Viaje({required this.selectedIndex});
+  Crear_Viaje({required this.selectedIndex, required this.viajes});
 
   @override
   _CrearViajeState createState() => _CrearViajeState();
@@ -95,7 +97,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
 
                       RoundedButton(
 
-                        text: 'Siguiente',
+                        text: 'Guardar',
                         backgroundColor: Colors.white,
                         textColor: Colors.black,
                         onPressed: () {
@@ -122,7 +124,27 @@ class _CrearViajeState extends State<Crear_Viaje> {
                               },
                             );
                           }
-                          if (widget._titulo.text == '' || widget._fecha_ini.text == '' || widget._fecha_fin.text == '') {
+                          else if (widget._titulo.text.isEmpty || widget._titulo.text.length > 100) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Error'),
+                                  content: const Text('El título debe contener entre 1 y 100 caracteres'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context); // Cerrar el diálogo
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+
+                          }
+                          else if (widget._titulo.text == '' || widget._fecha_ini.text == '' || widget._fecha_fin.text == '') {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -142,11 +164,9 @@ class _CrearViajeState extends State<Crear_Viaje> {
                             );
 
                           }
-                          else if (true)
-                          {
-                            print("");
-                          }
                           else {
+                            Viaje v = Viaje(titulo: widget._titulo.text, fecha_ini: d1, fecha_fin: d2);
+                            widget.viajes.add(v);
                             const Text(
                               '',
                               textAlign: TextAlign.center,
@@ -154,7 +174,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                             );
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => MyHomePage(title:'JOURNI')),
+                              MaterialPageRoute(builder: (context) => MyHomePage(title:'JOURNI', viajes: widget.viajes)),
                             );
                           }
                         },
@@ -198,7 +218,10 @@ class _CrearViajeState extends State<Crear_Viaje> {
               setState(() {
                 widget.selectedIndex = inIndex; // guardamos el boton que se pulsó y redibujamos la interfaz
 
-                print(widget.selectedIndex);
+                /*
+
+                // Al llevar a la misma pantalla, nos vamos a ahorrar este trozo de codigo
+
                 if (widget.selectedIndex == 2) {
 
                   Navigator.push(
@@ -207,6 +230,8 @@ class _CrearViajeState extends State<Crear_Viaje> {
                         Crear_Viaje(selectedIndex: widget.selectedIndex)),
                   );
                 }
+                */
+
 
               });
             })
