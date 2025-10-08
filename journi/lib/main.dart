@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:journi/crear_viaje.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -86,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
             fontWeight: FontWeight.bold // negrita
         ),),
       ),
-      body: Center(
+      body: const Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
@@ -105,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
+            Text(
               'No tienes ningún viaje registrado.',
             ),
           ],
@@ -119,12 +121,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
         bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex, // le indicamos qué botón debe aparecer como seleccionado
-        backgroundColor: Color(0xFFEDE5D0),
+        backgroundColor: const Color(0xFFEDE5D0),
         unselectedItemColor: Colors.black,
         selectedItemColor: Colors.teal[500],
         iconSize: 35,
         type: BottomNavigationBarType.fixed, // Para que todas las etiquetas de todos los botones aparezcan siempre (no solo si se seleccionan)
-        items: [
+        items: const [
         BottomNavigationBarItem(
         icon: Icon(Icons.folder),
         label: 'Mis viajes'),
@@ -144,7 +146,15 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: (int inIndex) {
           setState(() {
             _selectedIndex = inIndex; // guardamos el boton que se pulsó y redibujamos la interfaz
+            print(_selectedIndex);
+            if (_selectedIndex == 2) {
 
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>
+                    Crear_Viaje(selectedIndex: _selectedIndex)),
+              );
+            }
           });
         })
     );
