@@ -34,13 +34,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'JOURNI', viajes: []),
+      home: MyHomePage(title: 'JOURNI', viajes: []),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, required this.viajes});
+  MyHomePage({super.key, required this.title, required this.viajes});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -52,7 +52,7 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
-  final List<Viaje> viajes;
+  List<Viaje> viajes;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -90,32 +90,56 @@ class _MyHomePageState extends State<MyHomePage> {
             fontWeight: FontWeight.bold // negrita
         ),),
       ),
-      body: const Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'No tienes ningún viaje registrado.',
-            ),
-          ],
+        body: widget.viajes.isEmpty
+            ? const Center(
+          child: Text(
+            'No tienes ningún viaje registrado.',
+            style: TextStyle(fontSize: 18),
+          ),
+        )
+            : ListView.builder(
+          itemCount: widget.viajes.length,
+          itemBuilder: (context, index) {
+            final viaje = widget.viajes[index];
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                leading: const Icon(Icons.flight_takeoff, color: Colors.teal),
+                title: Text(
+                  viaje.titulo,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Inicio: ${viaje.fecha_ini.toLocal().toString().split(' ')[0]}'),
+                    Text('Fin: ${viaje.fecha_fin.toLocal().toString().split(' ')[0]}'),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Pendiente de sincronizar',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontStyle: FontStyle.italic,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+                isThreeLine: true,
+              ),
+            );
+          },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
+
+
+        floatingActionButton: FloatingActionButton(
         onPressed: _createNewTravel,
         tooltip: 'New travel',
         child: const Icon(Icons.add),

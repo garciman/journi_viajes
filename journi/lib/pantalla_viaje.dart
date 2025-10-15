@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:journi/main.dart';
 import 'package:journi/viaje.dart';
 
 class Crear_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   List<Viaje> viajes;
-  final _titulo = TextEditingController();
-  final _fecha_ini = TextEditingController();
-  final _fecha_fin = TextEditingController();
 
   Crear_Viaje({required this.selectedIndex, required this.viajes});
 
@@ -42,154 +38,13 @@ class _CrearViajeState extends State<Crear_Viaje> {
                 fontWeight: FontWeight.bold // negrita
             ),),
         ),
-        body: Center(
-          child: Column(
-              children: [
-                Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-
-                    // Campo de Titulo del viaje
-                    InputField(
-                      controller: widget._titulo,
-                      hintText: 'Titulo del viaje',
-                    ),
-
-                    const SizedBox(height: 10),
-                  ]
-                ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-
-                    children: [
-                      const SizedBox(height: 10),
-
-                      // Campo de Contraseña
-                      InputField(
-                        controller: widget._fecha_ini,
-                        hintText: 'Fecha de inicio de viaje (DD/MM/YYYY)',
-                      ),
-
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-
-                      children: [
-                        const SizedBox(height: 10),
-
-                        // Campo de Fecha de final de viaje
-                        InputField(
-                          controller: widget._fecha_fin,
-                          hintText: 'Fecha de fin de viaje (DD/MM/YYYY)',
-                        ),
-
-                        const SizedBox(height: 10),
-                      ]
-                  ),
-
-                Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-
-                      RoundedButton(
-
-                        text: 'Guardar',
-                        backgroundColor: Colors.white,
-                        textColor: Colors.black,
-                        onPressed: () {
-                          DateFormat formato = DateFormat('dd-MM-yyyy');
-                          DateTime d1 = formato.parse(widget._fecha_ini.text);
-                          DateTime d2 = formato.parse(widget._fecha_fin.text);
-
-                          if (d1.isAfter(d2)){
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Error'),
-                                  content: const Text('La fecha de inicio no puede ser posterior a la final'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context); // Cerrar el diálogo
-                                      },
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          }
-                          else if (widget._titulo.text.isEmpty || widget._titulo.text.length > 100) {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Error'),
-                                  content: const Text('El título debe contener entre 1 y 100 caracteres'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context); // Cerrar el diálogo
-                                      },
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-
-                          }
-                          else if (widget._titulo.text == '' || widget._fecha_ini.text == '' || widget._fecha_fin.text == '') {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Error'),
-                                  content: const Text('Rellena todos los campos para continuar'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context); // Cerrar el diálogo
-                                      },
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-
-                          }
-                          else {
-                            Viaje v = Viaje(titulo: widget._titulo.text, fecha_ini: d1, fecha_fin: d2);
-                            widget.viajes.add(v);
-                            const Text(
-                              '',
-                              textAlign: TextAlign.center,
-
-                            );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => MyHomePage(title:'JOURNI', viajes: widget.viajes)),
-                            );
-                          }
-                        },
-
-                      ),
-                    ]
-                ),
-
-
-          ]),
-
-
-
+        body: const Center(
+          child: Text(
+            'No tienes entradas registradas.',
+            style: TextStyle(fontSize: 20),
+          ),
         ),
-         // This trailing comma makes auto-formatting nicer for build methods.
+        // This trailing comma makes auto-formatting nicer for build methods.
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: widget.selectedIndex, // le indicamos qué botón debe aparecer como seleccionado
             backgroundColor: const Color(0xFFEDE5D0),
@@ -217,6 +72,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
             onTap: (int inIndex) {
               setState(() {
                 widget.selectedIndex = inIndex; // guardamos el boton que se pulsó y redibujamos la interfaz
+
                 if (widget.selectedIndex == 0) {
 
                   Navigator.push(
@@ -225,6 +81,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                         MyHomePage(title: 'JOURNI' ,viajes: widget.viajes)),
                   );
                 }
+
                 /*
 
                 // Al llevar a la misma pantalla, nos vamos a ahorrar este trozo de codigo
