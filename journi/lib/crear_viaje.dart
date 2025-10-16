@@ -181,12 +181,19 @@ class _CrearViajeState extends State<Crear_Viaje> {
                           }
                           else {
                             Viaje v = Viaje(titulo: widget._titulo.text, fecha_ini: d1, fecha_fin: d2);
-                            widget.viajes.add(v);
-                            const Text(
-                              '',
-                              textAlign: TextAlign.center,
+                            if (widget.num_viaje == -1){
 
-                            );
+                              widget.viajes.add(v);
+                              const Text(
+                                '',
+                                textAlign: TextAlign.center,
+
+                              );
+
+                            }
+                            else {
+                              widget.viajes[widget.num_viaje] = v;
+                            }
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => MyHomePage(title:'JOURNI', viajes: widget.viajes)),
