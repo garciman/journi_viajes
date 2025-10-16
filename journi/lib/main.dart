@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:journi/crear_viaje.dart';
+import 'package:journi/pantalla_viaje.dart';
 import 'package:journi/viaje.dart';
 
 void main() {
@@ -133,8 +134,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
                 isThreeLine: true,
-              ),
+                  onTap: () {
+                    setState(() {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>
+                            Pantalla_Viaje(selectedIndex: _selectedIndex, viajes: widget.viajes, num_viaje: index)),
+                      );
+                    });
+                  }
+              )
             );
+
           },
         ),
 
@@ -178,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) =>
-                    Crear_Viaje(selectedIndex: _selectedIndex, viajes: widget.viajes)),
+                    Crear_Viaje(selectedIndex: _selectedIndex, viajes: widget.viajes, num_viaje: -1)),
               );
             }
           });

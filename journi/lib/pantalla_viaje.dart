@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:journi/crear_viaje.dart';
 import 'package:journi/main.dart';
 import 'package:journi/viaje.dart';
 
-class Crear_Viaje extends StatefulWidget {
+class Pantalla_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   List<Viaje> viajes;
+  int num_viaje;
 
-  Crear_Viaje({required this.selectedIndex, required this.viajes});
+  Pantalla_Viaje({required this.selectedIndex, required this.viajes, required this.num_viaje});
 
   @override
-  _CrearViajeState createState() => _CrearViajeState();
+  _PantallaViajeState createState() => _PantallaViajeState();
 }
 
-class _CrearViajeState extends State<Crear_Viaje> {
+class _PantallaViajeState extends State<Pantalla_Viaje> {
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -24,20 +26,69 @@ class _CrearViajeState extends State<Crear_Viaje> {
     return Scaffold(
         backgroundColor: Colors.teal[200],
         appBar: AppBar(
-          // TRY THIS: Try changing the color here to a specific color (to
-          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-          // change color while the other colors stay the same.
           backgroundColor: Colors.teal[200],
           centerTitle: true,
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: const Text('JOURNI',
+          title: const Text(
+            'JOURNI',
             style: TextStyle(
-                color: Colors.black,       // color del texto
-                fontSize: 22,              // tamaño del texto
-                fontWeight: FontWeight.bold // negrita
-            ),),
+              color: Colors.black,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit, color: Colors.black),
+              tooltip: 'Editar',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>
+                      Crear_Viaje(selectedIndex: 2, viajes: widget.viajes, num_viaje: widget.num_viaje)),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.black),
+              tooltip: 'Eliminar',
+              onPressed: () {
+                // Acción al pulsar la papelera (eliminar)
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Eliminar viaje')),
+                );
+                // Aquí puedes mostrar un diálogo de confirmación, por ejemplo:
+
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Confirmar eliminación'),
+                    content: const Text('¿Seguro que quieres eliminar este viaje?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancelar'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Lógica para eliminar el viaje
+                          widget.viajes.removeAt(widget.num_viaje);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                MyHomePage(title: 'JOURNI', viajes: widget.viajes)),
+                          );
+                        },
+                        child: const Text('Eliminar'),
+                      ),
+                    ],
+                  ),
+                );
+
+              },
+            ),
+          ],
         ),
+
         body: const Center(
           child: Text(
             'No tienes entradas registradas.',

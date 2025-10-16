@@ -5,12 +5,13 @@ import 'package:journi/viaje.dart';
 
 class Crear_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
+  int num_viaje;
   List<Viaje> viajes;
   final _titulo = TextEditingController();
   final _fecha_ini = TextEditingController();
   final _fecha_fin = TextEditingController();
 
-  Crear_Viaje({required this.selectedIndex, required this.viajes});
+  Crear_Viaje({required this.selectedIndex, required this.viajes, required this.num_viaje});
 
   @override
   _CrearViajeState createState() => _CrearViajeState();
@@ -25,6 +26,16 @@ class _CrearViajeState extends State<Crear_Viaje> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
+    if (widget.num_viaje >= 0){
+
+      String fecha_inicial = DateFormat('dd-MM-yyyy').format(widget.viajes[widget.num_viaje].fecha_ini);
+      String fecha_final = DateFormat('dd-MM-yyyy').format(widget.viajes[widget.num_viaje].fecha_fin);
+      widget._titulo.text = widget.viajes[widget.num_viaje].titulo;
+      widget._fecha_ini.text = fecha_inicial;
+      widget._fecha_fin.text = fecha_final;
+    }
+
     return Scaffold(
         backgroundColor: Colors.teal[200],
         appBar: AppBar(
