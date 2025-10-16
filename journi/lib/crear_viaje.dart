@@ -116,7 +116,26 @@ class _CrearViajeState extends State<Crear_Viaje> {
                           DateTime d1 = formato.parse(widget._fecha_ini.text);
                           DateTime d2 = formato.parse(widget._fecha_fin.text);
 
-                          if (d1.isAfter(d2)){
+                          if (widget._titulo.text.isEmpty || widget._fecha_ini.text.isEmpty || widget._fecha_fin.text.isEmpty){
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Error'),
+                                  content: const Text('Completa todos los campos para poder continuar'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context); // Cerrar el diálogo
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                          else if (d1.isAfter(d2)){
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
