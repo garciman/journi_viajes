@@ -5,7 +5,7 @@ import 'package:journi/pantalla_viaje.dart';
 import 'package:journi/viaje.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp());ff
 }
 
 class MyApp extends StatelessWidget {
