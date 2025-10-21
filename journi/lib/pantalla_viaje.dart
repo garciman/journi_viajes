@@ -3,12 +3,15 @@ import 'package:journi/crear_viaje.dart';
 import 'package:journi/main.dart';
 import 'package:journi/viaje.dart';
 
+import 'data/memory/in_memory_trip_repository.dart';
+
 class Pantalla_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   List<Viaje> viajes;
   int num_viaje;
+  InMemoryTripRepository repo;
 
-  Pantalla_Viaje({required this.selectedIndex, required this.viajes, required this.num_viaje});
+  Pantalla_Viaje({required this.selectedIndex, required this.viajes, required this.num_viaje, required this.repo});
 
   @override
   _PantallaViajeState createState() => _PantallaViajeState();
@@ -44,7 +47,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) =>
-                      Crear_Viaje(selectedIndex: 2, viajes: widget.viajes, num_viaje: widget.num_viaje)),
+                      Crear_Viaje(selectedIndex: 2, viajes: widget.viajes, num_viaje: widget.num_viaje, repo: widget.repo)),
                 );
               },
             ),
@@ -75,7 +78,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
-                                MyHomePage(title: 'JOURNI', viajes: widget.viajes)),
+                                MyHomePage(title: 'JOURNI', viajes: widget.viajes, repo: widget.repo,)),
                           );
                         },
                         child: const Text('Eliminar'),
@@ -129,7 +132,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) =>
-                        MyHomePage(title: 'JOURNI' ,viajes: widget.viajes)),
+                        MyHomePage(title: 'JOURNI' ,viajes: widget.viajes, repo: widget.repo,)),
                   );
                 }
 
