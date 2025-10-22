@@ -6,7 +6,7 @@ import 'application/use_cases/use_cases.dart';
 import 'data/memory/in_memory_trip_repository.dart';
 import 'domain/trip.dart';
 
-void main() {
+void main() { 
   // ✅ Repositorio único de toda la app
   final repo = InMemoryTripRepository();
   runApp(MyApp(repo: repo));
