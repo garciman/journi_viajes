@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:journi/crear_viaje.dart';
 import 'package:journi/main.dart';
 import 'package:journi/viaje.dart';
-import 'entrada.dart';
-import 'entradas_list.dart';
 
 import 'data/memory/in_memory_trip_repository.dart';
 
