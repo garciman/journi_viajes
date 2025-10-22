@@ -2,198 +2,201 @@ import 'package:flutter/material.dart';
 
 import 'package:journi/crear_viaje.dart';
 import 'package:journi/pantalla_viaje.dart';
-import 'package:journi/viaje.dart';
+import 'application/use_cases/use_cases.dart';
+import 'data/memory/in_memory_trip_repository.dart';
+import 'domain/trip.dart';
 
 void main() {
-  runApp(const MyApp());ff
+  // ✅ Repositorio único de toda la app
+  final repo = InMemoryTripRepository();
+  runApp(MyApp(repo: repo));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final InMemoryTripRepository repo;
+  const MyApp({super.key, required this.repo});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'JOURNI',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: MyHomePage(title: 'JOURNI', viajes: []),
+      // ✅ Pasamos el repo al home
+      home: MyHomePage(title: 'JOURNI', viajes: [], repo: repo),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({super.key, required this.title, required this.viajes});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  const MyHomePage({
+    super.key,
+    required this.title,
+    required this.viajes,
+    required this.repo,
+  });
 
   final String title;
-  List<Viaje> viajes;
+  final List<dynamic> viajes; // lista vacía, mantenida por compatibilidad
+  final InMemoryTripRepository repo;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0; // primer item de la bottom navigation bar seleccionado por defecto
+  int _selectedIndex = 0;
 
   void _createNewTravel() {
-
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Crear_Viaje(
+          selectedIndex: _selectedIndex,
+          viajes: [],
+          num_viaje: -1,
+          repo: widget.repo,
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // Usamos el stream del repo directamente
     return Scaffold(
       backgroundColor: Colors.teal[200],
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Colors.teal[200],
         centerTitle: true,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: const Text('JOURNI',
+        title: const Text(
+          'JOURNI',
           style: TextStyle(
-            color: Colors.black,       // color del texto
-            fontSize: 22,              // tamaño del texto
-            fontWeight: FontWeight.bold // negrita
-        ),),
-      ),
-        body: widget.viajes.isEmpty
-            ? const Center(
-          child: Text(
-            'No tienes ningún viaje registrado.',
-            style: TextStyle(fontSize: 18),
+            color: Colors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
           ),
-        )
-            : ListView.builder(
-          itemCount: widget.viajes.length,
-          itemBuilder: (context, index) {
-            final viaje = widget.viajes[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                leading: const Icon(Icons.flight_takeoff, color: Colors.teal),
-                title: Text(
-                  viaje.titulo,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Inicio: ${viaje.fecha_ini.toLocal().toString().split(' ')[0]}'),
-                    Text('Fin: ${viaje.fecha_fin.toLocal().toString().split(' ')[0]}'),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Pendiente de sincronizar',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontStyle: FontStyle.italic,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-                isThreeLine: true,
-                  onTap: () {
-                    setState(() {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) =>
-                            Pantalla_Viaje(selectedIndex: _selectedIndex, viajes: widget.viajes, num_viaje: index)),
-                      );
-                    });
-                  }
-              )
-            );
-
-          },
         ),
+      ),
+      // 🔽 Escucha los cambios del repo en tiempo real
+      body: StreamBuilder<List<Trip>>(
+        stream: widget.repo.watchAll(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
+          final viajes = snapshot.data!;
+          if (viajes.isEmpty) {
+            return const Center(
+              child: Text(
+                'No tienes ningún viaje registrado.',
+                style: TextStyle(fontSize: 18),
+              ),
+            );
+          }
 
-        floatingActionButton: FloatingActionButton(
+          return ListView.builder(
+            itemCount: viajes.length,
+            itemBuilder: (context, index) {
+              final viaje = viajes[index];
+
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: const Icon(Icons.flight_takeoff, color: Colors.teal),
+                  title: Text(
+                    viaje.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (viaje.startDate != null)
+                        Text('Inicio: ${viaje.startDate!.toLocal().toString().split(' ')[0]}'),
+                      if (viaje.endDate != null)
+                        Text('Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Pendiente de sincronizar',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                  isThreeLine: true,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Pantalla_Viaje(
+                          selectedIndex: _selectedIndex,
+                          viajes: [],
+                          num_viaje: index,
+                          repo: widget.repo,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
+
+      floatingActionButton: FloatingActionButton(
         onPressed: _createNewTravel,
-        tooltip: 'New travel',
+        tooltip: 'Nuevo viaje',
         child: const Icon(Icons.add),
+      ),
 
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-        bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, // le indicamos qué botón debe aparecer como seleccionado
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
         backgroundColor: const Color(0xFFEDE5D0),
         unselectedItemColor: Colors.black,
         selectedItemColor: Colors.teal[500],
         iconSize: 35,
-        type: BottomNavigationBarType.fixed, // Para que todas las etiquetas de todos los botones aparezcan siempre (no solo si se seleccionan)
+        type: BottomNavigationBarType.fixed,
         items: const [
-        BottomNavigationBarItem(
-        icon: Icon(Icons.folder),
-        label: 'Mis viajes'),
-        BottomNavigationBarItem(
-        icon: Icon(Icons.map),
-        label: 'Mapa'),
-        BottomNavigationBarItem(
-        icon: Icon(Icons.add),
-        label: 'Nuevo viaje'),
-        BottomNavigationBarItem(
-        icon: Icon(Icons.equalizer),
-        label: 'Datos'),
-        BottomNavigationBarItem(
-        icon: Icon(Icons.person),
-        label: 'Mi perfil'),
+          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Mis viajes'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Nuevo viaje'),
+          BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Mi perfil'),
         ],
-        onTap: (int inIndex) {
+        onTap: (int index) {
           setState(() {
-            _selectedIndex = inIndex; // guardamos el boton que se pulsó y redibujamos la interfaz
-            print(_selectedIndex);
+            _selectedIndex = index;
             if (_selectedIndex == 2) {
-
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>
-                    Crear_Viaje(selectedIndex: _selectedIndex, viajes: widget.viajes, num_viaje: -1)),
+                MaterialPageRoute(
+                  builder: (context) => Crear_Viaje(
+                    selectedIndex: _selectedIndex,
+                    viajes: [],
+                    num_viaje: -1,
+                    repo: widget.repo,
+                  ),
+                ),
               );
             }
           });
-        })
+        },
+      ),
     );
   }
 }

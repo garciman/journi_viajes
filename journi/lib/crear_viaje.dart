@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/main.dart';
 import 'package:journi/viaje.dart';
+
+import 'application/use_cases/use_cases.dart';
+import 'domain/trip.dart';
 
 class Crear_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   int num_viaje;
   List<Viaje> viajes;
+  InMemoryTripRepository repo;
   final _titulo = TextEditingController();
   final _fecha_ini = TextEditingController();
   final _fecha_fin = TextEditingController();
 
-  Crear_Viaje({required this.selectedIndex, required this.viajes, required this.num_viaje});
+  Crear_Viaje({required this.selectedIndex, required this.viajes, required this.num_viaje, required this.repo});
+
 
   @override
   _CrearViajeState createState() => _CrearViajeState();
@@ -36,6 +42,9 @@ class _CrearViajeState extends State<Crear_Viaje> {
       widget._fecha_ini.text = fecha_inicial;
       widget._fecha_fin.text = fecha_final;
     }
+
+    final createTrip = CreateTripUseCase(widget.repo);
+
 
     return Scaffold(
         backgroundColor: Colors.teal[200],
@@ -112,7 +121,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                         text: 'Guardar',
                         backgroundColor: Colors.white,
                         textColor: Colors.black,
-                        onPressed: () {
+                        onPressed: () async {
                           DateFormat formato = DateFormat('dd-MM-yyyy');
                           DateTime d1 = formato.parse("00-00-0000");
                           DateTime d2 = formato.parse("00-00-0000");
@@ -185,7 +194,33 @@ class _CrearViajeState extends State<Crear_Viaje> {
                             if (widget.num_viaje == -1){
 
                               widget.viajes.add(v);
-                              const Text(
+                              final listTrips = ListTripsUseCase(widget.repo);
+                              final trips = await listTrips();
+
+                              final cmd = CreateTripCommand(
+                                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                title: widget._titulo.text,
+                                description: 'Hemos visto al nano',
+                                startDate: d1,
+                                endDate: d2,
+                              );
+
+                              // ⿤ Ejecutamos el caso de uso
+                              final result = await createTrip(cmd);
+
+                              // ⿥ Interpretamos el resultado (Ok o Err)
+                              if (result is Ok<Trip>) {
+                                final trip = result.value;
+                                print('✅ Trip creado con éxito: ${trip.title}');
+                                print('   ID: ${trip.id}');
+                                print('   Fechas: ${trip.startDate} → ${trip.endDate}');
+                              } else if (result is Err<Trip>) {
+                                final errors = result.errors.map((e) => e.message).join(', ');
+                                print('Error al crear trip: $errors');
+                          }
+
+
+                          const Text(
                                 '',
                                 textAlign: TextAlign.center,
 
@@ -197,7 +232,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                             }
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => MyHomePage(title:'JOURNI', viajes: widget.viajes)),
+                              MaterialPageRoute(builder: (context) => MyHomePage(title:'JOURNI', viajes: [], repo: widget.repo)),
                             );
                           }
                         },
@@ -245,7 +280,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) =>
-                        MyHomePage(title: 'JOURNI' ,viajes: widget.viajes)),
+                        MyHomePage(title: 'JOURNI', viajes: [], repo: widget.repo)),
                   );
                 }
                 /*
