@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:journi/application/trip_service.dart';
 import 'package:journi/crear_viaje.dart';
 import 'package:journi/main.dart';
 import 'package:journi/viaje.dart';
 
 import 'data/memory/in_memory_trip_repository.dart';
+import 'domain/trip.dart';
 
 class Pantalla_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   List<Viaje> viajes;
   int num_viaje;
   InMemoryTripRepository repo;
+  TripService tripService;
 
   Pantalla_Viaje(
       {required this.selectedIndex,
       required this.viajes,
       required this.num_viaje,
-      required this.repo});
+      required this.repo,
+      required this.tripService});
 
   @override
   _PantallaViajeState createState() => _PantallaViajeState();
@@ -55,7 +59,8 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                           selectedIndex: 2,
                           viajes: widget.viajes,
                           num_viaje: widget.num_viaje,
-                          repo: widget.repo)),
+                          repo: widget.repo,
+                      tripService: widget.tripService)),
                 );
               },
             ),
@@ -73,32 +78,41 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: const Text('Confirmar eliminación'),
-                    content:
-                        const Text('¿Seguro que quieres eliminar este viaje?'),
+                    content: const Text('¿Seguro que quieres eliminar este viaje?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: const Text('Cancelar'),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           // Lógica para eliminar el viaje
-                          widget.viajes.removeAt(widget.num_viaje);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MyHomePage(
-                                      title: 'JOURNI',
-                                      viajes: widget.viajes,
-                                      repo: widget.repo,
-                                    )),
-                          );
+                          final tripToDelete = widget.viajes[widget.num_viaje];
+
+                          final result = await widget.tripService.deleteById(tripToDelete.id);
+                          if (result is Ok<void>) {
+                            print('✅ Viaje eliminado correctamente');
+
+                            // Actualizamos la lista local
+                            widget.viajes.removeAt(widget.num_viaje);
+
+                            Navigator.pop(context); // cerramos el diálogo
+                            setState(() {
+                              // redibujamos la pantalla con la lista actualizada
+                            });
+                          } else {
+                            // Error al eliminar
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Error al eliminar el viaje')),
+                            );
+                          }
                         },
                         child: const Text('Eliminar'),
                       ),
                     ],
                   ),
                 );
+
               },
             ),
           ],
@@ -143,6 +157,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                               title: 'JOURNI',
                               viajes: widget.viajes,
                               repo: widget.repo,
+                          tripService: widget.tripService,
                             )),
                   );
                 }

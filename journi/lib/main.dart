@@ -5,16 +5,19 @@ import 'package:journi/pantalla_viaje.dart';
 import 'application/use_cases/use_cases.dart';
 import 'data/memory/in_memory_trip_repository.dart';
 import 'domain/trip.dart';
+import 'application/trip_service.dart';
 
 void main() {
   // ✅ Repositorio único de toda la app
   final repo = InMemoryTripRepository();
-  runApp(MyApp(repo: repo));
+  final tripService = makeTripService(repo);
+  runApp(MyApp(repo: repo, tripService: tripService));
 }
 
 class MyApp extends StatelessWidget {
   final InMemoryTripRepository repo;
-  const MyApp({super.key, required this.repo});
+  final TripService tripService;
+  const MyApp({super.key, required this.repo, required this.tripService});
 
   // This widget is the root of your application.
   @override
@@ -26,7 +29,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // ✅ Pasamos el repo al home
-      home: MyHomePage(title: 'JOURNI', viajes: [], repo: repo),
+      home: MyHomePage(title: 'JOURNI', viajes: [], repo: repo, tripService: tripService),
     );
   }
 }
@@ -37,11 +40,14 @@ class MyHomePage extends StatefulWidget {
     required this.title,
     required this.viajes,
     required this.repo,
+    required this.tripService,
   });
 
   final String title;
   final List<dynamic> viajes; // lista vacía, mantenida por compatibilidad
   final InMemoryTripRepository repo;
+  final TripService tripService;
+
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -59,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
           viajes: [],
           num_viaje: -1,
           repo: widget.repo,
+          tripService: widget.tripService,
         ),
       ),
     );
@@ -149,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           viajes: [],
                           num_viaje: index,
                           repo: widget.repo,
+                          tripService: widget.tripService,
                         ),
                       ),
                     );
@@ -193,6 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     viajes: [],
                     num_viaje: -1,
                     repo: widget.repo,
+                    tripService: widget.tripService,
                   ),
                 ),
               );

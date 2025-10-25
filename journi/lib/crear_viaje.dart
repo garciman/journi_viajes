@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:journi/application/trip_service.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/main.dart';
 import 'package:journi/viaje.dart';
@@ -12,6 +13,7 @@ class Crear_Viaje extends StatefulWidget {
   int num_viaje;
   List<Viaje> viajes;
   InMemoryTripRepository repo;
+  TripService tripService;
   final _titulo = TextEditingController();
   final _fecha_ini = TextEditingController();
   final _fecha_fin = TextEditingController();
@@ -20,7 +22,8 @@ class Crear_Viaje extends StatefulWidget {
       {required this.selectedIndex,
       required this.viajes,
       required this.num_viaje,
-      required this.repo});
+      required this.repo,
+      required this.tripService});
 
   @override
   _CrearViajeState createState() => _CrearViajeState();
@@ -86,7 +89,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                 // Campo de Contraseña
                 InputField(
                   controller: widget._fecha_ini,
-                  hintText: 'Fecha de inicio de viaje (DD/MM/YYYY)',
+                  hintText: 'Fecha de inicio de viaje (DD-MM-YYYY)',
                 ),
 
                 const SizedBox(height: 10),
@@ -98,7 +101,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
               // Campo de Fecha de final de viaje
               InputField(
                 controller: widget._fecha_fin,
-                hintText: 'Fecha de fin de viaje (DD/MM/YYYY)',
+                hintText: 'Fecha de fin de viaje (DD-MM-YYYY)',
               ),
 
               const SizedBox(height: 10),
@@ -180,7 +183,9 @@ class _CrearViajeState extends State<Crear_Viaje> {
                       },
                     );
                   } else {
+                    final nuevoId = DateTime.now().millisecondsSinceEpoch.toString();
                     Viaje v = Viaje(
+                      id: nuevoId,
                         titulo: widget._titulo.text,
                         fecha_ini: d1,
                         fecha_fin: d2);
@@ -190,7 +195,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                       final trips = await listTrips();
 
                       final cmd = CreateTripCommand(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        id: nuevoId,
                         title: widget._titulo.text,
                         description: 'Hemos visto al nano',
                         startDate: d1,
@@ -219,12 +224,8 @@ class _CrearViajeState extends State<Crear_Viaje> {
                     } else {
                       widget.viajes[widget.num_viaje] = v;
                     }
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MyHomePage(
-                              title: 'JOURNI', viajes: [], repo: widget.repo)),
-                    );
+                    Navigator.pop(context); // recargamos la pagina para que se actualicen los viajes
+
                   }
                 },
               ),
@@ -261,7 +262,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => MyHomePage(
-                            title: 'JOURNI', viajes: [], repo: widget.repo)),
+                            title: 'JOURNI', viajes: [], repo: widget.repo, tripService: widget.tripService)),
                   );
                 }
                 /*

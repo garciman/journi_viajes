@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature android:name="android.hardware.camera"
+        android:required="true"></uses-feature>
     <application
         android:label="journi"
         android:name="${applicationName}"

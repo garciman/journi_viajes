@@ -1,4 +1,5 @@
 class Viaje {
+  final String id;
   final String titulo;
   final DateTime fecha_ini;
   final DateTime fecha_fin;
@@ -6,6 +7,7 @@ class Viaje {
   // final ¿String? ubicacion;
 
   const Viaje({
+    required this.id,
     required this.titulo,
     required this.fecha_ini,
     required this.fecha_fin,
