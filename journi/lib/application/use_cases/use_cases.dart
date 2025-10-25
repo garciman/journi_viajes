@@ -3,6 +3,18 @@ import 'package:journi/domain/trip_extensions.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/domain/trip_queries.dart';
 
+/// Patch<T> permite tri-estado en commands de actualización:
+/// - Patch.absent()  -> no tocar
+/// - Patch.value(x)  -> establecer a x
+/// - Patch.value(null) -> establecer a null (si el campo lo permite)
+class Patch<T> {
+  final bool isSet;
+  final T? value;
+  const Patch._(this.isSet, this.value);
+  const Patch.absent() : this._(false, null);
+  const Patch.value(T? v) : this._(true, v);
+}
+
 class CreateTripCommand {
   final String id;
   final String title;
@@ -18,6 +30,24 @@ class CreateTripCommand {
     this.coverImage,
     this.startDate,
     this.endDate,
+  });
+}
+
+class UpdateTripCommand {
+  final String id;
+  final Patch<String> title;
+  final Patch<String?> description;
+  final Patch<String?> coverImage;
+  final Patch<DateTime?> startDate;
+  final Patch<DateTime?> endDate;
+
+  const UpdateTripCommand({
+    required this.id,
+    this.title = const Patch.absent(),
+    this.description = const Patch.absent(),
+    this.coverImage = const Patch.absent(),
+    this.startDate = const Patch.absent(),
+    this.endDate = const Patch.absent(),
   });
 }
 
@@ -42,6 +72,57 @@ class CreateTripUseCase {
   }
 }
 
+/// Use case: actualización parcial validada (patch).
+class UpdateTripUseCase {
+  final TripRepository repo;
+  UpdateTripUseCase(this.repo);
+
+  Future<Result<Trip>> call(UpdateTripCommand cmd) async {
+    final currentRes = await repo.findById(cmd.id);
+    if (currentRes is Err<Trip?>) {
+      return Err<Trip>((currentRes as Err<Trip?>).errors);
+    }
+    final current = (currentRes as Ok<Trip?>).value;
+    if (current == null) {
+      return Err<Trip>([ValidationError('Trip con id ${cmd.id} no existe')]);
+    }
+    if (cmd.title.isSet && cmd.title.value == null) {
+      return Err<Trip>([ValidationError('title no puede ser null; usa un string no vacío')]);
+    }
+
+    // Calcula nuevos valores (permitiendo null si el patch lo fija a null)
+    final newTitle       = cmd.title.isSet       ? (cmd.title.value ?? current.title) : current.title;
+    final newDescription = cmd.description.isSet ? cmd.description.value : current.description;
+    final newCoverImage  = cmd.coverImage.isSet  ? cmd.coverImage.value  : current.coverImage;
+    final newStart       = cmd.startDate.isSet   ? cmd.startDate.value   : current.startDate;
+    final newEnd         = cmd.endDate.isSet     ? cmd.endDate.value     : current.endDate;
+
+    final nowUtc = DateTime.now().toUtc();
+    final validated = Trip.create(
+      id: current.id,
+      title: newTitle,
+      description: newDescription,
+      coverImage: newCoverImage,
+      startDate: newStart,
+      endDate: newEnd,
+      createdAt: current.createdAt,
+      updatedAt: nowUtc,
+    );
+    if (validated is Err<Trip>) return validated;
+    return repo.upsert((validated as Ok<Trip>).value);
+  }
+}
+
+/// Use case: eliminar por id (idempotente según la implementación del repo).
+class DeleteTripUseCase {
+  final TripRepository repo;
+  DeleteTripUseCase(this.repo);
+
+  Future<Result<void>> call(String id) {
+    return repo.deleteById(id);
+  }
+}
+
 class UpdateTripTitleUseCase {
   final TripRepository repo;
   UpdateTripTitleUseCase(this.repo);
@@ -49,12 +130,14 @@ class UpdateTripTitleUseCase {
   Future<Result<Trip>> call(Trip current, String newTitle) async {
     final res = current.withTitle(newTitle);
     if (res is Err<Trip>) return res;
-    final ok = res as Ok<Trip>;
-    final updated = ok.value.copyValidated(updatedAt: DateTime.now().toUtc());
-    return repo.upsert((updated as Ok<Trip>).value);
-  }
 
-  
+    final ok = res as Ok<Trip>;
+    final updatedRes = ok.value.copyValidated(updatedAt: DateTime.now().toUtc());
+    if (updatedRes is Err<Trip>) return updatedRes;
+
+    final updated = (updatedRes as Ok<Trip>).value;
+    return repo.upsert(updated);
+  }
 }
 
 /// Lista trips (opcionalmente filtrados por fase).
