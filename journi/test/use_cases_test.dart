@@ -242,7 +242,8 @@ void main() {
 
     tearDown(() => repo.dispose());
 
-    test('no tocar campos (todo Patch.absent) solo actualiza updatedAt', () async {
+    test('no tocar campos (todo Patch.absent) solo actualiza updatedAt',
+        () async {
       final prev = baseTrip;
       final nowBefore = DateTime.now().toUtc();
 
@@ -268,11 +269,12 @@ void main() {
       expect(inWindow(updated.updatedAt), isTrue);
     });
 
-    test('Patch.value(null) limpia descripción; Patch.absent no toca portada', () async {
+    test('Patch.value(null) limpia descripción; Patch.absent no toca portada',
+        () async {
       final res = await useCase.call(const UpdateTripCommand(
         id: 'u1',
         description: Patch.value(null), // borrar
-        coverImage: Patch.absent(),     // no tocar
+        coverImage: Patch.absent(), // no tocar
       ));
 
       expect(res, isA<Ok<Trip>>());
@@ -282,11 +284,13 @@ void main() {
       expect(t.coverImage, baseTrip.coverImage);
     });
 
-    test('Patch.value(x) cambia título y fechas (UTC), respeta validaciones', () async {
+    test('Patch.value(x) cambia título y fechas (UTC), respeta validaciones',
+        () async {
       final res = await useCase.call(UpdateTripCommand(
         id: 'u1',
         title: const Patch.value(' Italia 2025  '), // con espacios
-        startDate: Patch.value(DateTime(2025, 7, 2, 8)), // local -> toUtc en create()
+        startDate:
+            Patch.value(DateTime(2025, 7, 2, 8)), // local -> toUtc en create()
         endDate: Patch.value(DateTime(2025, 7, 12, 18)),
       ));
 
@@ -343,7 +347,8 @@ void main() {
         title: 'Borrar-me',
         createdAt: DateTime.utc(2025, 1, 1),
         updatedAt: DateTime.utc(2025, 1, 1),
-      ) as Ok<Trip>).value;
+      ) as Ok<Trip>)
+          .value;
       repo.seed(t);
     });
 
@@ -378,7 +383,8 @@ void main() {
         endDate: DateTime.utc(2025, 6, 3),
         createdAt: DateTime.utc(2025, 1, 1),
         updatedAt: DateTime.utc(2025, 1, 1),
-      ) as Ok<Trip>).value;
+      ) as Ok<Trip>)
+          .value;
 
       final b = (Trip.create(
         id: 'b',
@@ -387,7 +393,8 @@ void main() {
         endDate: DateTime.utc(2025, 6, 5),
         createdAt: DateTime.utc(2025, 1, 2),
         updatedAt: DateTime.utc(2025, 1, 2),
-      ) as Ok<Trip>).value;
+      ) as Ok<Trip>)
+          .value;
 
       final c = (Trip.create(
         id: 'c',
@@ -395,7 +402,8 @@ void main() {
         // sin fechas → no debería aparecer
         createdAt: DateTime.utc(2025, 1, 3),
         updatedAt: DateTime.utc(2025, 1, 3),
-      ) as Ok<Trip>).value;
+      ) as Ok<Trip>)
+          .value;
 
       repo.seed(a);
       repo.seed(b);

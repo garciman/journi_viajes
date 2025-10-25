@@ -11,7 +11,11 @@ class Pantalla_Viaje extends StatefulWidget {
   int num_viaje;
   InMemoryTripRepository repo;
 
-  Pantalla_Viaje({required this.selectedIndex, required this.viajes, required this.num_viaje, required this.repo});
+  Pantalla_Viaje(
+      {required this.selectedIndex,
+      required this.viajes,
+      required this.num_viaje,
+      required this.repo});
 
   @override
   _PantallaViajeState createState() => _PantallaViajeState();
@@ -46,8 +50,12 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>
-                      Crear_Viaje(selectedIndex: 2, viajes: widget.viajes, num_viaje: widget.num_viaje, repo: widget.repo)),
+                  MaterialPageRoute(
+                      builder: (context) => Crear_Viaje(
+                          selectedIndex: 2,
+                          viajes: widget.viajes,
+                          num_viaje: widget.num_viaje,
+                          repo: widget.repo)),
                 );
               },
             ),
@@ -65,7 +73,8 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: const Text('Confirmar eliminación'),
-                    content: const Text('¿Seguro que quieres eliminar este viaje?'),
+                    content:
+                        const Text('¿Seguro que quieres eliminar este viaje?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
@@ -77,8 +86,12 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                           widget.viajes.removeAt(widget.num_viaje);
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) =>
-                                MyHomePage(title: 'JOURNI', viajes: widget.viajes, repo: widget.repo,)),
+                            MaterialPageRoute(
+                                builder: (context) => MyHomePage(
+                                      title: 'JOURNI',
+                                      viajes: widget.viajes,
+                                      repo: widget.repo,
+                                    )),
                           );
                         },
                         child: const Text('Eliminar'),
@@ -86,12 +99,10 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     ],
                   ),
                 );
-
               },
             ),
           ],
         ),
-
         body: const Center(
           child: Text(
             'No tienes entradas registradas.',
@@ -100,39 +111,39 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
         ),
         // This trailing comma makes auto-formatting nicer for build methods.
         bottomNavigationBar: BottomNavigationBar(
-            currentIndex: widget.selectedIndex, // le indicamos qué botón debe aparecer como seleccionado
+            currentIndex: widget
+                .selectedIndex, // le indicamos qué botón debe aparecer como seleccionado
             backgroundColor: const Color(0xFFEDE5D0),
             unselectedItemColor: Colors.black,
             selectedItemColor: Colors.teal[500],
             iconSize: 35,
-            type: BottomNavigationBarType.fixed, // Para que todas las etiquetas de todos los botones aparezcan siempre (no solo si se seleccionan)
+            type: BottomNavigationBarType
+                .fixed, // Para que todas las etiquetas de todos los botones aparezcan siempre (no solo si se seleccionan)
             items: const [
               BottomNavigationBarItem(
-                  icon: Icon(Icons.folder),
-                  label: 'Mis viajes'),
+                  icon: Icon(Icons.folder), label: 'Mis viajes'),
+              BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.map),
-                  label: 'Mapa'),
+                  icon: Icon(Icons.add), label: 'Nuevo viaje'),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.add),
-                  label: 'Nuevo viaje'),
+                  icon: Icon(Icons.equalizer), label: 'Datos'),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.equalizer),
-                  label: 'Datos'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Mi perfil'),
+                  icon: Icon(Icons.person), label: 'Mi perfil'),
             ],
             onTap: (int inIndex) {
               setState(() {
-                widget.selectedIndex = inIndex; // guardamos el boton que se pulsó y redibujamos la interfaz
+                widget.selectedIndex =
+                    inIndex; // guardamos el boton que se pulsó y redibujamos la interfaz
 
                 if (widget.selectedIndex == 0) {
-
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) =>
-                        MyHomePage(title: 'JOURNI' ,viajes: widget.viajes, repo: widget.repo,)),
+                    MaterialPageRoute(
+                        builder: (context) => MyHomePage(
+                              title: 'JOURNI',
+                              viajes: widget.viajes,
+                              repo: widget.repo,
+                            )),
                   );
                 }
 
@@ -149,22 +160,17 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   );
                 }
                 */
-
-
               });
-            })
-    );
+            }));
   }
 }
+
 class InputField extends StatelessWidget {
   final String hintText;
   final controller;
 
-  const InputField({
-    Key? key,
-    required this.hintText,
-    required this.controller
-  }) : super(key: key);
+  const InputField({Key? key, required this.hintText, required this.controller})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -189,19 +195,15 @@ class InputField extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
               controller: controller,
               decoration: const InputDecoration(
-
-
-                contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 hintText: '',
                 filled: true,
                 fillColor: Colors.transparent,
                 hintStyle: TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
-
                   borderRadius: BorderRadius.all(Radius.circular(15)),
                   borderSide: BorderSide(color: Colors.white, width: 2.0),
-
-
                 ),
               ),
             ),
@@ -209,7 +211,6 @@ class InputField extends StatelessWidget {
         ],
       ),
     );
-
   }
 }
 
@@ -231,10 +232,8 @@ class RoundedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 250,
-
       child: ElevatedButton(
         onPressed: onPressed,
-
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),

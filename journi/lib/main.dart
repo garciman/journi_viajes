@@ -6,7 +6,7 @@ import 'application/use_cases/use_cases.dart';
 import 'data/memory/in_memory_trip_repository.dart';
 import 'domain/trip.dart';
 
-void main() { 
+void main() {
   // ✅ Repositorio único de toda la app
   final repo = InMemoryTripRepository();
   runApp(MyApp(repo: repo));
@@ -123,9 +123,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (viaje.startDate != null)
-                        Text('Inicio: ${viaje.startDate!.toLocal().toString().split(' ')[0]}'),
+                        Text(
+                            'Inicio: ${viaje.startDate!.toLocal().toString().split(' ')[0]}'),
                       if (viaje.endDate != null)
-                        Text('Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
+                        Text(
+                            'Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
                       const SizedBox(height: 4),
                       const Text(
                         'Pendiente de sincronizar',
@@ -172,7 +174,8 @@ class _MyHomePageState extends State<MyHomePage> {
         iconSize: 35,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Mis viajes'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.folder), label: 'Mis viajes'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Nuevo viaje'),
           BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),

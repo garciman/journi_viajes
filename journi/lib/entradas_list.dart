@@ -24,7 +24,8 @@ class _EntradasListState extends State<EntradasList> {
   @override
   void initState() {
     super.initState();
-    _items = widget.entradas.where((e) => e.tripIndex == widget.tripIndex).toList();
+    _items =
+        widget.entradas.where((e) => e.tripIndex == widget.tripIndex).toList();
   }
 
   void _addOrEdit({Entrada? original}) async {
@@ -52,7 +53,8 @@ class _EntradasListState extends State<EntradasList> {
     setState(() {
       _items = _items.where((x) => x.id != e.id).toList();
     });
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Entrada eliminada')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Entrada eliminada')));
   }
 
   @override
@@ -61,7 +63,8 @@ class _EntradasListState extends State<EntradasList> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Entradas del viaje', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text('Entradas del viaje',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.teal[200],
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -73,17 +76,22 @@ class _EntradasListState extends State<EntradasList> {
         child: const Icon(Icons.add),
       ),
       body: _items.isEmpty
-          ? const Center(child: Text('No hay entradas aún.', style: TextStyle(fontSize: 16)))
+          ? const Center(
+              child:
+                  Text('No hay entradas aún.', style: TextStyle(fontSize: 16)))
           : ListView.builder(
               itemCount: _items.length,
               itemBuilder: (_, i) {
                 final e = _items[i];
                 return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   child: ListTile(
                     leading: const Icon(Icons.book),
-                    title: Text(e.titulo, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    subtitle: Text('${fmt.format(e.fecha)} · ${e.texto}', maxLines: 2, overflow: TextOverflow.ellipsis),
+                    title: Text(e.titulo,
+                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                    subtitle: Text('${fmt.format(e.fecha)} · ${e.texto}',
+                        maxLines: 2, overflow: TextOverflow.ellipsis),
                     onTap: () => _addOrEdit(original: e),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete_outline),

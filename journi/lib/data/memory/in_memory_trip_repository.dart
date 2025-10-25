@@ -8,7 +8,8 @@ class InMemoryTripRepository implements TripRepository {
   final Map<String, Trip> _store;
   final _controller = StreamController<List<Trip>>.broadcast();
 
-  InMemoryTripRepository({Iterable<Trip>? seed}) : _store = {for (final t in (seed ?? const <Trip>[])) t.id: t} {
+  InMemoryTripRepository({Iterable<Trip>? seed})
+      : _store = {for (final t in (seed ?? const <Trip>[])) t.id: t} {
     _emit();
   }
 
@@ -51,11 +52,13 @@ class InMemoryTripRepository implements TripRepository {
   Future<Result<Trip?>> findById(String id) async => Ok(_store[id]);
 
   @override
-  Future<Result<List<Trip>>> list({TripPhase? phase}) async => Ok(_filtered(phase));
+  Future<Result<List<Trip>>> list({TripPhase? phase}) async =>
+      Ok(_filtered(phase));
 
   @override
-  Stream<List<Trip>> watchAll({TripPhase? phase}) =>
-      phase == null ? _controller.stream : _controller.stream.map((_) => _filtered(phase));
+  Stream<List<Trip>> watchAll({TripPhase? phase}) => phase == null
+      ? _controller.stream
+      : _controller.stream.map((_) => _filtered(phase));
 
   @override
   Future<Result<void>> deleteById(String id) async {

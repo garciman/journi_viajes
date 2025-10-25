@@ -12,7 +12,8 @@ void main() {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-      expect(res, isA<Ok<Trip>>()); // group/test/expect son prácticas estándar. :contentReference[oaicite:2]{index=2}
+      expect(res,
+          isA<Ok<Trip>>()); // group/test/expect son prácticas estándar. :contentReference[oaicite:2]{index=2}
       final trip = (res as Ok<Trip>).value;
       expect(trip.title, 'Mi viaje');
     });
@@ -53,7 +54,8 @@ void main() {
       );
       expect(res, isA<Err<Trip>>());
       final msgs = (res as Err<Trip>).errors.map((e) => e.message).join(' | ');
-      expect(msgs.contains('description supera ${Trip.descriptionMax}'), isTrue);
+      expect(
+          msgs.contains('description supera ${Trip.descriptionMax}'), isTrue);
     });
 
     test('startDate > endDate -> Err', () {
@@ -74,9 +76,9 @@ void main() {
 
     test('normaliza start/end/createdAt/updatedAt a UTC', () {
       final localStart = DateTime(2025, 1, 1, 10, 0); // local time
-      final localEnd = DateTime(2025, 1, 2, 12, 0);   // local time
-      final ca = DateTime(2025, 1, 1, 8, 0);          // local
-      final ua = DateTime(2025, 1, 1, 9, 0);          // local
+      final localEnd = DateTime(2025, 1, 2, 12, 0); // local time
+      final ca = DateTime(2025, 1, 1, 8, 0); // local
+      final ua = DateTime(2025, 1, 1, 9, 0); // local
       final res = Trip.create(
         id: 't6',
         title: 'UTC',

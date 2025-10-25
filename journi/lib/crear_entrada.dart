@@ -59,13 +59,15 @@ class _CrearEntradaState extends State<CrearEntrada> {
       return;
     }
 
-    final nueva = (widget.entrada ?? Entrada(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      tripIndex: widget.tripIndex,
-      titulo: titulo,
-      texto: texto,
-      fecha: fecha,
-    )).copyWith(
+    final nueva = (widget.entrada ??
+            Entrada(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              tripIndex: widget.tripIndex,
+              titulo: titulo,
+              texto: texto,
+              fecha: fecha,
+            ))
+        .copyWith(
       titulo: titulo,
       texto: texto,
       fecha: fecha,
@@ -80,7 +82,10 @@ class _CrearEntradaState extends State<CrearEntrada> {
       builder: (_) => AlertDialog(
         title: const Text('Atención'),
         content: Text(msg),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text('OK'))
+        ],
       ),
     );
   }
@@ -92,7 +97,8 @@ class _CrearEntradaState extends State<CrearEntrada> {
     return Scaffold(
       appBar: AppBar(
         title: Text(editing ? 'Editar entrada' : 'Nueva entrada',
-            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            style: const TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.teal[200],
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),

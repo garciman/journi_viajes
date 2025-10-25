@@ -45,7 +45,9 @@ extension TripQueries on Trip {
     final e = endDate?.toUtc();
     if (s == null || e == null) return false;
     final d = DateTime.utc(dayUtc.year, dayUtc.month, dayUtc.day);
-    final dEnd = d.add(const Duration(days: 1)).subtract(const Duration(microseconds: 1));
+    final dEnd = d
+        .add(const Duration(days: 1))
+        .subtract(const Duration(microseconds: 1));
     return !s.isAfter(dEnd) && !e.isBefore(d);
   }
 }

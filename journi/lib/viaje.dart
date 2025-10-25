@@ -1,4 +1,4 @@
-class Viaje{
+class Viaje {
   final String titulo;
   final DateTime fecha_ini;
   final DateTime fecha_fin;

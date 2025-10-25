@@ -35,7 +35,8 @@ void main() {
       await repo.dispose();
     });
 
-    test('list() devuelve todos ordenados por createdAt desc (semilla)', () async {
+    test('list() devuelve todos ordenados por createdAt desc (semilla)',
+        () async {
       final now = DateTime.now().toUtc();
       final a = _trip(
         id: 'a',
@@ -72,13 +73,16 @@ void main() {
       expect((res as Ok<Trip?>).value, isNull);
     });
 
-    test('upsert() valida con Trip.create: Err si título vacío y no emite', () async {
+    test('upsert() valida con Trip.create: Err si título vacío y no emite',
+        () async {
       repo = InMemoryTripRepository();
 
       // Nos suscribimos ANTES de intentar el upsert inválido.
       final s = repo.watchAll();
       var emissions = 0;
-      final sub = s.listen((_) { emissions++; });
+      final sub = s.listen((_) {
+        emissions++;
+      });
 
       final now = DateTime.now().toUtc();
       final bad = _trip(
@@ -104,10 +108,11 @@ void main() {
       expect((listed as Ok<List<Trip>>).value, isEmpty);
     });
 
-
-    test('upsert() persiste y normaliza (trim + UTC) y watchAll emite', () async {
+    test('upsert() persiste y normaliza (trim + UTC) y watchAll emite',
+        () async {
       repo = InMemoryTripRepository();
-      final nowLocal = DateTime.now(); // no-UTC a propósito para comprobar normalización
+      final nowLocal =
+          DateTime.now(); // no-UTC a propósito para comprobar normalización
 
       final stream = repo.watchAll();
 
@@ -143,7 +148,9 @@ void main() {
       await future; // esperamos a que la aserción del stream se complete (expectLater). :contentReference[oaicite:3]{index=3}
     });
 
-    test('list({phase}) filtra correctamente y mantiene orden por createdAt desc', () async {
+    test(
+        'list({phase}) filtra correctamente y mantiene orden por createdAt desc',
+        () async {
       final now = DateTime.now().toUtc();
       final plannedStart = now.add(const Duration(days: 10));
       final plannedEnd = plannedStart.add(const Duration(days: 3));
@@ -153,11 +160,39 @@ void main() {
       final ongoingEnd = now.add(const Duration(days: 1));
 
       final trips = [
-        _trip(id: 'p1', title: 'Planned 1', startDate: plannedStart, endDate: plannedEnd, createdAt: now, updatedAt: now),
-        _trip(id: 'p2', title: 'Planned 2', startDate: plannedStart, endDate: plannedEnd, createdAt: now.add(const Duration(seconds: 1)), updatedAt: now),
-        _trip(id: 'f1', title: 'Finished', startDate: finishedStart, endDate: finishedEnd, createdAt: now, updatedAt: now),
-        _trip(id: 'o1', title: 'Ongoing', startDate: ongoingStart, endDate: ongoingEnd, createdAt: now.add(const Duration(minutes: 1)), updatedAt: now),
-        _trip(id: 'u1', title: 'Undated', createdAt: now.subtract(const Duration(minutes: 1)), updatedAt: now),
+        _trip(
+            id: 'p1',
+            title: 'Planned 1',
+            startDate: plannedStart,
+            endDate: plannedEnd,
+            createdAt: now,
+            updatedAt: now),
+        _trip(
+            id: 'p2',
+            title: 'Planned 2',
+            startDate: plannedStart,
+            endDate: plannedEnd,
+            createdAt: now.add(const Duration(seconds: 1)),
+            updatedAt: now),
+        _trip(
+            id: 'f1',
+            title: 'Finished',
+            startDate: finishedStart,
+            endDate: finishedEnd,
+            createdAt: now,
+            updatedAt: now),
+        _trip(
+            id: 'o1',
+            title: 'Ongoing',
+            startDate: ongoingStart,
+            endDate: ongoingEnd,
+            createdAt: now.add(const Duration(minutes: 1)),
+            updatedAt: now),
+        _trip(
+            id: 'u1',
+            title: 'Undated',
+            createdAt: now.subtract(const Duration(minutes: 1)),
+            updatedAt: now),
       ];
       repo = InMemoryTripRepository(seed: trips);
 
@@ -166,7 +201,8 @@ void main() {
         return ((res as Ok<List<Trip>>).value).map((t) => t.id).toList();
       }
 
-      expect(await ids(TripPhase.planned), ['p2', 'p1']);   // orden desc por createdAt
+      expect(await ids(TripPhase.planned),
+          ['p2', 'p1']); // orden desc por createdAt
       expect(await ids(TripPhase.finished), ['f1']);
       expect(await ids(TripPhase.ongoing), ['o1']);
       expect(await ids(TripPhase.undated), ['u1']);
@@ -175,7 +211,11 @@ void main() {
     test('watchAll() emite listas ordenadas en cada upsert/delete', () async {
       final now = DateTime.now().toUtc();
       final a = _trip(id: 'a', title: 'A', createdAt: now, updatedAt: now);
-      final b = _trip(id: 'b', title: 'B', createdAt: now.add(const Duration(seconds: 1)), updatedAt: now);
+      final b = _trip(
+          id: 'b',
+          title: 'B',
+          createdAt: now.add(const Duration(seconds: 1)),
+          updatedAt: now);
 
       repo = InMemoryTripRepository(seed: [a]);
 
@@ -186,9 +226,11 @@ void main() {
         stream,
         emitsInOrder([
           // tras upsert(b) -> [b, a]
-          isA<List<Trip>>().having((l) => l.map((t) => t.id).toList(), 'ids', equals(['b', 'a'])),
+          isA<List<Trip>>().having(
+              (l) => l.map((t) => t.id).toList(), 'ids', equals(['b', 'a'])),
           // tras delete(a) -> [b]
-          isA<List<Trip>>().having((l) => l.map((t) => t.id).toList(), 'ids', equals(['b'])),
+          isA<List<Trip>>()
+              .having((l) => l.map((t) => t.id).toList(), 'ids', equals(['b'])),
         ]),
       ); // Stream matchers: emitsInOrder. :contentReference[oaicite:4]{index=4}
 
@@ -198,7 +240,9 @@ void main() {
       await seq;
     });
 
-    test('watchAll({phase}) aplica map sobre el stream y solo emite la fase pedida', () async {
+    test(
+        'watchAll({phase}) aplica map sobre el stream y solo emite la fase pedida',
+        () async {
       final now = DateTime.now().toUtc();
       final planned = _trip(
         id: 'p',
@@ -225,9 +269,11 @@ void main() {
       final ex = expectLater(
         plannedStream,
         emitsInOrder([
-          isA<List<Trip>>().having((l) => l.map((t) => t.id).toList(), 'ids', equals(['p'])),
+          isA<List<Trip>>()
+              .having((l) => l.map((t) => t.id).toList(), 'ids', equals(['p'])),
           // Al insertar finished, no debe cambiar la lista de planned (sigue siendo ['p'])
-          isA<List<Trip>>().having((l) => l.map((t) => t.id).toList(), 'ids', equals(['p'])),
+          isA<List<Trip>>()
+              .having((l) => l.map((t) => t.id).toList(), 'ids', equals(['p'])),
         ]),
       );
 
@@ -237,7 +283,8 @@ void main() {
       await ex;
     });
 
-    test('watchAll() es broadcast: múltiples listeners reciben las emisiones', () async {
+    test('watchAll() es broadcast: múltiples listeners reciben las emisiones',
+        () async {
       final now = DateTime.now().toUtc();
       repo = InMemoryTripRepository();
 
@@ -246,11 +293,13 @@ void main() {
 
       final wait1 = expectLater(
         s,
-        emits(isA<List<Trip>>().having((l) => l.any((t) => t.id == 'x'), 'contiene x', isTrue)),
+        emits(isA<List<Trip>>()
+            .having((l) => l.any((t) => t.id == 'x'), 'contiene x', isTrue)),
       );
       final wait2 = expectLater(
         s,
-        emits(isA<List<Trip>>().having((l) => l.length, 'len', greaterThanOrEqualTo(1))),
+        emits(isA<List<Trip>>()
+            .having((l) => l.length, 'len', greaterThanOrEqualTo(1))),
       );
 
       await repo.upsert(_trip(
@@ -267,7 +316,8 @@ void main() {
       repo = InMemoryTripRepository();
       final s = repo.watchAll();
 
-      final done = expectLater(s, emitsDone); // Stream terminado -> done. :contentReference[oaicite:7]{index=7}
+      final done = expectLater(s,
+          emitsDone); // Stream terminado -> done. :contentReference[oaicite:7]{index=7}
       await repo.dispose();
       await done;
     });

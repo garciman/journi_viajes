@@ -2,18 +2,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/domain/trip_extensions.dart';
 
-
 Trip _okTrip(Result<Trip> r) {
   expect(r, isA<Ok<Trip>>());
   return (r as Ok<Trip>).value;
 }
 
 Trip _baseTrip() => _okTrip(Trip.create(
-  id: 'base',
-  title: 'Base',
-  createdAt: DateTime.utc(2025,1,1),
-  updatedAt: DateTime.utc(2025,1,1),
-));
+      id: 'base',
+      title: 'Base',
+      createdAt: DateTime.utc(2025, 1, 1),
+      updatedAt: DateTime.utc(2025, 1, 1),
+    ));
 
 void main() {
   group('TripMutators (extension methods)', () {
@@ -54,7 +53,8 @@ void main() {
       expect(out.startDate!.isBefore(out.endDate!), isTrue);
 
       // rango inválido
-      final bad = t.withDates(start: DateTime.utc(2025,1,12), end: DateTime.utc(2025,1,11));
+      final bad = t.withDates(
+          start: DateTime.utc(2025, 1, 12), end: DateTime.utc(2025, 1, 11));
       expect(bad, isA<Err<Trip>>());
     });
 
@@ -65,8 +65,8 @@ void main() {
         title: 'Cambiado',
         description: 'Nueva desc',
         coverImage: 'https://img/1.png',
-        startDate: DateTime.utc(2025,2,10),
-        endDate: DateTime.utc(2025,2,12),
+        startDate: DateTime.utc(2025, 2, 10),
+        endDate: DateTime.utc(2025, 2, 12),
         updatedAt: now,
       );
       final out = _okTrip(res);
