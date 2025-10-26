@@ -3,12 +3,11 @@ import 'package:intl/intl.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/main.dart';
-import 'package:journi/viaje.dart';
 
 import 'application/use_cases/use_cases.dart';
 import 'domain/trip.dart';
 
-class Crear_Viaje extends StatefulWidget {
+class Editar_viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   int num_viaje;
   List<Trip> viajes;
@@ -18,7 +17,7 @@ class Crear_Viaje extends StatefulWidget {
   final _fecha_ini = TextEditingController();
   final _fecha_fin = TextEditingController();
 
-  Crear_Viaje(
+  Editar_viaje(
       {required this.selectedIndex,
       required this.viajes,
       required this.num_viaje,
@@ -29,7 +28,7 @@ class Crear_Viaje extends StatefulWidget {
   _CrearViajeState createState() => _CrearViajeState();
 }
 
-class _CrearViajeState extends State<Crear_Viaje> {
+class _CrearViajeState extends State<Editar_viaje> {
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -185,32 +184,29 @@ class _CrearViajeState extends State<Crear_Viaje> {
                   } else {
                     final nuevoId = DateTime.now().millisecondsSinceEpoch.toString();
 
-                      final cmd = CreateTripCommand(
-                        id: nuevoId,
-                        title: widget._titulo.text,
-                        description: 'Description',
-                        startDate: d1,
-                        endDate: d2,
+                      final cmd = UpdateTripCommand(
+                        id: widget.viajes[widget.num_viaje].id, // no uses un nuevo id
+                        title: Patch.value(widget._titulo.text),
+                        description: Patch.value('Description'),
+                        startDate: Patch.value(d1),
+                        endDate: Patch.value(d2),
                       );
 
-                      widget.tripService.create(cmd);
-
-                      // ⿤ Ejecutamos el caso de uso
-                      final result = await createTrip(cmd);
+                      final result = await widget.tripService.patch(cmd);
 
                       // ⿥ Interpretamos el resultado (Ok o Err)
                       if (result is Ok<Trip>) {
                         final trip = result.value;
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Viaje creado correctamente')),
+                          SnackBar(content: Text('Viaje actualizado correctamente')),
                         );
-                        print('✅ Trip creado con éxito: ${trip.title}');
+                        print('✅ Trip editado con éxito: ${trip.title}');
                         print('   ID: ${trip.id}');
                         print('   Fechas: ${trip.startDate} → ${trip.endDate}');
                       } else if (result is Err<Trip>) {
                         final errors =
                             result.errors.map((e) => e.message).join(', ');
-                        print('Error al crear trip: $errors');
+                        print('Error al editar el trip: $errors');
                       }
 
                       const Text(
@@ -218,7 +214,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                         textAlign: TextAlign.center,
                       );
                     Navigator.pop(context); // recargamos la pagina para que se actualicen los viajes
-
+                    Navigator.pop(context);
                   }
                 },
               ),

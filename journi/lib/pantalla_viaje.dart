@@ -6,6 +6,7 @@ import 'package:journi/viaje.dart';
 
 import 'data/memory/in_memory_trip_repository.dart';
 import 'domain/trip.dart';
+import 'editar_viaje.dart';
 
 class Pantalla_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
@@ -38,7 +39,6 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
         backgroundColor: Colors.teal[200],
         appBar: AppBar(
           backgroundColor: Colors.teal[200],
-          centerTitle: true,
           title: Text(
             widget.viajes[widget.num_viaje].title,
             style: const TextStyle(
@@ -49,13 +49,77 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
           ),
           actions: [
             IconButton(
+              icon: const Icon(Icons.add, color: Colors.black),
+              tooltip: 'Añadir texto',
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Introduce un texto'),
+                      content: const TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Escribe aquí...',
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Aceptar'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.camera_alt, color: Colors.black),
+              tooltip: 'Subir foto',
+              onPressed: () {
+
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('¿Cómo quieres subir la foto?'),
+
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Adjuntar foto'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Hacer foto'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+              },
+            ),
+            IconButton(
               icon: const Icon(Icons.edit, color: Colors.black),
               tooltip: 'Editar',
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => Crear_Viaje(
+                      builder: (context) => Editar_viaje(
                           selectedIndex: 2,
                           viajes: widget.viajes,
                           num_viaje: widget.num_viaje,
