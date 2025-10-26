@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/crear_viaje.dart';
@@ -7,6 +9,8 @@ import 'package:journi/viaje.dart';
 import 'data/memory/in_memory_trip_repository.dart';
 import 'domain/trip.dart';
 import 'editar_viaje.dart';
+import 'package:image_picker/image_picker.dart';
+
 
 class Pantalla_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
@@ -27,6 +31,11 @@ class Pantalla_Viaje extends StatefulWidget {
 }
 
 class _PantallaViajeState extends State<Pantalla_Viaje> {
+
+  File? _imagenSeleccionada;
+  final ImagePicker _picker = ImagePicker();
+
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -36,7 +45,8 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        backgroundColor: Colors.teal[200],
+
+    backgroundColor: Colors.teal[200],
         appBar: AppBar(
           backgroundColor: Colors.teal[200],
           title: Text(
@@ -94,14 +104,28 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
 
                       actions: [
                         TextButton(
-                          onPressed: () {
+                          onPressed: () async{
                             Navigator.pop(context);
+                            File? _imagenSeleccionada;
+                            final ImagePicker _picker = ImagePicker();
+                            final XFile? imagen = await _picker.pickImage(source: ImageSource.gallery);
+                            if (imagen != null) {
+                              setState(() {
+                                _imagenSeleccionada = File(imagen.path);
+                              });
+                            }
                           },
                           child: const Text('Adjuntar foto'),
                         ),
                         TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.pop(context);
+                            final XFile? imagen = await _picker.pickImage(source: ImageSource.camera);
+                            if (imagen != null) {
+                              setState(() {
+                                _imagenSeleccionada = File(imagen.path);
+                              });
+                            }
                           },
                           child: const Text('Hacer foto'),
                         ),
@@ -184,12 +208,23 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
             ),
           ],
         ),
-        body: const Center(
-          child: Text(
+        body: Center(
+          child: _imagenSeleccionada != null
+              ? Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.file(
+              _imagenSeleccionada!,
+              height: 200,
+              width: 200,
+              fit: BoxFit.cover,
+            ),
+          )
+              : const Text(
             'No tienes entradas registradas.',
             style: TextStyle(fontSize: 20),
           ),
         ),
+
         // This trailing comma makes auto-formatting nicer for build methods.
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: widget
