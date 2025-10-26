@@ -32,8 +32,9 @@ class Pantalla_Viaje extends StatefulWidget {
 
 class _PantallaViajeState extends State<Pantalla_Viaje> {
 
-  File? _imagenSeleccionada;
+  List<Map<String, dynamic>> _imagenes = []; // cada elemento tendrá {file, fecha}
   final ImagePicker _picker = ImagePicker();
+
 
 
   @override
@@ -104,17 +105,19 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
 
                       actions: [
                         TextButton(
-                          onPressed: () async{
+                          onPressed: () async {
                             Navigator.pop(context);
-                            File? _imagenSeleccionada;
-                            final ImagePicker _picker = ImagePicker();
                             final XFile? imagen = await _picker.pickImage(source: ImageSource.gallery);
                             if (imagen != null) {
                               setState(() {
-                                _imagenSeleccionada = File(imagen.path);
+                                _imagenes.add({
+                                  'file': File(imagen.path),
+                                  'fecha': DateTime.now(),
+                                });
                               });
                             }
                           },
+
                           child: const Text('Adjuntar foto'),
                         ),
                         TextButton(
@@ -123,10 +126,14 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                             final XFile? imagen = await _picker.pickImage(source: ImageSource.camera);
                             if (imagen != null) {
                               setState(() {
-                                _imagenSeleccionada = File(imagen.path);
+                                _imagenes.add({
+                                  'file': File(imagen.path),
+                                  'fecha': DateTime.now(),
+                                });
                               });
                             }
                           },
+
                           child: const Text('Hacer foto'),
                         ),
                       ],
@@ -208,22 +215,123 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
             ),
           ],
         ),
-        body: Center(
-          child: _imagenSeleccionada != null
-              ? Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.file(
-              _imagenSeleccionada!,
-              height: 200,
-              width: 200,
-              fit: BoxFit.cover,
-            ),
-          )
-              : const Text(
+        body: widget.viajes.isEmpty
+            ? const Center(
+          child: Text(
             'No tienes entradas registradas.',
             style: TextStyle(fontSize: 20),
           ),
+        )
+            : _imagenes.isEmpty
+            ? const Center(
+          child: Text(
+            'Aún no has añadido fotos.',
+            style: TextStyle(fontSize: 18),
+          ),
+        )
+            : ListView.builder(
+          padding: const EdgeInsets.all(8),
+          itemCount: _imagenes.length,
+          itemBuilder: (context, index) {
+            final imagenData = _imagenes[index];
+            final file = imagenData['file'] as File;
+            final fecha = imagenData['fecha'] as DateTime;
+            final fechaFormateada =
+                "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
+                "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+
+            return Card(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                children: [
+                  Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                        child: GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return Dialog(
+                                  child: InteractiveViewer(
+                                    panEnabled: true, // permite arrastrar
+                                    child: Image.file(
+                                      file,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: Image.file(
+                            file,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+
+                      // Botón de eliminar
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Eliminar foto'),
+                              content: const Text(
+                                  '¿Seguro que quieres eliminar esta foto?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancelar'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _imagenes.removeAt(index);
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Foto eliminada correctamente')),
+                                    );
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text(
+                                    'Eliminar',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      'Añadida el $fechaFormateada',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
+
 
         // This trailing comma makes auto-formatting nicer for build methods.
         bottomNavigationBar: BottomNavigationBar(
