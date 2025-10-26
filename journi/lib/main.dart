@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({
+   MyHomePage({
     super.key,
     required this.title,
     required this.viajes,
@@ -44,9 +44,9 @@ class MyHomePage extends StatefulWidget {
   });
 
   final String title;
-  final List<dynamic> viajes; // lista vacía, mantenida por compatibilidad
   final InMemoryTripRepository repo;
   final TripService tripService;
+  List<Trip> viajes = [];
 
 
   @override
@@ -96,8 +96,8 @@ class _MyHomePageState extends State<MyHomePage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final viajes = snapshot.data!;
-          if (viajes.isEmpty) {
+          widget.viajes = snapshot.data!;
+          if (widget.viajes.isEmpty) {
             return const Center(
               child: Text(
                 'No tienes ningún viaje registrado.',
@@ -107,9 +107,9 @@ class _MyHomePageState extends State<MyHomePage> {
           }
 
           return ListView.builder(
-            itemCount: viajes.length,
+            itemCount: widget.viajes.length,
             itemBuilder: (context, index) {
-              final viaje = viajes[index];
+              final viaje = widget.viajes[index];
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -136,14 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Text(
                             'Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Pendiente de sincronizar',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontStyle: FontStyle.italic,
-                          fontSize: 13,
-                        ),
-                      ),
+
                     ],
                   ),
                   isThreeLine: true,
@@ -153,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder: (context) => Pantalla_Viaje(
                           selectedIndex: _selectedIndex,
-                          viajes: [],
+                          viajes: widget.viajes,
                           num_viaje: index,
                           repo: widget.repo,
                           tripService: widget.tripService,
@@ -198,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 MaterialPageRoute(
                   builder: (context) => Crear_Viaje(
                     selectedIndex: _selectedIndex,
-                    viajes: [],
+                    viajes: widget.viajes,
                     num_viaje: -1,
                     repo: widget.repo,
                     tripService: widget.tripService,

@@ -9,7 +9,7 @@ import 'domain/trip.dart';
 
 class Pantalla_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
-  List<Viaje> viajes;
+  List<Trip> viajes;
   int num_viaje;
   InMemoryTripRepository repo;
   TripService tripService;
@@ -39,9 +39,9 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
         appBar: AppBar(
           backgroundColor: Colors.teal[200],
           centerTitle: true,
-          title: const Text(
-            'JOURNI',
-            style: TextStyle(
+          title: Text(
+            widget.viajes[widget.num_viaje].title,
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -68,10 +68,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
               icon: const Icon(Icons.delete, color: Colors.black),
               tooltip: 'Eliminar',
               onPressed: () {
-                // Acción al pulsar la papelera (eliminar)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Eliminar viaje')),
-                );
+
                 // Aquí puedes mostrar un diálogo de confirmación, por ejemplo:
 
                 showDialog(
@@ -93,10 +90,16 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                           if (result is Ok<void>) {
                             print('✅ Viaje eliminado correctamente');
 
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Viaje eliminado correctamente.')),
+                            );
+
                             // Actualizamos la lista local
                             widget.viajes.removeAt(widget.num_viaje);
 
                             Navigator.pop(context); // cerramos el diálogo
+                            Navigator.pop(context); // cerramos el diálogo
+
                             setState(() {
                               // redibujamos la pantalla con la lista actualizada
                             });

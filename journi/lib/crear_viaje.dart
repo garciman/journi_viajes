@@ -11,7 +11,7 @@ import 'domain/trip.dart';
 class Crear_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   int num_viaje;
-  List<Viaje> viajes;
+  List<Trip> viajes;
   InMemoryTripRepository repo;
   TripService tripService;
   final _titulo = TextEditingController();
@@ -41,10 +41,10 @@ class _CrearViajeState extends State<Crear_Viaje> {
 
     if (widget.num_viaje >= 0) {
       String fecha_inicial = DateFormat('dd-MM-yyyy')
-          .format(widget.viajes[widget.num_viaje].fecha_ini);
+          .format(widget.viajes[widget.num_viaje].startDate?? DateTime.now());
       String fecha_final = DateFormat('dd-MM-yyyy')
-          .format(widget.viajes[widget.num_viaje].fecha_fin);
-      widget._titulo.text = widget.viajes[widget.num_viaje].titulo;
+          .format(widget.viajes[widget.num_viaje].endDate?? DateTime.now());
+      widget._titulo.text = widget.viajes[widget.num_viaje].title;
       widget._fecha_ini.text = fecha_inicial;
       widget._fecha_fin.text = fecha_final;
     }
@@ -184,23 +184,16 @@ class _CrearViajeState extends State<Crear_Viaje> {
                     );
                   } else {
                     final nuevoId = DateTime.now().millisecondsSinceEpoch.toString();
-                    Viaje v = Viaje(
-                      id: nuevoId,
-                        titulo: widget._titulo.text,
-                        fecha_ini: d1,
-                        fecha_fin: d2);
-                    if (widget.num_viaje == -1) {
-                      widget.viajes.add(v);
-                      final listTrips = ListTripsUseCase(widget.repo);
-                      final trips = await listTrips();
 
                       final cmd = CreateTripCommand(
                         id: nuevoId,
                         title: widget._titulo.text,
-                        description: 'Hemos visto al nano',
+                        description: 'Description',
                         startDate: d1,
                         endDate: d2,
                       );
+
+                      widget.tripService.create(cmd);
 
                       // ⿤ Ejecutamos el caso de uso
                       final result = await createTrip(cmd);
@@ -221,9 +214,6 @@ class _CrearViajeState extends State<Crear_Viaje> {
                         '',
                         textAlign: TextAlign.center,
                       );
-                    } else {
-                      widget.viajes[widget.num_viaje] = v;
-                    }
                     Navigator.pop(context); // recargamos la pagina para que se actualicen los viajes
 
                   }
