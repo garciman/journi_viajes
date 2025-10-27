@@ -19,7 +19,7 @@ class Crear_Viaje extends StatefulWidget {
   final _fecha_fin = TextEditingController();
 
   Crear_Viaje(
-      {required this.selectedIndex,
+      {super.key, required this.selectedIndex,
       required this.viajes,
       required this.num_viaje,
       required this.repo,
@@ -40,13 +40,13 @@ class _CrearViajeState extends State<Crear_Viaje> {
     // than having to individually change instances of widgets.
 
     if (widget.num_viaje >= 0) {
-      String fecha_inicial = DateFormat('dd-MM-yyyy')
+      String fechaInicial = DateFormat('dd-MM-yyyy')
           .format(widget.viajes[widget.num_viaje].startDate?? DateTime.now());
-      String fecha_final = DateFormat('dd-MM-yyyy')
+      String fechaFinal = DateFormat('dd-MM-yyyy')
           .format(widget.viajes[widget.num_viaje].endDate?? DateTime.now());
       widget._titulo.text = widget.viajes[widget.num_viaje].title;
-      widget._fecha_ini.text = fecha_inicial;
-      widget._fecha_fin.text = fecha_final;
+      widget._fecha_ini.text = fechaInicial;
+      widget._fecha_fin.text = fechaFinal;
     }
 
     final createTrip = CreateTripUseCase(widget.repo);
@@ -202,7 +202,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                       if (result is Ok<Trip>) {
                         final trip = result.value;
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Viaje creado correctamente')),
+                          const SnackBar(content: Text('Viaje creado correctamente')),
                         );
                         print('✅ Trip creado con éxito: ${trip.title}');
                         print('   ID: ${trip.id}');
@@ -255,7 +255,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => MyHomePage(
-                            title: 'JOURNI', viajes: [], repo: widget.repo, tripService: widget.tripService)),
+                            title: 'JOURNI', viajes: const [], repo: widget.repo, tripService: widget.tripService)),
                   );
                 }
                 /*
@@ -280,8 +280,7 @@ class InputField extends StatelessWidget {
   final String hintText;
   final controller;
 
-  const InputField({Key? key, required this.hintText, required this.controller})
-      : super(key: key);
+  const InputField({super.key, required this.hintText, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -332,16 +331,16 @@ class RoundedButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const RoundedButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.backgroundColor,
     required this.textColor,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 250,
       child: ElevatedButton(
         onPressed: onPressed,

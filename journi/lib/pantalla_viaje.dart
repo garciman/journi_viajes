@@ -20,7 +20,7 @@ class Pantalla_Viaje extends StatefulWidget {
   TripService tripService;
 
   Pantalla_Viaje(
-      {required this.selectedIndex,
+      {super.key, required this.selectedIndex,
       required this.viajes,
       required this.num_viaje,
       required this.repo,
@@ -32,8 +32,10 @@ class Pantalla_Viaje extends StatefulWidget {
 
 class _PantallaViajeState extends State<Pantalla_Viaje> {
 
-  List<Map<String, dynamic>> _imagenes = []; // cada elemento tendrá {file, fecha}
+  final List<Map<String, dynamic>> _imagenes = []; // cada elemento tendrá {file, fecha}
   final ImagePicker _picker = ImagePicker();
+  final List<Map<String, dynamic>> _textos = []; // {texto, fecha}
+  final TextEditingController _textoController = TextEditingController();
 
 
 
@@ -63,26 +65,44 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
               icon: const Icon(Icons.add, color: Colors.black),
               tooltip: 'Añadir texto',
               onPressed: () {
+                _textoController.clear();
                 showDialog(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
                       title: const Text('Introduce un texto'),
-                      content: const TextField(
-                        decoration: InputDecoration(
+                      content: TextField(
+                        controller: _textoController,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
                           hintText: 'Escribe aquí...',
+                          border: OutlineInputBorder(),
                         ),
                       ),
                       actions: [
                         TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: () => Navigator.pop(context),
                           child: const Text('Cancelar'),
                         ),
                         TextButton(
                           onPressed: () {
+                            final texto = _textoController.text.trim();
+                            if (texto.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('El texto no puede estar vacío')),
+                              );
+                              return;
+                            }
+                            setState(() {
+                              _textos.add({
+                                'texto': texto,
+                                'fecha': DateTime.now(),
+                              });
+                            });
                             Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Texto añadido')),
+                            );
                           },
                           child: const Text('Aceptar'),
                         ),
@@ -394,8 +414,7 @@ class InputField extends StatelessWidget {
   final String hintText;
   final controller;
 
-  const InputField({Key? key, required this.hintText, required this.controller})
-      : super(key: key);
+  const InputField({super.key, required this.hintText, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -446,16 +465,16 @@ class RoundedButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const RoundedButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.backgroundColor,
     required this.textColor,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 250,
       child: ElevatedButton(
         onPressed: onPressed,

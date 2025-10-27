@@ -9,10 +9,10 @@ class EntradasList extends StatefulWidget {
   final List<Entrada> entradas; // estado compartido (mock)
 
   const EntradasList({
-    Key? key,
+    super.key,
     required this.tripIndex,
     required this.entradas,
-  }) : super(key: key);
+  });
 
   @override
   State<EntradasList> createState() => _EntradasListState();

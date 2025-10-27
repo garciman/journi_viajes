@@ -80,7 +80,7 @@ class UpdateTripUseCase {
   Future<Result<Trip>> call(UpdateTripCommand cmd) async {
     final currentRes = await repo.findById(cmd.id);
     if (currentRes is Err<Trip?>) {
-      return Err<Trip>((currentRes as Err<Trip?>).errors);
+      return Err<Trip>((currentRes).errors);
     }
     final current = (currentRes as Ok<Trip?>).value;
     if (current == null) {

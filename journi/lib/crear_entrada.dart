@@ -8,10 +8,10 @@ class CrearEntrada extends StatefulWidget {
   final Entrada? entrada; // si viene, estamos editando
 
   const CrearEntrada({
-    Key? key,
+    super.key,
     required this.tripIndex,
     this.entrada,
-  }) : super(key: key);
+  });
 
   @override
   State<CrearEntrada> createState() => _CrearEntradaState();
@@ -132,11 +132,11 @@ class _Field extends StatelessWidget {
   final int maxLines;
 
   const _Field({
-    Key? key,
+    super.key,
     required this.label,
     required this.controller,
     this.maxLines = 1,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

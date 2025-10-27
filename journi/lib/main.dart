@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // ✅ Pasamos el repo al home
-      home: MyHomePage(title: 'JOURNI', viajes: [], repo: repo, tripService: tripService),
+      home: MyHomePage(title: 'JOURNI', viajes: const [], repo: repo, tripService: tripService),
     );
   }
 }
@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(
         builder: (context) => Crear_Viaje(
           selectedIndex: _selectedIndex,
-          viajes: [],
+          viajes: const [],
           num_viaje: -1,
           repo: widget.repo,
           tripService: widget.tripService,

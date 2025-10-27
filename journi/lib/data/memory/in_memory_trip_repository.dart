@@ -64,7 +64,7 @@ class InMemoryTripRepository implements TripRepository {
   Future<Result<void>> deleteById(String id) async {
     _store.remove(id);
     _emit();
-    return Ok(null);
+    return const Ok(null);
   }
 
   /// Limpia recursos del stream cuando ya no se use (por ejemplo en tests).
