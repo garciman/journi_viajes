@@ -48,11 +48,35 @@ class InMemoryEntryRepository implements EntryRepository {
     return Ok(_snapshot(tripId: tripId, type: type));
   }
 
+  // lib/data/memory/in_memory_entry_repository.dart
   @override
   Stream<List<Entry>> watchAll({String? tripId, EntryType? type}) {
-    // Mapeamos el stream de cambios a una instantánea filtrada en cada emisión.
-    return _changes.stream.map((_) => _snapshot(tripId: tripId, type: type)).startWith(_snapshot(tripId: tripId, type: type));
+    // Stream que expondremos a los clientes
+    final out = StreamController<List<Entry>>.broadcast();
+
+    StreamSubscription<void>? sub;
+
+    void emitSnapshot() {
+      out.add(_snapshot(tripId: tripId, type: type));
+    }
+
+    out.onListen = () {
+      // 1) Empuja el snapshot inicial ANTES de escuchar cambios
+      emitSnapshot();
+
+      // 2) Ahora sí, suscríbete a _changes y emite snapshot en cada cambio
+      sub = _changes.stream.listen((_) => emitSnapshot());
+    };
+
+    out.onCancel = () async {
+      await sub?.cancel();
+      sub = null;
+    };
+
+    return out.stream;
   }
+
+
 
   void dispose() {
     _changes.close();
