@@ -38,6 +38,85 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
   final TextEditingController _textoController = TextEditingController();
 
 
+  void _mostrarDialogoEditarTexto(String textoOriginal, DateTime fechaOriginal) {
+    final controller = TextEditingController(text: textoOriginal);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar texto'),
+          content: TextField(
+            controller: controller,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                final nuevoTexto = controller.text.trim();
+                if (nuevoTexto.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('El texto no puede estar vacío')),
+                  );
+                  return;
+                }
+
+                setState(() {
+                  final idx = _textos.indexWhere((t) =>
+                      t['texto'] == textoOriginal &&
+                      (t['fecha'] as DateTime).isAtSameMomentAs(fechaOriginal));
+                  if (idx != -1) {
+                    _textos[idx]['texto'] = nuevoTexto;
+                  }
+                });
+
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Texto actualizado')),
+                );
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+void _mostrarDialogoEliminarTexto(String texto, DateTime fecha) {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Eliminar texto'),
+      content: const Text('¿Seguro que quieres eliminar este texto?'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              final idx = _textos.indexWhere((t) =>
+                  t['texto'] == texto && (t['fecha'] as DateTime).isAtSameMomentAs(fecha));
+              if (idx != -1) _textos.removeAt(idx);
+            });
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Texto eliminado')),
+            );
+          },
+          child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -235,119 +314,167 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
             ),
           ],
         ),
-        body: widget.viajes.isEmpty
-            ? const Center(
-          child: Text(
-            'No tienes entradas registradas.',
-            style: TextStyle(fontSize: 20),
-          ),
-        )
-            : _imagenes.isEmpty
-            ? const Center(
-          child: Text(
-            'Aún no has añadido fotos.',
-            style: TextStyle(fontSize: 18),
-          ),
-        )
-            : ListView.builder(
-          padding: const EdgeInsets.all(8),
-          itemCount: _imagenes.length,
-          itemBuilder: (context, index) {
-            final imagenData = _imagenes[index];
-            final file = imagenData['file'] as File;
-            final fecha = imagenData['fecha'] as DateTime;
-            final fechaFormateada =
-                "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
-                "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+        body: Builder(
+          builder: (context) {
+            // Construimos un feed unificado
+            final List<Map<String, dynamic>> feed = [
+              ..._imagenes.map((m) => {
+                'tipo': 'img',
+                'file': m['file'] as File,
+                'fecha': m['fecha'] as DateTime,
+              }),
+              ..._textos.map((m) => {
+                'tipo': 'txt',
+                'texto': m['texto'] as String,
+                'fecha': m['fecha'] as DateTime,
+              }),
+            ];
 
-            return Card(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              child: Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-                        child: GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return Dialog(
-                                  child: InteractiveViewer(
-                                    panEnabled: true, // permite arrastrar
-                                    child: Image.file(
-                                      file,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          child: Image.file(
-                            file,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
+            // Ordenar por fecha descendente
+            feed.sort((a, b) => (b['fecha'] as DateTime).compareTo(a['fecha'] as DateTime));
 
-                      // Botón de eliminar
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
+            if (widget.viajes.isEmpty) {
+              return const Center(
+                child: Text('No tienes entradas registradas.', style: TextStyle(fontSize: 20)),
+              );
+            }
+
+            if (feed.isEmpty) {
+              return const Center(
+                child: Text('Aún no has añadido contenido.', style: TextStyle(fontSize: 18)),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: feed.length,
+              itemBuilder: (context, index) {
+                final item = feed[index];
+                final fecha = item['fecha'] as DateTime;
+                final fechaFormateada =
+                    "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
+                    "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+
+                if (item['tipo'] == 'txt') {
+                  final texto = item['texto'] as String;
+                  return Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      leading: const Icon(Icons.notes, color: Colors.teal),
+                      title: Text(texto),
+                      subtitle: Text('Añadido el $fechaFormateada'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        tooltip: 'Eliminar texto',
                         onPressed: () {
                           showDialog(
                             context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Eliminar foto'),
-                              content: const Text(
-                                  '¿Seguro que quieres eliminar esta foto?'),
+                            builder: (_) => AlertDialog(
+                              title: const Text('Eliminar texto'),
+                              content: const Text('¿Seguro que quieres eliminar este texto?'),
                               actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancelar'),
-                                ),
+                                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
                                 TextButton(
                                   onPressed: () {
                                     setState(() {
-                                      _imagenes.removeAt(index);
+                                      // busca y elimina el primer matching por contenido+fecha
+                                      final idx = _textos.indexWhere((t) =>
+                                        t['texto'] == texto && (t['fecha'] as DateTime).isAtSameMomentAs(fecha));
+                                      if (idx != -1) _textos.removeAt(idx);
                                     });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Foto eliminada correctamente')),
-                                    );
                                     Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Texto eliminado')),
+                                    );
                                   },
-                                  child: const Text(
-                                    'Eliminar',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
+                                  child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
                                 ),
                               ],
                             ),
                           );
                         },
                       ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      'Añadida el $fechaFormateada',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
+                      // tocar para editar
+                      onTap: () {
+                        _mostrarDialogoEditarTexto(texto, fecha);
+                      },
                     ),
-                  ),
-                ],
-              ),
+                  );
+                } else {
+                  // Imagen
+                  final file = item['file'] as File;
+                  return Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      children: [
+                        Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                              child: GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return Dialog(
+                                        child: InteractiveViewer(
+                                          panEnabled: true,
+                                          child: Image.file(file, fit: BoxFit.contain),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Image.file(file, height: 200, width: double.infinity, fit: BoxFit.cover),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => AlertDialog(
+                                    title: const Text('Eliminar foto'),
+                                    content: const Text('¿Seguro que quieres eliminar esta foto?'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            final idx = _imagenes.indexWhere((img) =>
+                                              (img['file'] as File).path == file.path &&
+                                              (img['fecha'] as DateTime).isAtSameMomentAs(fecha));
+                                            if (idx != -1) _imagenes.removeAt(idx);
+                                          });
+                                          Navigator.pop(context);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text('Foto eliminada correctamente')),
+                                          );
+                                        },
+                                        child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text('Añadida el $fechaFormateada',
+                              style: const TextStyle(fontSize: 14, color: Colors.black54)),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
             );
           },
         ),
