@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:journi/application/entry_service.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/main.dart';
@@ -13,6 +14,7 @@ class Editar_viaje extends StatefulWidget {
   List<Trip> viajes;
   InMemoryTripRepository repo;
   TripService tripService;
+  EntryService entryService;
   final _titulo = TextEditingController();
   final _fecha_ini = TextEditingController();
   final _fecha_fin = TextEditingController();
@@ -22,7 +24,8 @@ class Editar_viaje extends StatefulWidget {
       required this.viajes,
       required this.num_viaje,
       required this.repo,
-      required this.tripService});
+      required this.tripService,
+      required this.entryService});
 
   @override
   _CrearViajeState createState() => _CrearViajeState();
@@ -251,7 +254,7 @@ class _CrearViajeState extends State<Editar_viaje> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => MyHomePage(
-                            title: 'JOURNI', viajes: const [], repo: widget.repo, tripService: widget.tripService)),
+                            title: 'JOURNI', viajes: const [], repo: widget.repo, tripService: widget.tripService, entryService: widget.entryService,)),
                   );
                 }
                 /*

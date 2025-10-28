@@ -6,7 +6,10 @@ import 'package:journi/crear_viaje.dart';
 import 'package:journi/main.dart';
 import 'package:journi/viaje.dart';
 
+import 'application/entry_service.dart';
+import 'application/use_cases/entry_use_cases.dart';
 import 'data/memory/in_memory_trip_repository.dart';
+import 'domain/entry.dart';
 import 'domain/trip.dart';
 import 'editar_viaje.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,13 +21,16 @@ class Pantalla_Viaje extends StatefulWidget {
   int num_viaje;
   InMemoryTripRepository repo;
   TripService tripService;
+  EntryService entryService;
+
 
   Pantalla_Viaje(
       {required this.selectedIndex,
         required this.viajes,
         required this.num_viaje,
         required this.repo,
-        required this.tripService});
+        required this.tripService,
+        required this.entryService});
 
   @override
   _PantallaViajeState createState() => _PantallaViajeState();
@@ -157,17 +163,22 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         child: const Text('Cancelar'),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           final texto = _textoController.text.trim();
                           if (texto.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('El texto no puede estar vacío')),
-                            );
                             return;
                           }
                           setState(() {
                             _textos.add({'texto': texto, 'fecha': DateTime.now()});
                           });
+                          final cmd = CreateEntryCommand(
+                            id: UniqueKey().toString(),
+                            tripId: widget.viajes[widget.num_viaje].id,
+                            type: EntryType.note,
+                            text: texto,
+                          );
+                          await widget.entryService.create(cmd);
+
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(content: Text('Texto añadido')));
@@ -195,14 +206,23 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         TextButton(
                           onPressed: () async {
                             Navigator.pop(context);
-                            final XFile? imagen = await _picker.pickImage(source: ImageSource.gallery);
-                            if (imagen != null) {
-                              setState(() {
-                                _imagenes.add({
-                                  'file': File(imagen.path),
-                                  'fecha': DateTime.now(),
-                                });
+                            final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+                            if (pickedFile != null) {
+                              setState(() async {
+
+                                if (pickedFile != null) {
+                                  final cmd = CreateEntryCommand(
+                                    id: UniqueKey().toString(),
+                                    tripId: widget.viajes[widget.num_viaje].id,
+                                    type: EntryType.photo,
+                                    mediaUri: pickedFile.path,
+                                  );
+                                  await widget.entryService.create(cmd);
+                                }
+
+
                               });
+
                             }
                           },
 
@@ -213,12 +233,23 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                             Navigator.pop(context);
                             final XFile? imagen = await _picker.pickImage(source: ImageSource.camera);
                             if (imagen != null) {
-                              setState(() {
-                                _imagenes.add({
-                                  'file': File(imagen.path),
-                                  'fecha': DateTime.now(),
-                                });
-                              });
+                              // Validar el tamaño o formato si quieres (opcional)
+                              final file = File(imagen.path);
+
+                              // Guardar como Entry en el servicio
+                              final cmd = CreateEntryCommand(
+                                id: UniqueKey().toString(),
+                                tripId: widget.viajes[widget.num_viaje].id,
+                                type: EntryType.photo,
+                                mediaUri: file.path,
+                              );
+
+                              await widget.entryService.create(cmd);
+
+                              // Mostrar mensaje de éxito
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Foto añadida correctamente')),
+                              );
                             }
                           },
 
@@ -243,7 +274,8 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                           viajes: widget.viajes,
                           num_viaje: widget.num_viaje,
                           repo: widget.repo,
-                          tripService: widget.tripService)),
+                          tripService: widget.tripService,
+                      entryService: widget.entryService,)),
                 );
               },
             ),
@@ -303,82 +335,76 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
             ),
           ],
         ),
-        body: widget.viajes.isEmpty
-            ? const Center(
-          child: Text(
-            'No tienes entradas registradas.',
-            style: TextStyle(fontSize: 20),
-          ),
-        )
-            : _imagenes.isEmpty && _textos.isEmpty
-    ? const Center(
-        child: Text(
-          'Aún no has añadido contenido.',
-          style: TextStyle(fontSize: 18),
-        ),
-      )
-    : ListView(
-        padding: const EdgeInsets.all(8),
-        children: [
-          // 🔹 Bloque de textos
-          ..._textos.map((t) {
-            final texto = t['texto'] as String;
-            final fecha = t['fecha'] as DateTime;
-            final fechaFormateada =
-                "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
-                "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
-            return Card(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              child: ListTile(
-                leading: const Icon(Icons.notes, color: Colors.teal),
-                title: Text(texto),
-                subtitle: Text('Añadido el $fechaFormateada'),
-                onTap: () => _mostrarDialogoEditarTexto(texto, fecha),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () =>
-                      _mostrarDialogoEliminarTexto(texto, fecha),
+        body: StreamBuilder<List<Entry>>(
+          stream: widget.entryService.watchByTrip(widget.viajes[widget.num_viaje].id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Aún no has añadido contenido.',
+                  style: TextStyle(fontSize: 18),
                 ),
-              ),
-            );
-          }),
+              );
+            }
 
-          // 🔹 Y aquí metemos el ListView.builder original como hijo de este ListView
-          SizedBox(
-            height: 400, // altura fija para contener la lista de imágenes
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+            final entries = snapshot.data!;
+
+            return ListView.builder(
               padding: const EdgeInsets.all(8),
-              itemCount: _imagenes.length,
+              itemCount: entries.length,
               itemBuilder: (context, index) {
-                final imagenData = _imagenes[index];
-                final file = imagenData['file'] as File;
-                final fecha = imagenData['fecha'] as DateTime;
-                final fechaFormateada =
-                    "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
-                    "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+                final e = entries[index];
 
-                return Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8),
-                  child: Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.topRight,
-                        children: [
-                          ClipRRect(
-                            borderRadius:
-                                const BorderRadius.vertical(
-                                    top: Radius.circular(15)),
-                            child: GestureDetector(
+                // 🔹 Si es texto
+                if (e.type == EntryType.note && e.text != null) {
+                  final fecha = e.createdAt.toLocal();
+                  final fechaFormateada =
+                      "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
+                      "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+
+                  return Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      leading: const Icon(Icons.notes, color: Colors.teal),
+                      title: Text(e.text!),
+                      subtitle: Text('Añadido el $fechaFormateada'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        onPressed: () async {
+                          await widget.entryService.deleteById(e.id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Texto eliminado')),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }
+
+                // 🔹 Si es una imagen
+                if (e.type == EntryType.photo && e.mediaUri != null) {
+                  final file = File(e.mediaUri!);
+                  final fecha = e.createdAt.toLocal();
+                  final fechaFormateada =
+                      "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
+                      "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+
+                  return Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      children: [
+                        Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            GestureDetector(
                               onTap: () {
                                 showDialog(
                                   context: context,
@@ -386,87 +412,51 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                                     return Dialog(
                                       child: InteractiveViewer(
                                         panEnabled: true,
-                                        child: Image.file(
-                                          file,
-                                          fit: BoxFit.contain,
-                                        ),
+                                        child: Image.file(file, fit: BoxFit.contain),
                                       ),
                                     );
                                   },
                                 );
                               },
-                              child: Image.file(
-                                file,
-                                height: 200,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                                child: Image.file(
+                                  file,
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          ),
-
-                          // Botón de eliminar
-                          IconButton(
-                            icon: const Icon(Icons.delete,
-                                color: Colors.red),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title:
-                                      const Text('Eliminar foto'),
-                                  content: const Text(
-                                      '¿Seguro que quieres eliminar esta foto?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context),
-                                      child: const Text('Cancelar'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _imagenes
-                                              .removeAt(index);
-                                        });
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                              content: Text(
-                                                  'Foto eliminada correctamente')),
-                                        );
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text(
-                                        'Eliminar',
-                                        style: TextStyle(
-                                            color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          'Añadida el $fechaFormateada',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                await widget.entryService.deleteById(e.id);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Foto eliminada')),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            'Añadida el $fechaFormateada',
+                            style: const TextStyle(fontSize: 14, color: Colors.black54),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
+                      ],
+                    ),
+                  );
+                }
+
+                return const SizedBox.shrink(); // En caso de tipo desconocido
               },
-            ),
-          ),
-        ],
-      ),
+            );
+          },
+        ),
+
 
 
         // This trailing comma makes auto-formatting nicer for build methods.
@@ -504,6 +494,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                           viajes: widget.viajes,
                           repo: widget.repo,
                           tripService: widget.tripService,
+                          entryService: widget.entryService,
                         )),
                   );
                 }
