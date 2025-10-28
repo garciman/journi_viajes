@@ -30,13 +30,87 @@ class Pantalla_Viaje extends StatefulWidget {
   _PantallaViajeState createState() => _PantallaViajeState();
 }
 
+
 class _PantallaViajeState extends State<Pantalla_Viaje> {
 
   List<Map<String, dynamic>> _imagenes = []; // cada elemento tendrá {file, fecha}
   final ImagePicker _picker = ImagePicker();
+  final List<Map<String, dynamic>> _textos = []; // {texto, fecha}
+  final TextEditingController _textoController = TextEditingController();
 
+  void _mostrarDialogoEditarTexto(String textoOriginal, DateTime fechaOriginal) {
+    final controller = TextEditingController(text: textoOriginal);
 
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar texto'),
+          content: TextField(
+            controller: controller,
+            maxLines: 5,
+            decoration: const InputDecoration(border: OutlineInputBorder()),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                final nuevoTexto = controller.text.trim();
+                if (nuevoTexto.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('El texto no puede estar vacío')),
+                  );
+                  return;
+                }
+                setState(() {
+                  final idx = _textos.indexWhere((t) =>
+                      t['texto'] == textoOriginal &&
+                      (t['fecha'] as DateTime).isAtSameMomentAs(fechaOriginal));
+                  if (idx != -1) {
+                    _textos[idx]['texto'] = nuevoTexto;
+                  }
+                });
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text('Texto actualizado')));
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
+  void _mostrarDialogoEliminarTexto(String texto, DateTime fecha) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Eliminar texto'),
+        content: const Text('¿Seguro que quieres eliminar este texto?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                final idx = _textos.indexWhere((t) =>
+                    t['texto'] == texto && (t['fecha'] as DateTime).isAtSameMomentAs(fecha));
+                if (idx != -1) _textos.removeAt(idx);
+              });
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text('Texto eliminado')));
+            },
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+  
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -60,38 +134,52 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.add, color: Colors.black),
-              tooltip: 'Añadir texto',
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text('Introduce un texto'),
-                      content: const TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Escribe aquí...',
-                        ),
+            icon: const Icon(Icons.add, color: Colors.black),
+            tooltip: 'Añadir texto',
+            onPressed: () {
+              _textoController.clear();
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Introduce un texto'),
+                    content: TextField(
+                      controller: _textoController,
+                      maxLines: 5,
+                      decoration: const InputDecoration(
+                        hintText: 'Escribe aquí...',
+                        border: OutlineInputBorder(),
                       ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Aceptar'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancelar'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          final texto = _textoController.text.trim();
+                          if (texto.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('El texto no puede estar vacío')),
+                            );
+                            return;
+                          }
+                          setState(() {
+                            _textos.add({'texto': texto, 'fecha': DateTime.now()});
+                          });
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(content: Text('Texto añadido')));
+                        },
+                        child: const Text('Aceptar'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
             IconButton(
               icon: const Icon(Icons.camera_alt, color: Colors.black),
               tooltip: 'Subir foto',
@@ -222,115 +310,163 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
             style: TextStyle(fontSize: 20),
           ),
         )
-            : _imagenes.isEmpty
-            ? const Center(
-          child: Text(
-            'Aún no has añadido fotos.',
-            style: TextStyle(fontSize: 18),
-          ),
-        )
-            : ListView.builder(
-          padding: const EdgeInsets.all(8),
-          itemCount: _imagenes.length,
-          itemBuilder: (context, index) {
-            final imagenData = _imagenes[index];
-            final file = imagenData['file'] as File;
-            final fecha = imagenData['fecha'] as DateTime;
+            : _imagenes.isEmpty && _textos.isEmpty
+    ? const Center(
+        child: Text(
+          'Aún no has añadido contenido.',
+          style: TextStyle(fontSize: 18),
+        ),
+      )
+    : ListView(
+        padding: const EdgeInsets.all(8),
+        children: [
+          // 🔹 Bloque de textos
+          ..._textos.map((t) {
+            final texto = t['texto'] as String;
+            final fecha = t['fecha'] as DateTime;
             final fechaFormateada =
                 "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
                 "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
-
             return Card(
               color: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
+                  borderRadius: BorderRadius.circular(12)),
               margin: const EdgeInsets.symmetric(vertical: 8),
-              child: Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.topRight,
+              child: ListTile(
+                leading: const Icon(Icons.notes, color: Colors.teal),
+                title: Text(texto),
+                subtitle: Text('Añadido el $fechaFormateada'),
+                onTap: () => _mostrarDialogoEditarTexto(texto, fecha),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () =>
+                      _mostrarDialogoEliminarTexto(texto, fecha),
+                ),
+              ),
+            );
+          }),
+
+          // 🔹 Y aquí metemos el ListView.builder original como hijo de este ListView
+          SizedBox(
+            height: 400, // altura fija para contener la lista de imágenes
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(8),
+              itemCount: _imagenes.length,
+              itemBuilder: (context, index) {
+                final imagenData = _imagenes[index];
+                final file = imagenData['file'] as File;
+                final fecha = imagenData['fecha'] as DateTime;
+                final fechaFormateada =
+                    "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
+                    "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+
+                return Card(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
                     children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-                        child: GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return Dialog(
-                                  child: InteractiveViewer(
-                                    panEnabled: true, // permite arrastrar
-                                    child: Image.file(
-                                      file,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
+                      Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          ClipRRect(
+                            borderRadius:
+                                const BorderRadius.vertical(
+                                    top: Radius.circular(15)),
+                            child: GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return Dialog(
+                                      child: InteractiveViewer(
+                                        panEnabled: true,
+                                        child: Image.file(
+                                          file,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 );
                               },
-                            );
-                          },
-                          child: Image.file(
-                            file,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
+                              child: Image.file(
+                                file,
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+
+                          // Botón de eliminar
+                          IconButton(
+                            icon: const Icon(Icons.delete,
+                                color: Colors.red),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title:
+                                      const Text('Eliminar foto'),
+                                  content: const Text(
+                                      '¿Seguro que quieres eliminar esta foto?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context),
+                                      child: const Text('Cancelar'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _imagenes
+                                              .removeAt(index);
+                                        });
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                              content: Text(
+                                                  'Foto eliminada correctamente')),
+                                        );
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text(
+                                        'Eliminar',
+                                        style: TextStyle(
+                                            color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          'Añadida el $fechaFormateada',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
                           ),
                         ),
                       ),
-
-                      // Botón de eliminar
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Eliminar foto'),
-                              content: const Text(
-                                  '¿Seguro que quieres eliminar esta foto?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancelar'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _imagenes.removeAt(index);
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Foto eliminada correctamente')),
-                                    );
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text(
-                                    'Eliminar',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
                     ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      'Añadida el $fechaFormateada',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
 
 
         // This trailing comma makes auto-formatting nicer for build methods.
