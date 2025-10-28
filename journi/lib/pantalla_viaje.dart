@@ -116,6 +116,43 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
       ),
     );
   }
+  Future<void> _editarNota(Entry e) async {
+    final controller = TextEditingController(text: e.text ?? '');
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Editar texto'),
+        content: TextField(
+          controller: controller,
+          maxLines: 5,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Escribe el nuevo texto...',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final nuevo = controller.text.trim();
+              if (nuevo.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('El texto no puede estar vacío')),
+                );
+                return;
+              }
+
+              
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -373,6 +410,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     child: ListTile(
                       leading: const Icon(Icons.notes, color: Colors.teal),
                       title: Text(e.text!),
+                      onTap: () => _editarNota(e),
                       subtitle: Text('Añadido el $fechaFormateada'),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline, color: Colors.red),
@@ -466,7 +504,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
             backgroundColor: const Color(0xFFEDE5D0),
             unselectedItemColor: Colors.black,
             selectedItemColor: Colors.teal[500],
-            iconSize: 35,
+            iconSize: 35, 
             type: BottomNavigationBarType
                 .fixed, // Para que todas las etiquetas de todos los botones aparezcan siempre (no solo si se seleccionan)
             items: const [
