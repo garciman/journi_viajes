@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:journi/application/trip_service.dart';
-import 'package:journi/crear_viaje.dart';
 import 'package:journi/main.dart';
-import 'package:journi/viaje.dart';
 
 import 'application/entry_service.dart';
 import 'application/use_cases/entry_use_cases.dart';

@@ -4,7 +4,6 @@ import 'package:journi/application/entry_service.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/main.dart';
-import 'package:journi/viaje.dart';
 
 import 'application/use_cases/use_cases.dart';
 import 'domain/trip.dart';
