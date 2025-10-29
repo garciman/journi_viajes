@@ -174,7 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _createNewTravel,
         tooltip: 'Nuevo viaje',
-        child: const Icon(Icons.add),
+        child: const Icon(key: Key('anadirButton'), Icons.add),
       ),
 
       bottomNavigationBar: BottomNavigationBar(
