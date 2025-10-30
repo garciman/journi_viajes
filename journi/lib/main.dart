@@ -127,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
+                  key: const Key('id1'),
                   leading: const Icon(Icons.flight_takeoff, color: Colors.teal),
                   title: Text(
                     viaje.title,

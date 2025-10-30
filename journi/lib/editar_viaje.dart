@@ -77,6 +77,7 @@ class _CrearViajeState extends State<Editar_viaje> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               // Campo de Titulo del viaje
               InputField(
+                key: const Key('tituloField'),
                 controller: widget._titulo,
                 hintText: 'Titulo del viaje',
               ),
@@ -90,6 +91,7 @@ class _CrearViajeState extends State<Editar_viaje> {
 
                 // Campo de Contraseña
                 InputField(
+                  key: const Key('fechaIniField'),
                   controller: widget._fecha_ini,
                   hintText: 'Fecha de inicio de viaje (DD-MM-YYYY)',
                 ),
@@ -102,6 +104,7 @@ class _CrearViajeState extends State<Editar_viaje> {
 
               // Campo de Fecha de final de viaje
               InputField(
+                key: const Key('fechaFinField'),
                 controller: widget._fecha_fin,
                 hintText: 'Fecha de fin de viaje (DD-MM-YYYY)',
               ),
@@ -110,6 +113,7 @@ class _CrearViajeState extends State<Editar_viaje> {
             ]),
             Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
               RoundedButton(
+                key: const Key('guardarButton'),
                 text: 'Guardar',
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
