@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/main.dart';
 
+import 'application/trip_service.dart';
 import 'application/entry_service.dart';
 import 'application/use_cases/entry_use_cases.dart';
 import 'data/memory/in_memory_trip_repository.dart';
@@ -291,10 +292,12 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     content: const Text('¿Seguro que quieres eliminar este viaje?'),
                     actions: [
                       TextButton(
+                        key: const Key('cancelarButton'),
                         onPressed: () => Navigator.pop(context),
                         child: const Text('Cancelar'),
                       ),
                       TextButton(
+                        key: const Key('aceptarButton'),
                         onPressed: () async {
                           // Lógica para eliminar el viaje
                           final tripToDelete = widget.viajes[widget.num_viaje];
@@ -304,18 +307,15 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                             print('✅ Viaje eliminado correctamente');
 
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Viaje eliminado correctamente.')),
+                              const SnackBar(key: Key('mensajeEliminar'),content: Text('Viaje eliminado correctamente.')),
                             );
 
                             // Actualizamos la lista local
                             widget.viajes.removeAt(widget.num_viaje);
 
-                            Navigator.pop(context); // cerramos el diálogo
+                            Navigator.pop(context);
                             Navigator.pop(context); // cerramos el diálogo
 
-                            setState(() {
-                              // redibujamos la pantalla con la lista actualizada
-                            });
                           } else {
                             // Error al eliminar
                             ScaffoldMessenger.of(context).showSnackBar(

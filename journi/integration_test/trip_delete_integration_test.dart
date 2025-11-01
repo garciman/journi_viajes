@@ -1,14 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
-import 'package:journi/crear_viaje.dart';
 import 'package:journi/data/memory/in_memory_entry_repository.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/entry_service.dart';
 import 'package:journi/main.dart';
-
-import 'entry_mock.dart';
-import 'trip_mock.dart';
 
 extension WidgetTesterExtension on WidgetTester {
   Future<void> pumpUntilFound(Finder finder, WidgetTester tester, {Duration timeout = const Duration(seconds: 5)}) async {
@@ -26,7 +22,7 @@ void main() {
   // 🔧 Inicializa el entorno de test (sustituye al antiguo IntegrationTestWidgetsFlutterBinding)
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('🧭 Pruebas de integración: Editar_Viaje', () {
+  group('🧭 Pruebas de integración: Eliminar_viaje', () {
     late InMemoryTripRepository tripRepo;
     late InMemoryEntryRepository entryRepo;
     late DefaultTripService tripService;
@@ -39,7 +35,7 @@ void main() {
       entryService = DefaultEntryService(repo: entryRepo);
     });
 
-    testWidgets('✅ Editar viaje correctamente', (WidgetTester tester) async {
+    testWidgets('✅ Eliminar viaje correctamente', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
@@ -71,29 +67,41 @@ void main() {
 
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
-      await tester.tap(find.byKey(const Key('id1')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.edit));
+
+      await tester.tap(find.byKey(const Key('anadirButton')));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const Key('tituloField')));
-      await tester.pumpAndSettle();
-
+      // 🧩 Rellenar los campos
       await tester.enterText(
         find.byKey(const Key('tituloField')),
-        'Vacaciones 2025 Zaragoza',
+        'Vacaciones 2026',
       );
-      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('fechaIniField')),
+        '01-02-2025',
+      );
+      await tester.enterText(
+        find.byKey(const Key('fechaFinField')),
+        '10-02-2025',
+      );
+
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
+      await tester.tap(find.byKey(const Key('id0')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.delete));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('aceptarButton')));
+
+      await tester.pumpAndSettle();
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
-      expect(find.byType(MyHomePage), findsOneWidget);
-      expect(find.text('Error'), findsNothing);
+      expectLater(find.byKey(const Key('id0')), findsAny);
     });
 
-    testWidgets('❌ Error: fecha de inicio posterior a fecha final', (WidgetTester tester) async {
+    testWidgets('❌ No se elimina viaje porque se cancela', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
@@ -125,26 +133,17 @@ void main() {
 
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
-      await tester.tap(find.byKey(const Key('id1')));
+      await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.edit));
+      await tester.tap(find.byIcon(Icons.delete));
       await tester.pumpAndSettle();
 
+      await tester.tap(find.byKey(const Key('cancelarButton')));
 
-      await tester.tap(find.byKey(const Key('fechaIniField')));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.byKey(const Key('fechaIniField')),
-        '10-01-2026',
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
       // ❌ Verificar error
-      expect(find.text('Error'), findsOneWidget);
-      expect(find.text('La fecha de inicio no puede ser posterior a la final'), findsOneWidget);
-      expect(find.text('Viaje creado correctamente'), findsNothing);
+      expect(find.byIcon(Icons.delete), findsOneWidget);
     });
   });
 }

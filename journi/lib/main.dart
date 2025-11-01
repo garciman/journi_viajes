@@ -54,7 +54,7 @@ class MyHomePage extends StatefulWidget {
   final TripService tripService;
   List<Trip> viajes = [];
 
-   final EntryService entryService;
+  final EntryService entryService;
 
 
   @override
@@ -101,8 +101,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: StreamBuilder<List<Trip>>(
         stream: widget.repo.watchAll(),
         builder: (context, snapshot) {
+
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(key: Key('cargando'),));
           }
 
           widget.viajes = snapshot.data!;
@@ -119,7 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
             itemCount: widget.viajes.length,
             itemBuilder: (context, index) {
               final viaje = widget.viajes[index];
-
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 elevation: 3,
@@ -127,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
-                  key: const Key('id1'),
+                  key: ValueKey('id$index'),
                   leading: const Icon(Icons.flight_takeoff, color: Colors.teal),
                   title: Text(
                     viaje.title,
