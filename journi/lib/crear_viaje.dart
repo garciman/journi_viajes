@@ -63,6 +63,11 @@ class _CrearViajeState extends State<Crear_Viaje> {
           centerTitle: true,
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
+          leading: IconButton(
+            key: const Key('volver'),
+            icon: const Icon(Icons.arrow_back_ios_new), // o el icono que quieras
+            onPressed: () => Navigator.pop(context),
+          ),
           title: const Text(
             'JOURNI',
             style: TextStyle(

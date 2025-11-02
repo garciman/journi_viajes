@@ -50,9 +50,10 @@ class MyHomePage extends StatefulWidget {
   });
 
   final String title;
+   List<Trip> viajes = [];
   final InMemoryTripRepository repo;
   final TripService tripService;
-  List<Trip> viajes = [];
+
 
   final EntryService entryService;
 
@@ -102,12 +103,28 @@ class _MyHomePageState extends State<MyHomePage> {
         stream: widget.repo.watchAll(),
         builder: (context, snapshot) {
 
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(key: Key('cargando'),));
+          print('🟢 Snapshot data: ${snapshot.data}');
+          print('📡 Connection state: ${snapshot.connectionState}');
+          print('📦 Has data: ${snapshot.hasData}');
+          print('❌ Has error: ${snapshot.hasError}');
+
+
+          // 1️⃣ Error
+          if (snapshot.hasError) {
+            return const Center(child: Text('Error al cargar los viajes'));
           }
 
-          widget.viajes = snapshot.data!;
-          if (widget.viajes.isEmpty) {
+          // 2️⃣ Aún no ha llegado ningún dato -> puede estar esperando
+          if (snapshot.connectionState == ConnectionState.waiting && snapshot.data != null) {
+            return const Center(
+              child: CircularProgressIndicator()
+            );
+          }
+
+          final trips = snapshot.data ?? [];
+
+          // 3️⃣ Datos recibidos
+          if (trips.isEmpty) {
             return const Center(
               child: Text(
                 'No tienes ningún viaje registrado.',
@@ -116,6 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }
 
+          widget.viajes = snapshot.data!;
           return ListView.builder(
             itemCount: widget.viajes.length,
             itemBuilder: (context, index) {
