@@ -2,30 +2,54 @@ import 'package:flutter/material.dart';
 
 import 'package:journi/crear_viaje.dart';
 import 'package:journi/pantalla_viaje.dart';
-import 'application/entry_service.dart';
-import 'application/use_cases/use_cases.dart';
-import 'data/memory/in_memory_trip_repository.dart';
-import 'data/memory/in_memory_entry_repository.dart';
-import 'domain/trip.dart';
-import 'application/trip_service.dart';
+
+// Infra BD (Drift)
+import 'package:journi/data/local/drift/app_database.dart';
+import 'package:journi/data/local/drift/drift_entry_repository.dart';
+import 'package:journi/data/local/drift/drift_trip_repository.dart';
+
+// Puertos (interfaces)
+import 'package:journi/domain/ports/entry_repository.dart';
+import 'package:journi/domain/ports/trip_repository.dart';
+
+// Dominio / aplicación
+import 'package:journi/domain/trip.dart';
+import 'package:journi/application/trip_service.dart';
+import 'package:journi/application/entry_service.dart';
 
 void main() {
-  // ✅ Repositorio único de toda la app
-  final repo = InMemoryTripRepository();
-  final tripService = makeTripService(repo);
-  final entryRepo = InMemoryEntryRepository();
+  // ✅ Instancia única de BD + repositorios Drift
+  final db = AppDatabase();
+  final TripRepository tripRepo = DriftTripRepository(db);
+  final EntryRepository entryRepo = DriftEntryRepository(db);
+
+  // ✅ Servicios de aplicación
+  final tripService = makeTripService(tripRepo);
   final entryService = makeEntryService(entryRepo);
-  runApp(MyApp(repo: repo, tripService: tripService, entryService: entryService,));
+
+  runApp(MyApp(
+    tripRepo: tripRepo,
+    tripService: tripService,
+    entryRepo: entryRepo,
+    entryService: entryService,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  final InMemoryTripRepository repo;
+  final TripRepository tripRepo;
   final TripService tripService;
 
+  final EntryRepository entryRepo;
   final EntryService entryService;
-  const MyApp({super.key, required this.repo, required this.tripService, required this.entryService});
 
-  // This widget is the root of your application.
+  const MyApp({
+    super.key,
+    required this.tripRepo,
+    required this.tripService,
+    required this.entryRepo,
+    required this.entryService,
+  });
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,28 +58,39 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      // ✅ Pasamos el repo al home
-      home: MyHomePage(title: 'JOURNI', viajes: const [], repo: repo, tripService: tripService, entryService: entryService),
+      home: MyHomePage(
+        title: 'JOURNI',
+        viajes: const [],
+        tripRepo: tripRepo,
+        tripService: tripService,
+        entryRepo: entryRepo,
+        entryService: entryService,
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-   MyHomePage({
+  MyHomePage({
     super.key,
     required this.title,
     required this.viajes,
-    required this.repo,
-    required this.tripService, required this.entryService,
+    required this.tripRepo,
+    required this.tripService,
+    required this.entryRepo,
+    required this.entryService,
   });
 
   final String title;
-  final InMemoryTripRepository repo;
+
+  // 👉 Ahora usamos interfaces (no clases in-memory)
+  final TripRepository tripRepo;
   final TripService tripService;
+
+  final EntryRepository entryRepo;
+  final EntryService entryService;
+
   List<Trip> viajes = [];
-
-   final EntryService entryService;
-
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -72,7 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
           selectedIndex: _selectedIndex,
           viajes: const [],
           num_viaje: -1,
-          repo: widget.repo,
+          // 👉 Pasa el repo a través de la interfaz
+          repo: widget.tripRepo,
           tripService: widget.tripService,
           entryService: widget.entryService,
         ),
@@ -82,7 +118,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Usamos el stream del repo directamente
     return Scaffold(
       backgroundColor: Colors.teal[200],
       appBar: AppBar(
@@ -97,9 +132,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      // 🔽 Escucha los cambios del repo en tiempo real
+
+      // 🔽 Escucha los cambios del repo (Drift) en tiempo real
       body: StreamBuilder<List<Trip>>(
-        stream: widget.repo.watchAll(),
+        stream: widget.tripRepo.watchAll(), // <- interfaz
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -139,13 +175,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (viaje.startDate != null)
-                        Text(
-                            'Inicio: ${viaje.startDate!.toLocal().toString().split(' ')[0]}'),
+                        Text('Inicio: ${viaje.startDate!.toLocal().toString().split(' ')[0]}'),
                       if (viaje.endDate != null)
-                        Text(
-                            'Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
+                        Text('Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
                       const SizedBox(height: 4),
-
                     ],
                   ),
                   isThreeLine: true,
@@ -157,7 +190,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           selectedIndex: _selectedIndex,
                           viajes: widget.viajes,
                           num_viaje: index,
-                          repo: widget.repo,
+                          // 👉 Igual aquí: interfaz
+                          repo: widget.tripRepo,
                           tripService: widget.tripService,
                           entryService: widget.entryService,
                         ),
@@ -185,8 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
         iconSize: 35,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.folder), label: 'Mis viajes'),
+          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Mis viajes'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Nuevo viaje'),
           BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
@@ -203,7 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     selectedIndex: _selectedIndex,
                     viajes: widget.viajes,
                     num_viaje: -1,
-                    repo: widget.repo,
+                    repo: widget.tripRepo,              // <- interfaz
                     tripService: widget.tripService,
                     entryService: widget.entryService,
                   ),
