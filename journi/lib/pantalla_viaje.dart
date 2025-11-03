@@ -116,6 +116,63 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
     );
   }
 
+  Future<void> _editarEntrada(Entry e) async {
+    final controller = TextEditingController(text: e.text ?? '');
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Editar texto'),
+        content: TextField(
+          controller: controller,
+          maxLines: 5,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Escribe el nuevo texto...',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final nuevoTexto = controller.text.trim();
+              if (nuevoTexto.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('El texto no puede estar vacío')),
+                );
+                return;
+              }
+
+              // 1️⃣ Borrar la entrada antigua
+              await widget.entryService.deleteById(e.id);
+
+              // 2️⃣ Crear una nueva entrada con el texto actualizado
+              final cmd = CreateEntryCommand(
+                id: UniqueKey().toString(),
+                tripId: e.tripId,
+                type: EntryType.note,
+                text: nuevoTexto,
+              );
+              await widget.entryService.create(cmd);
+
+              if (!mounted) return;
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Texto actualizado')),
+              );
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -152,7 +209,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         controller: _textoController,
                         maxLines: 5,
                         decoration: const InputDecoration(
-                          hintText: 'Escribe aquí...',
+                          hintText: 'Escribeaa aquí...',
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -372,6 +429,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                       leading: const Icon(Icons.notes, color: Colors.teal),
                       title: Text(e.text!),
                       subtitle: Text('Añadido el $fechaFormateada'),
+                      onTap: () => _editarEntrada(e),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline, color: Colors.red),
                         onPressed: () async {
