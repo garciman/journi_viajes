@@ -3,7 +3,7 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $TripsTable extends Trips with TableInfo<$TripsTable, Trip> {
+class $TripsTable extends Trips with TableInfo<$TripsTable, DbTrip> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -71,7 +71,7 @@ class $TripsTable extends Trips with TableInfo<$TripsTable, Trip> {
   String get actualTableName => $name;
   static const String $name = 'trips';
   @override
-  VerificationContext validateIntegrity(Insertable<Trip> instance,
+  VerificationContext validateIntegrity(Insertable<DbTrip> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -124,9 +124,9 @@ class $TripsTable extends Trips with TableInfo<$TripsTable, Trip> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Trip map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DbTrip map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Trip(
+    return DbTrip(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       title: attachedDatabase.typeMapping
@@ -152,7 +152,7 @@ class $TripsTable extends Trips with TableInfo<$TripsTable, Trip> {
   }
 }
 
-class Trip extends DataClass implements Insertable<Trip> {
+class DbTrip extends DataClass implements Insertable<DbTrip> {
   final String id;
   final String title;
   final String? description;
@@ -161,7 +161,7 @@ class Trip extends DataClass implements Insertable<Trip> {
   final DateTime? endDate;
   final DateTime createdAt;
   final DateTime updatedAt;
-  const Trip(
+  const DbTrip(
       {required this.id,
       required this.title,
       this.description,
@@ -213,10 +213,10 @@ class Trip extends DataClass implements Insertable<Trip> {
     );
   }
 
-  factory Trip.fromJson(Map<String, dynamic> json,
+  factory DbTrip.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Trip(
+    return DbTrip(
       id: serializer.fromJson<String>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
@@ -242,7 +242,7 @@ class Trip extends DataClass implements Insertable<Trip> {
     };
   }
 
-  Trip copyWith(
+  DbTrip copyWith(
           {String? id,
           String? title,
           Value<String?> description = const Value.absent(),
@@ -251,7 +251,7 @@ class Trip extends DataClass implements Insertable<Trip> {
           Value<DateTime?> endDate = const Value.absent(),
           DateTime? createdAt,
           DateTime? updatedAt}) =>
-      Trip(
+      DbTrip(
         id: id ?? this.id,
         title: title ?? this.title,
         description: description.present ? description.value : this.description,
@@ -261,8 +261,8 @@ class Trip extends DataClass implements Insertable<Trip> {
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
-  Trip copyWithCompanion(TripsCompanion data) {
-    return Trip(
+  DbTrip copyWithCompanion(TripsCompanion data) {
+    return DbTrip(
       id: data.id.present ? data.id.value : this.id,
       title: data.title.present ? data.title.value : this.title,
       description:
@@ -278,7 +278,7 @@ class Trip extends DataClass implements Insertable<Trip> {
 
   @override
   String toString() {
-    return (StringBuffer('Trip(')
+    return (StringBuffer('DbTrip(')
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
@@ -297,7 +297,7 @@ class Trip extends DataClass implements Insertable<Trip> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Trip &&
+      (other is DbTrip &&
           other.id == this.id &&
           other.title == this.title &&
           other.description == this.description &&
@@ -308,7 +308,7 @@ class Trip extends DataClass implements Insertable<Trip> {
           other.updatedAt == this.updatedAt);
 }
 
-class TripsCompanion extends UpdateCompanion<Trip> {
+class TripsCompanion extends UpdateCompanion<DbTrip> {
   final Value<String> id;
   final Value<String> title;
   final Value<String?> description;
@@ -343,7 +343,7 @@ class TripsCompanion extends UpdateCompanion<Trip> {
         title = Value(title),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
-  static Insertable<Trip> custom({
+  static Insertable<DbTrip> custom({
     Expression<String>? id,
     Expression<String>? title,
     Expression<String>? description,
@@ -440,7 +440,7 @@ class TripsCompanion extends UpdateCompanion<Trip> {
   }
 }
 
-class $EntriesTable extends Entries with TableInfo<$EntriesTable, Entry> {
+class $EntriesTable extends Entries with TableInfo<$EntriesTable, DbEntry> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -521,7 +521,7 @@ class $EntriesTable extends Entries with TableInfo<$EntriesTable, Entry> {
   String get actualTableName => $name;
   static const String $name = 'entries';
   @override
-  VerificationContext validateIntegrity(Insertable<Entry> instance,
+  VerificationContext validateIntegrity(Insertable<DbEntry> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -572,9 +572,9 @@ class $EntriesTable extends Entries with TableInfo<$EntriesTable, Entry> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Entry map(Map<String, dynamic> data, {String? tablePrefix}) {
+  DbEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Entry(
+    return DbEntry(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       tripId: attachedDatabase.typeMapping
@@ -610,7 +610,7 @@ class $EntriesTable extends Entries with TableInfo<$EntriesTable, Entry> {
       const StringListConverter();
 }
 
-class Entry extends DataClass implements Insertable<Entry> {
+class DbEntry extends DataClass implements Insertable<DbEntry> {
   final String id;
   final String tripId;
   final EntryType type;
@@ -621,7 +621,7 @@ class Entry extends DataClass implements Insertable<Entry> {
   final List<String> tagsJson;
   final DateTime createdAt;
   final DateTime updatedAt;
-  const Entry(
+  const DbEntry(
       {required this.id,
       required this.tripId,
       required this.type,
@@ -680,10 +680,10 @@ class Entry extends DataClass implements Insertable<Entry> {
     );
   }
 
-  factory Entry.fromJson(Map<String, dynamic> json,
+  factory DbEntry.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Entry(
+    return DbEntry(
       id: serializer.fromJson<String>(json['id']),
       tripId: serializer.fromJson<String>(json['tripId']),
       type: serializer.fromJson<EntryType>(json['type']),
@@ -713,7 +713,7 @@ class Entry extends DataClass implements Insertable<Entry> {
     };
   }
 
-  Entry copyWith(
+  DbEntry copyWith(
           {String? id,
           String? tripId,
           EntryType? type,
@@ -724,7 +724,7 @@ class Entry extends DataClass implements Insertable<Entry> {
           List<String>? tagsJson,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
-      Entry(
+      DbEntry(
         id: id ?? this.id,
         tripId: tripId ?? this.tripId,
         type: type ?? this.type,
@@ -736,8 +736,8 @@ class Entry extends DataClass implements Insertable<Entry> {
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
-  Entry copyWithCompanion(EntriesCompanion data) {
-    return Entry(
+  DbEntry copyWithCompanion(EntriesCompanion data) {
+    return DbEntry(
       id: data.id.present ? data.id.value : this.id,
       tripId: data.tripId.present ? data.tripId.value : this.tripId,
       type: data.type.present ? data.type.value : this.type,
@@ -754,7 +754,7 @@ class Entry extends DataClass implements Insertable<Entry> {
 
   @override
   String toString() {
-    return (StringBuffer('Entry(')
+    return (StringBuffer('DbEntry(')
           ..write('id: $id, ')
           ..write('tripId: $tripId, ')
           ..write('type: $type, ')
@@ -775,7 +775,7 @@ class Entry extends DataClass implements Insertable<Entry> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Entry &&
+      (other is DbEntry &&
           other.id == this.id &&
           other.tripId == this.tripId &&
           other.type == this.type &&
@@ -788,7 +788,7 @@ class Entry extends DataClass implements Insertable<Entry> {
           other.updatedAt == this.updatedAt);
 }
 
-class EntriesCompanion extends UpdateCompanion<Entry> {
+class EntriesCompanion extends UpdateCompanion<DbEntry> {
   final Value<String> id;
   final Value<String> tripId;
   final Value<EntryType> type;
@@ -831,7 +831,7 @@ class EntriesCompanion extends UpdateCompanion<Entry> {
         tagsJson = Value(tagsJson),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
-  static Insertable<Entry> custom({
+  static Insertable<DbEntry> custom({
     Expression<String>? id,
     Expression<String>? tripId,
     Expression<String>? type,
@@ -994,10 +994,10 @@ typedef $$TripsTableUpdateCompanionBuilder = TripsCompanion Function({
 });
 
 final class $$TripsTableReferences
-    extends BaseReferences<_$AppDatabase, $TripsTable, Trip> {
+    extends BaseReferences<_$AppDatabase, $TripsTable, DbTrip> {
   $$TripsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$EntriesTable, List<Entry>> _entriesRefsTable(
+  static MultiTypedResultKey<$EntriesTable, List<DbEntry>> _entriesRefsTable(
           _$AppDatabase db) =>
       MultiTypedResultKey.fromTable(db.entries,
           aliasName: $_aliasNameGenerator(db.trips.id, db.entries.tripId));
@@ -1158,14 +1158,14 @@ class $$TripsTableAnnotationComposer
 class $$TripsTableTableManager extends RootTableManager<
     _$AppDatabase,
     $TripsTable,
-    Trip,
+    DbTrip,
     $$TripsTableFilterComposer,
     $$TripsTableOrderingComposer,
     $$TripsTableAnnotationComposer,
     $$TripsTableCreateCompanionBuilder,
     $$TripsTableUpdateCompanionBuilder,
-    (Trip, $$TripsTableReferences),
-    Trip,
+    (DbTrip, $$TripsTableReferences),
+    DbTrip,
     PrefetchHooks Function({bool entriesRefs})> {
   $$TripsTableTableManager(_$AppDatabase db, $TripsTable table)
       : super(TableManagerState(
@@ -1233,7 +1233,7 @@ class $$TripsTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (entriesRefs)
-                    await $_getPrefetchedData<Trip, $TripsTable, Entry>(
+                    await $_getPrefetchedData<DbTrip, $TripsTable, DbEntry>(
                         currentTable: table,
                         referencedTable:
                             $$TripsTableReferences._entriesRefsTable(db),
@@ -1253,14 +1253,14 @@ class $$TripsTableTableManager extends RootTableManager<
 typedef $$TripsTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
     $TripsTable,
-    Trip,
+    DbTrip,
     $$TripsTableFilterComposer,
     $$TripsTableOrderingComposer,
     $$TripsTableAnnotationComposer,
     $$TripsTableCreateCompanionBuilder,
     $$TripsTableUpdateCompanionBuilder,
-    (Trip, $$TripsTableReferences),
-    Trip,
+    (DbTrip, $$TripsTableReferences),
+    DbTrip,
     PrefetchHooks Function({bool entriesRefs})>;
 typedef $$EntriesTableCreateCompanionBuilder = EntriesCompanion Function({
   required String id,
@@ -1290,7 +1290,7 @@ typedef $$EntriesTableUpdateCompanionBuilder = EntriesCompanion Function({
 });
 
 final class $$EntriesTableReferences
-    extends BaseReferences<_$AppDatabase, $EntriesTable, Entry> {
+    extends BaseReferences<_$AppDatabase, $EntriesTable, DbEntry> {
   $$EntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $TripsTable _tripIdTable(_$AppDatabase db) => db.trips
@@ -1486,14 +1486,14 @@ class $$EntriesTableAnnotationComposer
 class $$EntriesTableTableManager extends RootTableManager<
     _$AppDatabase,
     $EntriesTable,
-    Entry,
+    DbEntry,
     $$EntriesTableFilterComposer,
     $$EntriesTableOrderingComposer,
     $$EntriesTableAnnotationComposer,
     $$EntriesTableCreateCompanionBuilder,
     $$EntriesTableUpdateCompanionBuilder,
-    (Entry, $$EntriesTableReferences),
-    Entry,
+    (DbEntry, $$EntriesTableReferences),
+    DbEntry,
     PrefetchHooks Function({bool tripId})> {
   $$EntriesTableTableManager(_$AppDatabase db, $EntriesTable table)
       : super(TableManagerState(
@@ -1601,14 +1601,14 @@ class $$EntriesTableTableManager extends RootTableManager<
 typedef $$EntriesTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
     $EntriesTable,
-    Entry,
+    DbEntry,
     $$EntriesTableFilterComposer,
     $$EntriesTableOrderingComposer,
     $$EntriesTableAnnotationComposer,
     $$EntriesTableCreateCompanionBuilder,
     $$EntriesTableUpdateCompanionBuilder,
-    (Entry, $$EntriesTableReferences),
-    Entry,
+    (DbEntry, $$EntriesTableReferences),
+    DbEntry,
     PrefetchHooks Function({bool tripId})>;
 
 class $AppDatabaseManager {

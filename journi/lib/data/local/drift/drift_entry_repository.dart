@@ -8,7 +8,7 @@ import 'app_database.dart' as db;
 db.EntriesCompanion _toCompanion(Entry e) => db.EntriesCompanion(
   id: d.Value(e.id),
   tripId: d.Value(e.tripId),
-  type: d.Value(e.type),           // gracias al converter, el tipo es EntryType
+  type: d.Value(e.type),           // requiere converter en la tabla
   textContent: d.Value(e.text),
   mediaUri: d.Value(e.mediaUri),
   lat: d.Value(e.location?.lat),
@@ -18,32 +18,28 @@ db.EntriesCompanion _toCompanion(Entry e) => db.EntriesCompanion(
   updatedAt: d.Value(e.updatedAt.toUtc()),
 );
 
-Entry _toDomain(db.EntryRow row) {
+// 👇 DbEntry (no EntriesData)
+Entry _toDomain(db.DbEntry row) {
   final loc = (row.lat != null && row.lon != null)
       ? EntryLocation(lat: row.lat!, lon: row.lon!)
       : null;
+
   final res = Entry.create(
     id: row.id,
     tripId: row.tripId,
-    type: row.type,
+    type: row.type,           // EntryType (gracias al converter)
     text: row.textContent,
     mediaUri: row.mediaUri,
     location: loc,
-    tags: row.tagsJson,
+    tags: row.tagsJson,       // List<String> (gracias al converter)
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   );
-  return res.isOk ? res.asOk().value : Entry._(
-    id: row.id,
-    tripId: row.tripId,
-    type: row.type,
-    text: row.textContent,
-    mediaUri: row.mediaUri,
-    location: loc,
-    tags: List.unmodifiable(row.tagsJson),
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-  );
+
+  if (res.isErr) {
+    throw StateError('Fila entries inválida (id=${row.id}): ${res.asErr().errors}');
+  }
+  return res.asOk().value;
 }
 
 class DriftEntryRepository implements EntryRepository {
@@ -53,19 +49,21 @@ class DriftEntryRepository implements EntryRepository {
   @override
   Future<Result<Entry>> upsert(Entry entry) async {
     await _db.into(_db.entries).insertOnConflictUpdate(_toCompanion(entry));
-    final row = await (_db.select(_db.entries)..where((e) => e.id.equals(entry.id))).getSingle();
+    final row = await (_db.select(_db.entries)..where((e) => e.id.equals(entry.id)))
+        .getSingle();
     return Ok(_toDomain(row));
   }
 
   @override
-  Future<Result<void>> deleteById(String id) async {
+  Future<Result<Unit>> deleteById(String id) async {
     await (_db.delete(_db.entries)..where((e) => e.id.equals(id))).go();
-    return Ok(unit);
+    return const Ok(unit);
   }
 
   @override
   Future<Result<Entry?>> findById(String id) async {
-    final row = await (_db.select(_db.entries)..where((e) => e.id.equals(id))).getSingleOrNull();
+    final row = await (_db.select(_db.entries)..where((e) => e.id.equals(id)))
+        .getSingleOrNull();
     return Ok(row == null ? null : _toDomain(row));
   }
 
@@ -74,9 +72,9 @@ class DriftEntryRepository implements EntryRepository {
     final q = _db.select(_db.entries)
       ..orderBy([(e) => d.OrderingTerm.desc(e.createdAt)]);
     if (tripId != null) q.where((e) => e.tripId.equals(tripId));
-    if (type != null) q.where((e) => e.type.equals(type)); // <- funciona por converter
+    if (type != null) q.where((e) => e.type.equals(type as String)); // ahora acepta EntryType
     final rows = await q.get();
-    return Ok(List.unmodifiable(rows.map(_toDomain)));
+    return Ok(List.unmodifiable(rows.map(_toDomain).toList()));
   }
 
   @override
@@ -84,7 +82,7 @@ class DriftEntryRepository implements EntryRepository {
     final q = _db.select(_db.entries)
       ..orderBy([(e) => d.OrderingTerm.desc(e.createdAt)]);
     if (tripId != null) q.where((e) => e.tripId.equals(tripId));
-    if (type != null) q.where((e) => e.type.equals(type));
+    if (type != null) q.where((e) => e.type.equals(type as String));
     return q.watch().map((rows) => rows.map(_toDomain).toList());
   }
 }

@@ -1,29 +1,4 @@
-// Un resultado que puede ser un Trip válido o errores
-// sealed class = una clase “cerrada” que solo puede tener ciertas subclases conocidas (Ok y Err).
-// <T> = el tipo de dato que contendrá si todo sale bien.
-sealed class Result<T> {
-  const Result();
-}
-
-//Esto es la versión éxito de Result.
-class Ok<T> extends Result<T> {
-  final T value;
-  const Ok(this.value);
-}
-
-//Esta es la versión error.
-class Err<T> extends Result<T> {
-  final List<ValidationError> errors;
-  const Err(this.errors);
-}
-
-// Tu error de validación se mantiene igual
-class ValidationError {
-  final String message;
-  ValidationError(this.message);
-  @override
-  String toString() => 'ValidationError: $message';
-}
+import 'package:journi/application/shared/result.dart';
 
 class Trip {
   static const int titleMax = 100;

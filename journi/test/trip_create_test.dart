@@ -1,6 +1,7 @@
 // Ajusta imports según tu estructura. Si el código está en lib/, usa:
 // import 'package:tu_paquete/trip.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/domain/trip.dart';
 
 void main() {

@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart' as d;
-import 'package:journi/application/shared/result.dart' hide Result, Err;
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/domain/trip_queries.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
@@ -8,7 +8,7 @@ import 'package:journi/domain/ports/trip_repository.dart';
 import 'app_database.dart' as db;
 
 // -------- mappers --------
-Trip _toDomain(db.TripRow row) {
+Trip _toDomain(db.DbTrip row) {
   final res = Trip.create(
     id: row.id,
     title: row.title,

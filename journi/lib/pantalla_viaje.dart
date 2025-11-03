@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/main.dart';
 

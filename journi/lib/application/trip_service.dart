@@ -1,4 +1,5 @@
 // lib/application/trip_service.dart
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/domain/trip_queries.dart';
 import 'package:journi/domain/ports/trip_repository.dart';

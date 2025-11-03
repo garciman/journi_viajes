@@ -5,16 +5,17 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-// 👇 Traemos el enum del dominio a ESTA library (para que el .g.dart lo vea)
+// El enum y tipos de dominio que referencian los converters/tabl
 import 'package:journi/domain/entry.dart';
 
 part 'app_database.g.dart';   // generado por drift
-part 'converters.dart';       // <- ahora es "part of"
-part 'tables.dart';           // <- ahora es "part of"
+part 'converters.dart';       // converters formarán parte de esta librería
+part 'tables.dart';           // tablas formarán parte de esta librería
 
 @DriftDatabase(tables: [Trips, Entries])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openLazy());
+
   @override
   int get schemaVersion => 1;
 
