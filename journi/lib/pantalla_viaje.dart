@@ -12,6 +12,8 @@ import 'domain/entry.dart';
 import 'domain/trip.dart';
 import 'editar_viaje.dart';
 import 'package:image_picker/image_picker.dart';
+import 'video_player_widget.dart';
+
 
 
 class Pantalla_Viaje extends StatefulWidget {
@@ -209,7 +211,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         controller: _textoController,
                         maxLines: 5,
                         decoration: const InputDecoration(
-                          hintText: 'Escribeaa aquí...',
+                          hintText: 'Escribe aquí...',
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -251,72 +253,78 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
               icon: const Icon(Icons.camera_alt, color: Colors.black),
               tooltip: 'Subir foto',
               onPressed: () {
-
                 showDialog(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      title: const Text('¿Cómo quieres subir la foto?'),
-
+                      title: const Text('¿Qué quieres subir?'),
                       actions: [
                         TextButton(
                           onPressed: () async {
                             Navigator.pop(context);
-                            final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+                            final XFile? pickedFile =
+                            await _picker.pickImage(source: ImageSource.gallery);
                             if (pickedFile != null) {
-                              setState(() async {
-
-                                if (pickedFile != null) {
-                                  final cmd = CreateEntryCommand(
-                                    id: UniqueKey().toString(),
-                                    tripId: widget.viajes[widget.num_viaje].id,
-                                    type: EntryType.photo,
-                                    mediaUri: pickedFile.path,
-                                  );
-                                  await widget.entryService.create(cmd);
-                                }
-
-
-                              });
-
-                            }
-                          },
-
-                          child: const Text('Adjuntar foto'),
-                        ),
-                        TextButton(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            final XFile? imagen = await _picker.pickImage(source: ImageSource.camera);
-                            if (imagen != null) {
-                              // Validar el tamaño o formato si quieres (opcional)
-                              final file = File(imagen.path);
-
-                              // Guardar como Entry en el servicio
                               final cmd = CreateEntryCommand(
                                 id: UniqueKey().toString(),
                                 tripId: widget.viajes[widget.num_viaje].id,
                                 type: EntryType.photo,
-                                mediaUri: file.path,
+                                mediaUri: pickedFile.path,
                               );
-
                               await widget.entryService.create(cmd);
-
-                              // Mostrar mensaje de éxito
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Foto añadida correctamente')),
                               );
                             }
                           },
-
+                          child: const Text('Adjuntar foto'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final XFile? imagen =
+                            await _picker.pickImage(source: ImageSource.camera);
+                            if (imagen != null) {
+                              final cmd = CreateEntryCommand(
+                                id: UniqueKey().toString(),
+                                tripId: widget.viajes[widget.num_viaje].id,
+                                type: EntryType.photo,
+                                mediaUri: imagen.path,
+                              );
+                              await widget.entryService.create(cmd);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Foto añadida correctamente')),
+                              );
+                            }
+                          },
                           child: const Text('Hacer foto'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            final XFile? video =
+                            await _picker.pickVideo(source: ImageSource.gallery);
+                            if (video != null) {
+                              final cmd = CreateEntryCommand(
+                                id: UniqueKey().toString(),
+                                tripId: widget.viajes[widget.num_viaje].id,
+                                type: EntryType.video, // 👈 asegúrate de tenerlo en tu modelo
+                                mediaUri: video.path,
+                              );
+                              await widget.entryService.create(cmd);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Video añadido correctamente')),
+                              );
+                            }
+                          },
+                          child: const Text('Adjuntar video'),
                         ),
                       ],
                     );
                   },
                 );
-
               },
+
             ),
             IconButton(
               icon: const Icon(Icons.edit, color: Colors.black),
@@ -507,6 +515,51 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   );
                 }
 
+                // 🔹 Si es un video
+                if (e.type == EntryType.video && e.mediaUri != null) {
+                  final file = File(e.mediaUri!);
+                  final fecha = e.createdAt.toLocal();
+                  final fechaFormateada =
+                      "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
+                      "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+
+                  return Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      children: [
+                        Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: VideoPlayerWidget(file: file), // 👇 widget auxiliar
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                await widget.entryService.deleteById(e.id);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Video eliminado')),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            'Añadido el $fechaFormateada',
+                            style: const TextStyle(fontSize: 14, color: Colors.black54),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+
                 return const SizedBox.shrink(); // En caso de tipo desconocido
               },
             );
@@ -655,3 +708,5 @@ class RoundedButton extends StatelessWidget {
     );
   }
 }
+
+
