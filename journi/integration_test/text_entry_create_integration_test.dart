@@ -14,7 +14,7 @@ void main() {
   // 🔧 Inicializa el entorno de test (sustituye al antiguo IntegrationTestWidgetsFlutterBinding)
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('🧭 Pruebas de integración: Crear_Viaje', () {
+  group('🧭 Pruebas de integración: Crear_Text_Entry', () {
     late InMemoryTripRepository tripRepo;
     late InMemoryEntryRepository entryRepo;
     late DefaultTripService tripService;
@@ -27,7 +27,7 @@ void main() {
       entryService = DefaultEntryService(repo: entryRepo);
     });
 
-    testWidgets('✅ Crear viaje correctamente', (WidgetTester tester) async {
+    testWidgets('✅ Crear entrada correctamente', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
@@ -42,6 +42,7 @@ void main() {
 // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
       await tester.pumpAndSettle();
+
 
       // 🧩 Rellenar los campos
       await tester.enterText(
@@ -59,14 +60,20 @@ void main() {
 
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
-
+      await tester.tap(find.byKey(const Key('id0')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('anadirEntrada')));
+      await tester.enterText(
+        find.byKey(const Key('textoEntrada')),
+        'Que grande que eres Nano',
+      );
+      await tester.tap(find.byKey(const Key('aceptarButton')));
+      expect(find.byKey(const Key('eid0')), findsOneWidget);
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
-      expect(find.byType(MyHomePage), findsOneWidget);
-      expect(find.text('Error'), findsNothing);
     });
 
-    testWidgets('❌ Error: fecha de inicio posterior a fecha final', (WidgetTester tester) async {
+    testWidgets('❌ Error: Entrada vacía', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: Crear_Viaje(
           selectedIndex: 2,
@@ -83,7 +90,7 @@ void main() {
       // 🧩 Campos con fechas inválidas
       await tester.enterText(
         find.byKey(const Key('tituloField')),
-        'Viaje erróneo',
+        'Nanoseco',
       );
       await tester.enterText(
         find.byKey(const Key('fechaIniField')),
@@ -91,16 +98,22 @@ void main() {
       );
       await tester.enterText(
         find.byKey(const Key('fechaFinField')),
-        '01-01-2025',
+        '11-01-2025',
       );
 
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle();
 
-      // ❌ Verificar error
-      expect(find.text('Error'), findsOneWidget);
-      expect(find.text('La fecha de inicio no puede ser posterior a la final'), findsOneWidget);
-      expect(find.text('Viaje creado correctamente'), findsNothing);
+      await tester.tap(find.byKey(const Key('id0')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('anadirEntrada')));
+      await tester.enterText(
+        find.byKey(const Key('textoEntrada')),
+        '',
+      );
+      await tester.tap(find.byKey(const Key('aceptarButton')));
+      expect(find.byKey(const Key('eid0')), findsNothing);
+
     });
   });
 }

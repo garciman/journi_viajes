@@ -71,7 +71,7 @@ void main() {
 
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
-      await tester.tap(find.byKey(const Key('id1')));
+      await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.edit));
       await tester.pumpAndSettle();

@@ -198,7 +198,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.add, color: Colors.black),
+              icon: const Icon(key: Key('anadirEntrada'), Icons.add, color: Colors.black),
               tooltip: 'Añadir texto',
               onPressed: () {
                 _textoController.clear();
@@ -208,6 +208,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     return AlertDialog(
                       title: const Text('Introduce un texto'),
                       content: TextField(
+                        key: const Key('textoEntrada'),
                         controller: _textoController,
                         maxLines: 5,
                         decoration: const InputDecoration(
@@ -221,6 +222,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                           child: const Text('Cancelar'),
                         ),
                         TextButton(
+                          key: const Key('aceptarButton'),
                           onPressed: () async {
                             final texto = _textoController.text.trim();
                             if (texto.isEmpty) {
@@ -434,6 +436,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     child: ListTile(
+                      key: ValueKey('eid$index'),
                       leading: const Icon(Icons.notes, color: Colors.teal),
                       title: Text(e.text!),
                       subtitle: Text('Añadido el $fechaFormateada'),
