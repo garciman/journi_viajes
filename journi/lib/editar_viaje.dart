@@ -5,6 +5,8 @@ import 'package:journi/application/trip_service.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/main.dart';
 
+import 'package:journi/mi_perfil.dart';
+import 'package:journi/login_screen.dart';
 import 'application/use_cases/use_cases.dart';
 import 'domain/trip.dart';
 
@@ -259,6 +261,15 @@ class _CrearViajeState extends State<Editar_viaje> {
                     MaterialPageRoute(
                         builder: (context) => MyHomePage(
                             title: 'JOURNI', viajes: const [], repo: widget.repo, tripService: widget.tripService, entryService: widget.entryService,)),
+                  );
+                }
+                if (widget.selectedIndex == 4) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
+                      builder: (context) => const LoginScreen(),
+                    ),
                   );
                 }
                 /*

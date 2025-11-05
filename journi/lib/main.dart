@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:journi/mi_perfil.dart';
+import 'package:journi/login_screen.dart';
 import 'package:journi/crear_viaje.dart';
 import 'package:journi/pantalla_viaje.dart';
 import 'application/entry_service.dart';
@@ -9,6 +11,7 @@ import 'data/memory/in_memory_entry_repository.dart';
 import 'domain/trip.dart';
 import 'application/trip_service.dart';
 
+bool sesionIniciada = false; // cambiarás a true cuando el usuario inicie sesión
 void main() {
   // ✅ Repositorio único de toda la app
   final repo = InMemoryTripRepository();
@@ -211,25 +214,46 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Mi perfil'),
         ],
-        onTap: (int index) {
-          setState(() {
-            _selectedIndex = index;
-            if (_selectedIndex == 2) {
-              Navigator.push(
+        onTap: (int index) async {
+          if (index == 2) {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Crear_Viaje(
+                  selectedIndex: index,
+                  viajes: widget.viajes,
+                  num_viaje: -1,
+                  repo: widget.repo,
+                  tripService: widget.tripService,
+                  entryService: widget.entryService,
+                ),
+              ),
+            );
+          }// 👤 Mi perfil (index 4)
+          else if (index == 4) {
+            if (sesionIniciada) {
+              // Sesión iniciada → ir directamente a MiPerfil
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Crear_Viaje(
-                    selectedIndex: _selectedIndex,
-                    viajes: widget.viajes,
-                    num_viaje: -1,
-                    repo: widget.repo,
-                    tripService: widget.tripService,
-                    entryService: widget.entryService,
-                  ),
+                  builder: (context) => const MiPerfil(),
+                ),
+              );
+            } else {
+              // Sin sesión → ir a pantalla de login
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
                 ),
               );
             }
-          });
+          } else {
+            // Para Mis viajes, Mapa, Datos solo cambiamos el índice seleccionado
+            setState(() {
+              _selectedIndex = index;
+            });
+          }
         },
       ),
     );

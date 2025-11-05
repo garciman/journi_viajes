@@ -4,6 +4,8 @@ import 'package:journi/application/entry_service.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/main.dart';
+import 'package:journi/mi_perfil.dart';
+import 'package:journi/login_screen.dart';
 
 import 'application/use_cases/use_cases.dart';
 import 'domain/trip.dart';
@@ -257,33 +259,34 @@ class _CrearViajeState extends State<Crear_Viaje> {
               BottomNavigationBarItem(
                   icon: Icon(Icons.person), label: 'Mi perfil'),
             ],
-            onTap: (int inIndex) {
+          onTap: (int index) async {
+            if (index == 2) {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Crear_Viaje(
+                    selectedIndex: index,
+                    viajes: widget.viajes,
+                    num_viaje: -1,
+                    repo: widget.repo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
+                ),
+              );
+            } else if (index == 4) {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ),
+              );
+            } else {
               setState(() {
-                widget.selectedIndex =
-                    inIndex; // guardamos el boton que se pulsó y redibujamos la interfaz
-                if (widget.selectedIndex == 0) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MyHomePage(
-                            title: 'JOURNI', viajes: const [], repo: widget.repo, tripService: widget.tripService, entryService: widget.entryService,)),
-                  );
-                }
-                /*
-
-                // Al llevar a la misma pantalla, nos vamos a ahorrar este trozo de codigo
-
-                if (widget.selectedIndex == 2) {
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) =>
-                        Crear_Viaje(selectedIndex: widget.selectedIndex)),
-                  );
-                }
-                */
+                widget.selectedIndex = index;
               });
-            }));
+            }
+          }));
   }
 }
 
