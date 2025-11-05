@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     // 🔐 Simulamos login correcto
-    sesionIniciada = true; // ✅ Ahora la reconoce correctamente
+    //sesionIniciada = true; // ✅ Ahora la reconoce correctamente
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Sesión iniciada correctamente')),
