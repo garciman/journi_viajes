@@ -83,7 +83,7 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
-  // 👉 Ahora usamos interfaces (no clases in-memory)
+  // 👉 Interfaces (no clases in-memory en producción)
   final TripRepository tripRepo;
   final TripService tripService;
 
@@ -107,7 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
           selectedIndex: _selectedIndex,
           viajes: const [],
           num_viaje: -1,
-          // 👉 Pasa el repo a través de la interfaz
           repo: widget.tripRepo,
           tripService: widget.tripService,
           entryService: widget.entryService,
@@ -135,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // 🔽 Escucha los cambios del repo (Drift) en tiempo real
       body: StreamBuilder<List<Trip>>(
-        stream: widget.tripRepo.watchAll(), // <- interfaz
+        stream: widget.tripRepo.watchAll(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -190,7 +189,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           selectedIndex: _selectedIndex,
                           viajes: widget.viajes,
                           num_viaje: index,
-                          // 👉 Igual aquí: interfaz
                           repo: widget.tripRepo,
                           tripService: widget.tripService,
                           entryService: widget.entryService,
@@ -236,7 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     selectedIndex: _selectedIndex,
                     viajes: widget.viajes,
                     num_viaje: -1,
-                    repo: widget.tripRepo,              // <- interfaz
+                    repo: widget.tripRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
                   ),
