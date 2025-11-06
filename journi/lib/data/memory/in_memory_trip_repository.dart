@@ -56,12 +56,28 @@ class InMemoryTripRepository implements TripRepository {
       Ok(_filtered(phase));
 
   @override
-  Stream<List<Trip>> watchAll({TripPhase? phase}) => phase == null
-      ? _controller.stream
-      : _controller.stream.map((_) => _filtered(phase));
+  Stream<List<Trip>> watchAll({TripPhase? phase}) {
+    // ✅ Emite el snapshot inicial al suscribirse y re-emite en cada cambio.
+    final out = StreamController<List<Trip>>.broadcast();
+    StreamSubscription<List<Trip>>? sub;
+
+    void emitSnapshot() => out.add(_filtered(phase));
+
+    out.onListen = () {
+      emitSnapshot(); // <-- valor inicial inmediato
+      sub = _controller.stream.listen((_) => emitSnapshot());
+    };
+
+    out.onCancel = () async {
+      await sub?.cancel();
+      sub = null;
+    };
+
+    return out.stream;
+  }
 
   @override
-  Future<Result<Unit>> deleteById(String id) async { // <- Unit
+  Future<Result<Unit>> deleteById(String id) async {
     _store.remove(id);
     _emit();
     return const Ok(unit);
