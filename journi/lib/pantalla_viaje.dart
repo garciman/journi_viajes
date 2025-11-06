@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/main.dart';
-
+import 'package:journi/mi_perfil.dart';
+import 'package:journi/login_screen.dart';
 import 'application/trip_service.dart';
 import 'application/entry_service.dart';
 import 'application/use_cases/entry_use_cases.dart';
@@ -609,6 +610,15 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                           tripService: widget.tripService,
                           entryService: widget.entryService,
                         )),
+                  );
+                }
+                if (widget.selectedIndex == 4) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
+                      builder: (context) => const MiPerfil(),
+                    ),
                   );
                 }
 
