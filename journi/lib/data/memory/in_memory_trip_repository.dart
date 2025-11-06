@@ -31,7 +31,6 @@ class InMemoryTripRepository implements TripRepository {
 
   @override
   Future<Result<Trip>> upsert(Trip trip) async {
-    // Revalida vía dominio por si alguien construyó un Trip no-normalizado
     final res = Trip.create(
       id: trip.id,
       title: trip.title,
@@ -62,12 +61,11 @@ class InMemoryTripRepository implements TripRepository {
       : _controller.stream.map((_) => _filtered(phase));
 
   @override
-  Future<Result<void>> deleteById(String id) async {
+  Future<Result<Unit>> deleteById(String id) async { // <- Unit
     _store.remove(id);
     _emit();
-    return const Ok(null);
+    return const Ok(unit);
   }
 
-  /// Limpia recursos del stream cuando ya no se use (por ejemplo en tests).
   Future<void> dispose() async => _controller.close();
 }

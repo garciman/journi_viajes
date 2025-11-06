@@ -69,11 +69,11 @@ class InMemoryTripRepo implements TripRepository {
   }
 
   @override
-  Future<Result<void>> deleteById(String id) async {
+  Future<Result<Unit>> deleteById(String id) async {
     // Idempotente: eliminar inexistente retorna Ok(void)
     _store.remove(id);
     _emit();
-    return Ok(null);
+    return const Ok(unit);
   }
 
   void dispose() {

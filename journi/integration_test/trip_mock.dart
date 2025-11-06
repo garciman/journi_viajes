@@ -32,7 +32,7 @@ class TripServiceMock implements TripService {
   }
 
   @override
-  Future<Result<void>> deleteById(String id) async => Ok(null);
+  Future<Result<Unit>> deleteById(String id) async => const Ok(unit);
 
   @override
   Future<Result<Trip>> updateTitleById(String id, String newTitle) async {

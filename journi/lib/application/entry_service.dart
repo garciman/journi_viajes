@@ -6,7 +6,7 @@ import 'package:journi/application/shared/result.dart';
 /// Fachada de aplicación para Entries (paralela a TripService).
 abstract class EntryService {
   Future<Result<Entry>> create(CreateEntryCommand cmd);
-  Future<Result<void>> deleteById(String id);
+  Future<Result<Unit>> deleteById(String id);
   Future<Result<Entry?>> getById(String id);
   Future<Result<List<Entry>>> listByTrip(String tripId, {EntryType? type});
   Stream<List<Entry>> watchByTrip(String tripId, {EntryType? type});
@@ -38,7 +38,7 @@ class DefaultEntryService implements EntryService {
   Future<Result<Entry>> create(CreateEntryCommand cmd) => _createUC(cmd);
 
   @override
-  Future<Result<void>> deleteById(String id) => _deleteUC(id);
+  Future<Result<Unit>> deleteById(String id) => _deleteUC(id);
 
   @override
   Future<Result<Entry?>> getById(String id) => _getUC(id);

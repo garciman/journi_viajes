@@ -124,7 +124,7 @@ class DeleteTripUseCase {
   final TripRepository repo;
   DeleteTripUseCase(this.repo);
 
-  Future<Result<void>> call(String id) {
+  Future<Result<Unit>> call(String id) {
     return repo.deleteById(id);
   }
 }
