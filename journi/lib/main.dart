@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:journi/mi_perfil.dart';
-import 'package:journi/login_screen.dart';
 import 'package:journi/crear_viaje.dart';
 import 'package:journi/pantalla_viaje.dart';
 
@@ -19,7 +17,6 @@ import 'package:journi/domain/trip.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/entry_service.dart';
 
-bool sesionIniciada = false; // cambiarás a true cuando el usuario inicie sesión
 void main() {
   // ✅ Instancia única de BD + repositorios Drift
   final db = AppDatabase();
@@ -140,29 +137,12 @@ class _MyHomePageState extends State<MyHomePage> {
       body: StreamBuilder<List<Trip>>(
         stream: widget.tripRepo.watchAll(), // <- interfaz
         builder: (context, snapshot) {
-
-          print('🟢 Snapshot data: ${snapshot.data}');
-          print('📡 Connection state: ${snapshot.connectionState}');
-          print('📦 Has data: ${snapshot.hasData}');
-          print('❌ Has error: ${snapshot.hasError}');
-
-
-          // 1️⃣ Error
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error al cargar los viajes'));
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
           }
 
-          // 2️⃣ Aún no ha llegado ningún dato -> puede estar esperando
-          if (snapshot.connectionState == ConnectionState.waiting && snapshot.data != null) {
-            return const Center(
-              child: CircularProgressIndicator()
-            );
-          }
-
-          final trips = snapshot.data ?? [];
-
-          // 3️⃣ Datos recibidos
-          if (trips.isEmpty) {
+          widget.viajes = snapshot.data!;
+          if (widget.viajes.isEmpty) {
             return const Center(
               child: Text(
                 'No tienes ningún viaje registrado.',
@@ -171,11 +151,11 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }
 
-          widget.viajes = snapshot.data!;
           return ListView.builder(
             itemCount: widget.viajes.length,
             itemBuilder: (context, index) {
               final viaje = widget.viajes[index];
+
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 elevation: 3,
@@ -183,7 +163,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
-                  key: ValueKey('id$index'),
                   leading: const Icon(Icons.flight_takeoff, color: Colors.teal),
                   title: Text(
                     viaje.title,
@@ -246,36 +225,11 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Mi perfil'),
         ],
-        onTap: (int index) async {
-          if (index == 2) {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Crear_Viaje(
-                  selectedIndex: index,
-                  viajes: widget.viajes,
-                  num_viaje: -1,
-                  repo: widget.repo,
-                  tripService: widget.tripService,
-                  entryService: widget.entryService,
-                ),
-              ),
-            );
-          }
-          else if (index == 1) {
-            // Ir al mapa
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const MapaPaisScreen(),
-              ),
-            );
-          }
-          // 👤 Mi perfil (index 4)
-          else if (index == 4) {
-            if (sesionIniciada) {
-              // Sesión iniciada → ir directamente a MiPerfil
-              await Navigator.push(
+        onTap: (int index) {
+          setState(() {
+            _selectedIndex = index;
+            if (_selectedIndex == 2) {
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => Crear_Viaje(
@@ -289,12 +243,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               );
             }
-          } else {
-            // Para Mis viajes, Mapa, Datos solo cambiamos el índice seleccionado
-            setState(() {
-              _selectedIndex = index;
-            });
-          }
+          });
         },
       ),
     );
