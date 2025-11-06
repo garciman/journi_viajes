@@ -1,121 +1,116 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:journi/application/entry_service.dart';
-import 'package:journi/application/trip_service.dart';
-import 'package:journi/data/memory/in_memory_trip_repository.dart';
-import 'package:journi/main.dart';
-import 'package:journi/mi_perfil.dart';
-import 'package:journi/login_screen.dart';
 
-import 'application/use_cases/use_cases.dart';
-import 'domain/trip.dart';
+import 'package:journi/application/entry_service.dart';
+import 'package:journi/application/shared/result.dart';
+import 'package:journi/application/trip_service.dart';
+import 'package:journi/application/use_cases/use_cases.dart';
+import 'package:journi/domain/ports/trip_repository.dart';
+import 'package:journi/domain/trip.dart';
 
 class Crear_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   int num_viaje;
   List<Trip> viajes;
-  InMemoryTripRepository repo;
-  TripService tripService;
-  EntryService entryService;
+
+  // 👉 Ahora usamos el puerto (interfaz), no el repo in-memory
+  final TripRepository repo;
+  final TripService tripService;
+  final EntryService entryService;
+
   final _titulo = TextEditingController();
   final _fecha_ini = TextEditingController();
   final _fecha_fin = TextEditingController();
 
-  Crear_Viaje(
-      {super.key, required this.selectedIndex,
-      required this.viajes,
-      required this.num_viaje,
-      required this.repo,
-      required this.tripService,
-      required this.entryService});
+  Crear_Viaje({
+    super.key,
+    required this.selectedIndex,
+    required this.viajes,
+    required this.num_viaje,
+    required this.repo,
+    required this.tripService,
+    required this.entryService,
+  });
 
   @override
   _CrearViajeState createState() => _CrearViajeState();
 }
 
 class _CrearViajeState extends State<Crear_Viaje> {
+  DateTime? _parseDdMmYyyy(String input) {
+    try {
+      return DateFormat('dd-MM-yyyy').parseStrict(input);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK')),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-
+    // Rellena campos si venimos en modo edición
     if (widget.num_viaje >= 0) {
-      String fechaInicial = DateFormat('dd-MM-yyyy')
-          .format(widget.viajes[widget.num_viaje].startDate?? DateTime.now());
-      String fechaFinal = DateFormat('dd-MM-yyyy')
-          .format(widget.viajes[widget.num_viaje].endDate?? DateTime.now());
-      widget._titulo.text = widget.viajes[widget.num_viaje].title;
+      final trip = widget.viajes[widget.num_viaje];
+      final fechaInicial = DateFormat('dd-MM-yyyy').format(trip.startDate ?? DateTime.now());
+      final fechaFinal = DateFormat('dd-MM-yyyy').format(trip.endDate ?? DateTime.now());
+      widget._titulo.text = trip.title;
       widget._fecha_ini.text = fechaInicial;
       widget._fecha_fin.text = fechaFinal;
     }
 
-    final createTrip = CreateTripUseCase(widget.repo);
-
     return Scaffold(
+      backgroundColor: Colors.teal[200],
+      appBar: AppBar(
         backgroundColor: Colors.teal[200],
-        appBar: AppBar(
-          // TRY THIS: Try changing the color here to a specific color (to
-          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-          // change color while the other colors stay the same.
-          backgroundColor: Colors.teal[200],
-          centerTitle: true,
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          leading: IconButton(
-            key: const Key('volver'),
-            icon: const Icon(Icons.arrow_back_ios_new), // o el icono que quieras
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: const Text(
-            'JOURNI',
-            style: TextStyle(
-                color: Colors.black, // color del texto
-                fontSize: 22, // tamaño del texto
-                fontWeight: FontWeight.bold // negrita
-                ),
+        centerTitle: true,
+        title: const Text(
+          'JOURNI',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        body: Center(
-          child: Column(children: [
+      ),
+      body: Center(
+        child: Column(
+          children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Campo de Titulo del viaje
               InputField(
                 key: const Key('tituloField'),
                 controller: widget._titulo,
                 hintText: 'Titulo del viaje',
               ),
-
               const SizedBox(height: 10),
             ]),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-
-                // Campo de fecha inicial
-                InputField(
-                  key: const Key('fechaIniField'),
-                  controller: widget._fecha_ini,
-                  hintText: 'Fecha de inicio de viaje (DD-MM-YYYY)',
-                ),
-
-                const SizedBox(height: 10),
-              ],
-            ),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 10),
-
-              // Campo de Fecha de final de viaje
+              InputField(
+                key: const Key('fechaIniField'),
+                controller: widget._fecha_ini,
+                hintText: 'Fecha de inicio de viaje (DD-MM-YYYY)',
+              ),
+              const SizedBox(height: 10),
+            ]),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const SizedBox(height: 10),
               InputField(
                 key: const Key('fechaFinField'),
                 controller: widget._fecha_fin,
                 hintText: 'Fecha de fin de viaje (DD-MM-YYYY)',
               ),
-
               const SizedBox(height: 10),
             ]),
             Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -125,176 +120,87 @@ class _CrearViajeState extends State<Crear_Viaje> {
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
                 onPressed: () async {
-                  DateFormat formato = DateFormat('dd-MM-yyyy');
-                  DateTime d1 = formato.parse("00-00-0000");
-                  DateTime d2 = formato.parse("00-00-0000");
+                  final titulo = widget._titulo.text.trim();
+                  final ini = _parseDdMmYyyy(widget._fecha_ini.text.trim());
+                  final fin = _parseDdMmYyyy(widget._fecha_fin.text.trim());
 
-                  if (widget._titulo.text.isNotEmpty &&
-                      widget._fecha_ini.text.isNotEmpty &&
-                      widget._fecha_fin.text.isNotEmpty) {
-                    d1 = formato.parse(widget._fecha_ini.text);
-                    d2 = formato.parse(widget._fecha_fin.text);
+                  if (titulo.isEmpty || ini == null || fin == null) {
+                    _showError('Rellena todos los campos con formato válido (DD-MM-YYYY).');
+                    return;
                   }
-                  if (d1.isAfter(d2)) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Error'),
-                          content: const Text(
-                              'La fecha de inicio no puede ser posterior a la final'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context); // Cerrar el diálogo
-                              },
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
+                  if (ini.isAfter(fin)) {
+                    _showError('La fecha de inicio no puede ser posterior a la final');
+                    return;
+                  }
+                  if (titulo.length > Trip.titleMax) {
+                    _showError('El título debe contener entre 1 y ${Trip.titleMax} caracteres');
+                    return;
+                  }
+
+                  final nuevoId = DateTime.now().millisecondsSinceEpoch.toString();
+                  final cmd = CreateTripCommand(
+                    id: nuevoId,
+                    title: titulo,
+                    description: 'Description',
+                    startDate: ini,
+                    endDate: fin,
+                  );
+
+                  // ✅ usamos el servicio de aplicación
+                  final result = await widget.tripService.create(cmd);
+
+                  if (result is Ok<Trip>) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Viaje creado correctamente')),
                     );
-                  } else if (widget._titulo.text.isNotEmpty &&
-                      widget._titulo.text.length > 100) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Error'),
-                          content: const Text(
-                              'El título debe contener entre 1 y 100 caracteres'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context); // Cerrar el diálogo
-                              },
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else if (widget._titulo.text == '' ||
-                      widget._fecha_ini.text == '' ||
-                      widget._fecha_fin.text == '') {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Error'),
-                          content: const Text(
-                              'Rellena todos los campos para continuar'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context); // Cerrar el diálogo
-                              },
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    final nuevoId = DateTime.now().millisecondsSinceEpoch.toString();
-
-                      final cmd = CreateTripCommand(
-                        id: nuevoId,
-                        title: widget._titulo.text,
-                        description: 'Description',
-                        startDate: d1,
-                        endDate: d2,
-                      );
-
-                      widget.tripService.create(cmd);
-
-                      // ⿤ Ejecutamos el caso de uso
-                      final result = await createTrip(cmd);
-
-                      // ⿥ Interpretamos el resultado (Ok o Err)
-                      if (result is Ok<Trip>) {
-                        final trip = result.value;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Viaje creado correctamente')),
-                        );
-                        print('✅ Trip creado con éxito: ${trip.title}');
-                        print('   ID: ${trip.id}');
-                        print('   Fechas: ${trip.startDate} → ${trip.endDate}');
-                      } else if (result is Err<Trip>) {
-                        final errors =
-                            result.errors.map((e) => e.message).join(', ');
-                        print('Error al crear trip: $errors');
-                      }
-
-                      const Text(
-                        '',
-                        textAlign: TextAlign.center,
-                      );
-                    Navigator.pop(context); // recargamos la pagina para que se actualicen los viajes
-
+                    Navigator.pop(context); // vuelve a la lista
+                  } else if (result is Err<Trip>) {
+                    final errors = result.errors.map((e) => e.message).join('\n');
+                    _showError('Error al crear viaje:\n$errors');
                   }
                 },
               ),
             ]),
-          ]),
+          ],
         ),
-        // This trailing comma makes auto-formatting nicer for build methods.
-        bottomNavigationBar: BottomNavigationBar(
-            currentIndex: widget
-                .selectedIndex, // le indicamos qué botón debe aparecer como seleccionado
-            backgroundColor: const Color(0xFFEDE5D0),
-            unselectedItemColor: Colors.black,
-            selectedItemColor: Colors.teal[500],
-            iconSize: 35,
-            type: BottomNavigationBarType
-                .fixed, // Para que todas las etiquetas de todos los botones aparezcan siempre (no solo si se seleccionan)
-            items: const [
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.folder), label: 'Mis viajes'),
-              BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.add), label: 'Nuevo viaje'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.equalizer), label: 'Datos'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: 'Mi perfil'),
-            ],
-          onTap: (int index) async {
-            if (index == 2) {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Crear_Viaje(
-                    selectedIndex: index,
-                    viajes: widget.viajes,
-                    num_viaje: -1,
-                    repo: widget.repo,
-                    tripService: widget.tripService,
-                    entryService: widget.entryService,
-                  ),
-                ),
-              );
-            } else if (index == 4) {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
-                ),
-              );
-            } else {
-              setState(() {
-                widget.selectedIndex = index;
-              });
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: widget.selectedIndex,
+        backgroundColor: const Color(0xFFEDE5D0),
+        unselectedItemColor: Colors.black,
+        selectedItemColor: Colors.teal[500],
+        iconSize: 35,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Mis viajes'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Nuevo viaje'),
+          BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Mi perfil'),
+        ],
+        onTap: (int inIndex) {
+          setState(() {
+            widget.selectedIndex = inIndex;
+            if (widget.selectedIndex == 0) {
+              // ✅ volvemos a la home existente
+              Navigator.pop(context);
             }
-          }));
+          });
+        },
+      ),
+    );
   }
 }
 
 class InputField extends StatelessWidget {
   final String hintText;
-  final controller;
+  final TextEditingController controller;
 
-  const InputField({super.key, required this.hintText, required this.controller});
+  const InputField({
+    super.key,
+    required this.hintText,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -304,23 +210,19 @@ class InputField extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            hintText,
-            style: const TextStyle(color: Colors.white),
-          ),
+          Text(hintText, style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: Colors.black, // Color de fondo gris
-              borderRadius: BorderRadius.circular(10.0), // Bordes redondeados
-              border: Border.all(color: Colors.white), // Borde blanco
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(10.0),
+              border: Border.all(color: Colors.white),
             ),
             child: TextFormField(
               style: const TextStyle(color: Colors.white),
               controller: controller,
               decoration: const InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 hintText: '',
                 filled: true,
                 fillColor: Colors.transparent,
@@ -359,14 +261,9 @@ class RoundedButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
         ),
-        child: Text(
-          text,
-          style: TextStyle(color: textColor),
-        ),
+        child: Text(text, style: TextStyle(color: textColor)),
       ),
     );
   }

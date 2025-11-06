@@ -32,7 +32,7 @@ class InMemoryEntryRepository implements EntryRepository {
   }
 
   @override
-  Future<Result<void>> deleteById(String id) async {
+  Future<Result<Unit>> deleteById(String id) async {
     _db.remove(id);
     _emit();
     return Ok(unit);

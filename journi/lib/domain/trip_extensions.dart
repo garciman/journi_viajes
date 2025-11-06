@@ -1,3 +1,5 @@
+import 'package:journi/application/shared/result.dart';
+
 import './trip.dart';
 
 extension TripMutators on Trip {
