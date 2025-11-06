@@ -16,14 +16,13 @@ import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/entry_service.dart';
+import 'package:journi/application/shared/result.dart'; // <- para leer Ok/Err en la carga inicial
 
 void main() {
-  // ✅ Instancia única de BD + repositorios Drift
   final db = AppDatabase();
   final TripRepository tripRepo = DriftTripRepository(db);
   final EntryRepository entryRepo = DriftEntryRepository(db);
 
-  // ✅ Servicios de aplicación
   final tripService = makeTripService(tripRepo);
   final entryService = makeEntryService(entryRepo);
 
@@ -83,7 +82,6 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
-  // 👉 Interfaces (no clases in-memory en producción)
   final TripRepository tripRepo;
   final TripService tripService;
 
@@ -98,6 +96,29 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+
+  // 🔽 snapshot inicial para cuando el stream aún no ha emitido
+  List<Trip>? _initialTrips;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitial();
+  }
+
+  Future<void> _loadInitial() async {
+    final res = await widget.tripRepo.list();
+    if (!mounted) return;
+    if (res is Ok<List<Trip>>) {
+      setState(() {
+        _initialTrips = res.value;
+      });
+    } else {
+      setState(() {
+        _initialTrips = const <Trip>[];
+      });
+    }
+  }
 
   void _createNewTravel() {
     Navigator.push(
@@ -132,16 +153,19 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
 
-      // 🔽 Escucha los cambios del repo (Drift) en tiempo real
       body: StreamBuilder<List<Trip>>(
         stream: widget.tripRepo.watchAll(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          // Usamos el stream si hay datos; si no, usamos la carga inicial
+          final items = snapshot.data ?? _initialTrips;
+
+          if (items == null) {
+            // Primer frame (o mientras resuelve list())
             return const Center(child: CircularProgressIndicator());
           }
 
-          widget.viajes = snapshot.data!;
-          if (widget.viajes.isEmpty) {
+          widget.viajes = items;
+          if (items.isEmpty) {
             return const Center(
               child: Text(
                 'No tienes ningún viaje registrado.',
@@ -151,9 +175,9 @@ class _MyHomePageState extends State<MyHomePage> {
           }
 
           return ListView.builder(
-            itemCount: widget.viajes.length,
+            itemCount: items.length,
             itemBuilder: (context, index) {
-              final viaje = widget.viajes[index];
+              final viaje = items[index];
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -187,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder: (context) => Pantalla_Viaje(
                           selectedIndex: _selectedIndex,
-                          viajes: widget.viajes,
+                          viajes: items,
                           num_viaje: index,
                           repo: widget.tripRepo,
                           tripService: widget.tripService,
