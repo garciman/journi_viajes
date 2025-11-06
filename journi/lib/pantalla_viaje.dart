@@ -252,6 +252,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
               },
             ),
             IconButton(
+              key: const Key('anadirFoto'),
               icon: const Icon(Icons.camera_alt, color: Colors.black),
               tooltip: 'Subir foto',
               onPressed: () {
