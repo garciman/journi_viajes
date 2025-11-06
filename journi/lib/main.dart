@@ -10,6 +10,7 @@ import 'data/memory/in_memory_trip_repository.dart';
 import 'data/memory/in_memory_entry_repository.dart';
 import 'domain/trip.dart';
 import 'application/trip_service.dart';
+import 'map_screen.dart';
 
 bool sesionIniciada = false; // cambiarás a true cuando el usuario inicie sesión
 void main() {
@@ -229,7 +230,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             );
-          }// 👤 Mi perfil (index 4)
+          }
+          else if (index == 1) {
+            // Ir al mapa
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MapaPaisScreen(),
+              ),
+            );
+          }
+          // 👤 Mi perfil (index 4)
           else if (index == 4) {
             if (sesionIniciada) {
               // Sesión iniciada → ir directamente a MiPerfil
