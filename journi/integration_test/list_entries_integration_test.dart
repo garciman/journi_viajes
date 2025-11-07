@@ -7,11 +7,14 @@ import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/entry_service.dart';
 import 'package:journi/main.dart';
 
+import 'entry_mock.dart';
+import 'trip_mock.dart';
+
 void main() {
   // 🔧 Inicializa el entorno de test (sustituye al antiguo IntegrationTestWidgetsFlutterBinding)
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('🧭 Pruebas de integración: Crear_Foto_Entry', () {
+  group('🧭 Pruebas de integración: Crear_Text_Entry', () {
     late InMemoryTripRepository tripRepo;
     late InMemoryEntryRepository entryRepo;
     late DefaultTripService tripService;
@@ -24,7 +27,7 @@ void main() {
       entryService = DefaultEntryService(repo: entryRepo);
     });
 
-    testWidgets('✅ Añadir foto correctamente', (WidgetTester tester) async {
+    testWidgets('✅ Crear entrada correctamente', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
@@ -59,18 +62,26 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
       await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('anadirEntrada')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('textoEntrada')),
+        'Que grande que eres Nano',
+      );
+      await tester.tap(find.byKey(const Key('aceptarButton')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('anadirFoto')));
       await tester.pumpAndSettle();
       // Pulsar botón de añadir foto
       await tester.tap(find.byKey(const Key('adjuntarFoto')));
       await tester.pumpAndSettle();
-
       expect(find.byKey(const Key('eid0')), findsOneWidget);
+      expect(find.byKey(const Key('eid1')), findsOneWidget);
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
     });
 
-    testWidgets('❌ Error: Cancela operación de añadir foto', (WidgetTester tester) async {
+    testWidgets('❌ Error: Entrada vacía', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
@@ -81,15 +92,13 @@ void main() {
         ),
       ));
 
-      // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
-
       await tester.pumpAndSettle();
 
       // 🧩 Campos con fechas inválidas
       await tester.enterText(
         find.byKey(const Key('tituloField')),
-        'Nanoseco',
+        'Nanosecso',
       );
       await tester.enterText(
         find.byKey(const Key('fechaIniField')),
@@ -105,9 +114,13 @@ void main() {
 
       await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('anadirFoto')));
-      await tester.pageBack();
+      await tester.tap(find.byKey(const Key('anadirEntrada')));
       await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('textoEntrada')),
+        '',
+      );
+      await tester.tap(find.byKey(const Key('aceptarButton')));
       expect(find.byKey(const Key('eid0')), findsNothing);
 
     });

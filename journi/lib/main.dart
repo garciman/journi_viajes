@@ -11,6 +11,8 @@ import 'data/memory/in_memory_entry_repository.dart';
 import 'domain/trip.dart';
 import 'application/trip_service.dart';
 import 'map_screen.dart';
+import 'integration_test/mockIImagePicker.dart';
+import 'mockImagePicker.dart';
 
 bool sesionIniciada = false; // cambiarás a true cuando el usuario inicie sesión
 void main() {
@@ -54,10 +56,10 @@ class MyHomePage extends StatefulWidget {
   });
 
   final String title;
-   List<Trip> viajes = [];
+  List<Trip> viajes = [];
   final InMemoryTripRepository repo;
   final TripService tripService;
-
+  final MockImagePicker picker = MockImagePicker();
 
   final EntryService entryService;
 
@@ -183,6 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           repo: widget.repo,
                           tripService: widget.tripService,
                           entryService: widget.entryService,
+                          picker: widget.picker,
                         ),
                       ),
                     );

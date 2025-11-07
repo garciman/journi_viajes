@@ -15,8 +15,6 @@ import 'editar_viaje.dart';
 import 'package:image_picker/image_picker.dart';
 import 'video_player_widget.dart';
 
-
-
 class Pantalla_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   List<Trip> viajes;
@@ -24,6 +22,7 @@ class Pantalla_Viaje extends StatefulWidget {
   InMemoryTripRepository repo;
   TripService tripService;
   EntryService entryService;
+  final ImagePicker? picker;
 
 
   Pantalla_Viaje(
@@ -32,7 +31,7 @@ class Pantalla_Viaje extends StatefulWidget {
         required this.num_viaje,
         required this.repo,
         required this.tripService,
-        required this.entryService});
+        required this.entryService, this.picker});
 
   @override
   _PantallaViajeState createState() => _PantallaViajeState();
@@ -264,10 +263,10 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                       title: const Text('¿Qué quieres subir?'),
                       actions: [
                         TextButton(
+                          key: const Key('adjuntarFoto'),
                           onPressed: () async {
                             Navigator.pop(context);
-                            final XFile? pickedFile =
-                            await _picker.pickImage(source: ImageSource.gallery);
+                            final XFile? pickedFile = await (widget.picker ?? _picker).pickImage(source: ImageSource.gallery);
                             if (pickedFile != null) {
                               final cmd = CreateEntryCommand(
                                 id: UniqueKey().toString(),
@@ -433,6 +432,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                       "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
                       "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
 
+
                   return Card(
                     color: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -458,13 +458,16 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
 
                 // 🔹 Si es una imagen
                 if (e.type == EntryType.photo && e.mediaUri != null) {
+
                   final file = File(e.mediaUri!);
                   final fecha = e.createdAt.toLocal();
                   final fechaFormateada =
                       "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
                       "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
 
+
                   return Card(
+                    key: ValueKey('eid$index'),
                     color: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                     margin: const EdgeInsets.symmetric(vertical: 8),
