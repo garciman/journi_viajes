@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:journi/application/entry_service.dart';
 import 'package:journi/application/trip_service.dart';
+import 'package:journi/data/local/drift/app_database.dart';
+import 'package:journi/data/local/drift/drift_entry_repository.dart';
+import 'package:journi/data/local/drift/drift_trip_repository.dart';
 import 'package:journi/data/memory/in_memory_entry_repository.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
+import 'package:journi/domain/ports/entry_repository.dart';
+import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/main.dart';
 
 void main(){
@@ -14,12 +19,17 @@ void main(){
     late InMemoryEntryRepository entryRepo;
     late DefaultTripService tripService;
     late DefaultEntryService entryService;
+    late TripRepository tRepo;
+    late EntryRepository eRepo;
+    final db = AppDatabase();
 
     setUp(() {
       tripRepo = InMemoryTripRepository();
       entryRepo = InMemoryEntryRepository();
       tripService = DefaultTripService(repo: tripRepo);
       entryService = DefaultEntryService(repo: entryRepo);
+      tRepo = DriftTripRepository(db);
+      eRepo = DriftEntryRepository(db);
     });
 
     testWidgets('✅ Viaje listado correctamente', (WidgetTester tester) async {
@@ -27,9 +37,8 @@ void main(){
         home: MyHomePage(
           title: 'JOURNI',
           viajes: [],
-          repo: tripRepo,
           tripService: tripService,
-          entryService: entryService,
+          entryService: entryService, tripRepo: tRepo, entryRepo: eRepo,
         ),
       ));
 
@@ -66,9 +75,8 @@ void main(){
         home: MyHomePage(
           title: 'JOURNI',
           viajes: [],
-          repo: tripRepo,
           tripService: tripService,
-          entryService: entryService,
+          entryService: entryService, tripRepo: tRepo, entryRepo: eRepo,
         ),
       ));
 
