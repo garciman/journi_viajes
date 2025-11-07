@@ -53,7 +53,7 @@ class GetEntryByIdUseCase {
 class DeleteEntryUseCase {
   final EntryRepository repo;
   DeleteEntryUseCase(this.repo);
-  Future<Result<void>> call(String id) => repo.deleteById(id);
+  Future<Result<Unit>> call(String id) => repo.deleteById(id);
 }
 
 class ListEntriesUseCase {

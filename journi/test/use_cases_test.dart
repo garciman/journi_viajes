@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/application/use_cases/use_cases.dart'; // ajusta la ruta real si difiere
@@ -68,11 +69,11 @@ class InMemoryTripRepo implements TripRepository {
   }
 
   @override
-  Future<Result<void>> deleteById(String id) async {
+  Future<Result<Unit>> deleteById(String id) async {
     // Idempotente: eliminar inexistente retorna Ok(void)
     _store.remove(id);
     _emit();
-    return Ok(null);
+    return const Ok(unit);
   }
 
   void dispose() {

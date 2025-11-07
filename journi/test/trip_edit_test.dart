@@ -2,6 +2,7 @@
 // import 'package:tu_paquete/trip.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:journi/domain/trip.dart';
+import 'package:journi/application/shared/result.dart'; // <- añade el Result oficial
 
 void main() {
   group('Trip.create - validaciones y normalización', () {
@@ -12,8 +13,7 @@ void main() {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-      expect(res,
-          isA<Ok<Trip>>()); // group/test/expect son prácticas estándar. :contentReference[oaicite:2]{index=2}
+      expect(res, isA<Ok<Trip>>());
       final trip = (res as Ok<Trip>).value;
       expect(trip.title, 'Mi viaje');
     });
@@ -54,8 +54,7 @@ void main() {
       );
       expect(res, isA<Err<Trip>>());
       final msgs = (res as Err<Trip>).errors.map((e) => e.message).join(' | ');
-      expect(
-          msgs.contains('description supera ${Trip.descriptionMax}'), isTrue);
+      expect(msgs.contains('description supera ${Trip.descriptionMax}'), isTrue);
     });
 
     test('startDate > endDate -> Err', () {
@@ -88,12 +87,10 @@ void main() {
         updatedAt: ua,
       );
       final trip = (res as Ok<Trip>).value;
-      // DateTime.isUtc/toUtc se comportan según especificación oficial. :contentReference[oaicite:3]{index=3}
       expect(trip.startDate!.isUtc, isTrue);
       expect(trip.endDate!.isUtc, isTrue);
       expect(trip.createdAt.isUtc, isTrue);
       expect(trip.updatedAt.isUtc, isTrue);
-      // El orden se mantiene tras normalización:
       expect(trip.startDate!.isBefore(trip.endDate!), isTrue);
     });
 

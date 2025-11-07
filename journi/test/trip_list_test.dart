@@ -8,19 +8,21 @@ import 'package:journi/domain/trip.dart';
 import 'package:journi/main.dart';
 import 'package:journi/pantalla_viaje.dart';
 
-void main(){
+void main() {
   testWidgets('Muestra CircularProgressIndicator mientras se cargan los viajes', (tester) async {
     // Simulamos un stream que todavía no ha emitido nada
-    final repo = InMemoryTripRepository(); // crearás un fake que no emite al instante
+    final repo = InMemoryTripRepository();
+    final entryRepo = InMemoryEntryRepository();
     final tripService = makeTripService(repo);
-    final entryService = makeEntryService(InMemoryEntryRepository());
+    final entryService = makeEntryService(entryRepo);
 
     await tester.pumpWidget(MaterialApp(
       home: MyHomePage(
         title: 'JOURNI',
         viajes: const [],
-        repo: repo,
+        tripRepo: repo,
         tripService: tripService,
+        entryRepo: entryRepo,
         entryService: entryService,
       ),
     ));
@@ -28,17 +30,20 @@ void main(){
     // Como aún no hay datos, debería mostrar el indicador
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
+
   testWidgets('Muestra mensaje si no hay viajes registrados', (tester) async {
     final repo = InMemoryTripRepository();
+    final entryRepo = InMemoryEntryRepository();
     final tripService = makeTripService(repo);
-    final entryService = makeEntryService(InMemoryEntryRepository());
+    final entryService = makeEntryService(entryRepo);
 
     await tester.pumpWidget(MaterialApp(
       home: MyHomePage(
         title: 'JOURNI',
         viajes: const [],
-        repo: repo,
+        tripRepo: repo,
         tripService: tripService,
+        entryRepo: entryRepo,
         entryService: entryService,
       ),
     ));
@@ -47,14 +52,30 @@ void main(){
 
     expect(find.text('No tienes ningún viaje registrado.'), findsOneWidget);
   });
+
   testWidgets('Renderiza la lista de viajes correctamente', (tester) async {
     final repo = InMemoryTripRepository();
+    final entryRepo = InMemoryEntryRepository();
     final tripService = makeTripService(repo);
-    final entryService = makeEntryService(InMemoryEntryRepository());
+    final entryService = makeEntryService(entryRepo);
 
     // Insertamos algunos viajes
-    final trip1 = Trip(id: '1', title: 'Madrid', startDate: DateTime(2025,1,1), endDate: DateTime(2025,1,5), createdAt: DateTime.now(), updatedAt: DateTime.now());
-    final trip2 = Trip(id: '2', title: 'Barcelona', startDate: DateTime(2025,2,1), endDate: DateTime(2025,2,10), createdAt: DateTime.now(), updatedAt: DateTime.now());
+    final trip1 = Trip(
+      id: '1',
+      title: 'Madrid',
+      startDate: DateTime(2025, 1, 1),
+      endDate: DateTime(2025, 1, 5),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    final trip2 = Trip(
+      id: '2',
+      title: 'Barcelona',
+      startDate: DateTime(2025, 2, 1),
+      endDate: DateTime(2025, 2, 10),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
     repo.upsert(trip1);
     repo.upsert(trip2);
 
@@ -62,8 +83,9 @@ void main(){
       home: MyHomePage(
         title: 'JOURNI',
         viajes: const [],
-        repo: repo,
+        tripRepo: repo,
         tripService: tripService,
+        entryRepo: entryRepo,
         entryService: entryService,
       ),
     ));
@@ -73,20 +95,30 @@ void main(){
     expect(find.text('Madrid'), findsOneWidget);
     expect(find.text('Barcelona'), findsOneWidget);
   });
+
   testWidgets('Al pulsar un viaje navega a Pantalla_Viaje', (tester) async {
     final repo = InMemoryTripRepository();
+    final entryRepo = InMemoryEntryRepository();
     final tripService = makeTripService(repo);
-    final entryService = makeEntryService(InMemoryEntryRepository());
+    final entryService = makeEntryService(entryRepo);
 
-    final trip = Trip(id: '1', title: 'TestTrip', startDate: DateTime.now(), endDate: DateTime.now(), createdAt: DateTime.now(), updatedAt: DateTime.now());
+    final trip = Trip(
+      id: '1',
+      title: 'TestTrip',
+      startDate: DateTime.now(),
+      endDate: DateTime.now(),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
     repo.upsert(trip);
 
     await tester.pumpWidget(MaterialApp(
       home: MyHomePage(
         title: 'JOURNI',
         viajes: const [],
-        repo: repo,
+        tripRepo: repo,
         tripService: tripService,
+        entryRepo: entryRepo,
         entryService: entryService,
       ),
     ));
@@ -100,5 +132,4 @@ void main(){
     // Verificamos que se ha navegado a la nueva pantalla
     expect(find.byType(Pantalla_Viaje), findsOneWidget);
   });
-
 }

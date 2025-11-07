@@ -1,13 +1,10 @@
-// import 'package:collection/collection.dart';
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/domain/trip_queries.dart';
 
 /// Repositorio de dominio para `Trip` siguiendo Clean Architecture.
-///
-/// - Define una **API estable** para la capa de aplicación/presentación.
-/// - No conoce detalles de persistencia (Firestore/Drift, etc.).
 abstract class TripRepository {
-  /// Crea o actualiza (idempotente por `id`). Devuelve el `Trip` validado que quedó persistido.
+  /// Crea o actualiza (idempotente por `id`). Devuelve el `Trip` validado persistido.
   Future<Result<Trip>> upsert(Trip trip);
 
   /// Recupera un `Trip` por id (o `Ok(null)` si no existe).
@@ -20,5 +17,5 @@ abstract class TripRepository {
   Stream<List<Trip>> watchAll({TripPhase? phase});
 
   /// Elimina por id.
-  Future<Result<void>> deleteById(String id);
+  Future<Result<Unit>> deleteById(String id); // <- Unit unificado
 }

@@ -46,6 +46,9 @@ app.*.map.json
 coverage/
 coverage/**/index.html
 coverage/*.info
+android/gradle.properties.bak
 
+# ephemeral files
+ephemeral/
 # FVM Version Cache
 .fvm/

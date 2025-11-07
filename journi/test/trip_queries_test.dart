@@ -1,5 +1,6 @@
 // Ajusta imports según tu estructura de proyecto.
 import 'package:flutter_test/flutter_test.dart';
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/domain/trip_queries.dart';
 

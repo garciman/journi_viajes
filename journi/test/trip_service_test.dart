@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/domain/trip_queries.dart';
@@ -61,10 +62,10 @@ class FakeTripRepository implements TripRepository {
   }
 
   @override
-  Future<Result<void>> deleteById(String id) async {
+  Future<Result<Unit>> deleteById(String id) async { // 👈 Unit unificado
     _store.remove(id);
     _emit();
-    return const Ok<void>(null);
+    return const Ok(unit);                             // 👈 Ok<Unit>
   }
 
   void dispose() {
@@ -80,7 +81,7 @@ T expectOk<T>(Result<T> r) {
   return (r as Ok<T>).value;
 }
 
-List<ValidationError> expectErrList<T>(Result<T> r) {
+List<AppError> expectErrList<T>(Result<T> r) {
   expect(r, isA<Err<T>>());
   return (r as Err<T>).errors;
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/domain/trip_queries.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
@@ -30,7 +31,6 @@ class InMemoryTripRepository implements TripRepository {
 
   @override
   Future<Result<Trip>> upsert(Trip trip) async {
-    // Revalida vía dominio por si alguien construyó un Trip no-normalizado
     final res = Trip.create(
       id: trip.id,
       title: trip.title,
@@ -56,17 +56,20 @@ class InMemoryTripRepository implements TripRepository {
       Ok(_filtered(phase));
 
   @override
-  Stream<List<Trip>> watchAll({TripPhase? phase}) => phase == null
-      ? _controller.stream
-      : _controller.stream.map((_) => _filtered(phase));
-
-  @override
-  Future<Result<void>> deleteById(String id) async {
-    _store.remove(id);
-    _emit();
-    return const Ok(null);
+  Stream<List<Trip>> watchAll({TripPhase? phase}) {
+    // ❗️Sin snapshot inicial: solo reemitimos lo que publique _controller.
+    final base = _controller.stream; // broadcast; múltiples listeners
+    if (phase == null) return base;
+    // Filtramos manteniendo el orden por createdAt (ya viene ordenado).
+    return base.map((items) => items.where((t) => t.phase == phase).toList());
   }
 
-  /// Limpia recursos del stream cuando ya no se use (por ejemplo en tests).
-  Future<void> dispose() async => _controller.close();
+  @override
+  Future<Result<Unit>> deleteById(String id) async {
+    _store.remove(id);
+    _emit();
+    return const Ok(unit);
+  }
+
+  Future<void> dispose() async => _controller.close(); // emite done a listeners
 }

@@ -1,3 +1,4 @@
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/use_cases/use_cases.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
@@ -31,7 +32,7 @@ class TripServiceMock implements TripService {
   }
 
   @override
-  Future<Result<void>> deleteById(String id) async => Ok(null);
+  Future<Result<Unit>> deleteById(String id) async => const Ok(unit);
 
   @override
   Future<Result<Trip>> updateTitleById(String id, String newTitle) async {

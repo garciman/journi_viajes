@@ -1,3 +1,4 @@
+import 'package:journi/application/shared/result.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/domain/trip_extensions.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
@@ -123,7 +124,7 @@ class DeleteTripUseCase {
   final TripRepository repo;
   DeleteTripUseCase(this.repo);
 
-  Future<Result<void>> call(String id) {
+  Future<Result<Unit>> call(String id) {
     return repo.deleteById(id);
   }
 }
