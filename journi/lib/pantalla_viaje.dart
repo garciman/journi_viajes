@@ -225,6 +225,27 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         },
                         child: const Text('Hacer foto'),
                       ),
+
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          final XFile? video =
+                          await _picker.pickVideo(source: ImageSource.gallery);
+                          if (video != null) {
+                            final cmd = CreateEntryCommand(
+                              id: UniqueKey().toString(),
+                              tripId: widget.viajes[widget.num_viaje].id,
+                              type: EntryType.video, // 👈 asegúrate de tenerlo en tu modelo
+                              mediaUri: video.path,
+                            );
+                            await widget.entryService.create(cmd);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Video añadido correctamente')),
+                            );
+                          }
+                        },
+                        child: const Text('Adjuntar video'),
+                      ),
                     ],
                   );
                 },

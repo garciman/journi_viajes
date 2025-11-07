@@ -16,7 +16,9 @@ import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/domain/trip.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/entry_service.dart';
-import 'package:journi/application/shared/result.dart'; // <- para leer Ok/Err en la carga inicial
+import 'package:journi/application/shared/result.dart';
+
+import 'map_screen.dart'; // <- para leer Ok/Err en la carga inicial
 
 void main() {
   final db = AppDatabase();
@@ -265,6 +267,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               );
             }
+
+    else if (index == 1) {
+    // Ir al mapa
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MapaPaisScreen(),
+        ),
+      );
+    }
           });
         },
       ),
