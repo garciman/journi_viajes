@@ -28,6 +28,9 @@ import 'package:journi/application/entry_service.dart';
 import 'package:journi/application/shared/result.dart';
 
 import 'map_screen.dart'; // <- para leer Ok/Err en la carga inicial
+import 'package:journi/mi_perfil.dart';
+import 'package:journi/login_screen.dart';
+
 
 void main() {
   final db = AppDatabase();
@@ -279,18 +282,35 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               );
+            }else if (index == 1) {
+              // Ir al mapa
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MapaPaisScreen(),
+                ),
+              );
+            }else if (index == 4) {
+              //mi perfil
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MiPerfil(),
+                ),
+              );
+            } else {
+              // Sin sesión → ir a pantalla de login
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ),
+              );
             }
+          }
 
-    else if (index == 1) {
-    // Ir al mapa
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const MapaPaisScreen(),
-        ),
-      );
-    }
-          });
+
+          );
         },
       ),
     );

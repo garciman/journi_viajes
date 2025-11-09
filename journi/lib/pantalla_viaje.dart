@@ -16,6 +16,9 @@ import 'editar_viaje.dart';
 import 'package:image_picker/image_picker.dart';
 import 'video_player_widget.dart';
 
+import 'package:journi/mi_perfil.dart';
+import 'package:journi/login_screen.dart';
+
 
 class Pantalla_Viaje extends StatefulWidget {
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
@@ -459,8 +462,18 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
               // ✅ Volver a la home existente
               Navigator.pop(context);
             }
+            if (widget.selectedIndex == 4) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
+                  builder: (context) => const LoginScreen(),
+                ),
+              );
+            }
           });
-        },
+        }
+        ,
       ),
     );
   }
