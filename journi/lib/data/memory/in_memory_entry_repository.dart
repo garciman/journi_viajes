@@ -80,11 +80,3 @@ class InMemoryEntryRepository implements EntryRepository {
     _changes.close();
   }
 }
-
-/// Extensión utilitaria para emitir el valor inicial en watchAll.
-extension _StartWith<T> on Stream<T> {
-  Stream<T> startWith(T initial) async* {
-    yield initial;
-    yield* this;
-  }
-}
