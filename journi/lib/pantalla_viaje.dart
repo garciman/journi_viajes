@@ -15,7 +15,7 @@ import 'application/shared/result.dart';
 import 'editar_viaje.dart';
 import 'package:image_picker/image_picker.dart';
 import 'video_player_widget.dart';
-
+import 'select_location_screen.dart';
 import 'package:journi/mi_perfil.dart';
 import 'package:journi/login_screen.dart';
 
@@ -279,6 +279,45 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   ),
                 ),
               );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.location_on, color: Colors.black),
+            tooltip: 'Añadir ubicación',
+            onPressed: () async {
+              // Abrimos la pantalla de seleccionar ubicación
+              final result = await Navigator.push<SelectedLocation>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SelectLocationScreen(),
+                ),
+              );
+
+              // Si el usuario ha pulsado GUARDAR (no cancelar / back)
+              if (result != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Ubicación guardada: ${result.name} '
+                          '(${result.position.latitude.toStringAsFixed(4)}, '
+                          '${result.position.longitude.toStringAsFixed(4)})',
+                    ),
+                  ),
+                );
+
+                // 👉 Aquí podrías guardar en BD creando una Entry nueva
+                // cuando amplíes tu modelo para soportar ubicaciones.
+                // Por ejemplo:
+                // final cmd = CreateEntryCommand(
+                //   id: UniqueKey().toString(),
+                //   tripId: widget.viajes[widget.num_viaje].id,
+                //   type: EntryType.location,
+                //   text: result.name,
+                //   lat: result.position.latitude,
+                //   lng: result.position.longitude,
+                // );
+                // await widget.entryService.create(cmd);
+              }
             },
           ),
           IconButton(
