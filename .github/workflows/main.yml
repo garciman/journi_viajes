@@ -1,0 +1,30 @@
+name: CI
+on:
+  push:
+    branches: [main]
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true  # evita colas inútiles
+jobs:
+  lint-test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml  # fija versión del proyecto
+          cache: true
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter format --set-exit-if-changed .
+      - run: flutter analyze
+      - run: flutter test --coverage
+      - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-and-builds
+          path: |
+            coverage/**
+            build/web/**
+            build/app/outputs/**/*.apk
