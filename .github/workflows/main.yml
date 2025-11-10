@@ -2,29 +2,40 @@ name: CI
 on:
   push:
     branches: [main]
+
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true  # evita colas inútiles
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ./journi
+
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Instala Flutter leyendo la versión del pubspec DENTRO de journi
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version-file: ./journi/pubspec.yaml  # fija versión del proyecto
+          flutter-version-file: ./journi/pubspec.yaml
           cache: true
+
       - run: flutter --version
       - run: flutter pub get
       - run: flutter format --set-exit-if-changed .
       - run: flutter analyze
       - run: flutter test --coverage
       - run: flutter build apk --debug
+
+      # Ojo: upload-artifact NO usa defaults.run, así que las rutas van desde la raíz del repo
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-and-builds
           path: |
-            coverage/**
-            build/web/**
-            build/app/outputs/**/*.apk
+            journi/coverage/**
+            journi/build/web/**
+            journi/build/app/outputs/**/*.apk
