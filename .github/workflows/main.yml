@@ -21,7 +21,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version-file: ./journi/pubspec.yaml
+          #flutter-version-file: ./journi/pubspec.yaml
           cache: true
 
       - run: flutter --version
