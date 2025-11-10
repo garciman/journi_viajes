@@ -45,9 +45,9 @@ void main() {
       entryService.create(cmd);
 
       final res = await repo.findById('eid0');
-      Entry? entry;
+      final Entry? entry;
       if (res is Ok<Entry>) {
-        final entry = res.value;
+        entry = res.value;
       } else {
         entry = null;
       }

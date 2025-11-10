@@ -8,6 +8,7 @@ void main() async {
   final entries = makeEntryService(repo);
 
   // Crear una nota
+  // ignore: unused_local_variable
   final r1 = await entries.create(CreateEntryCommand(
     id: 'e1',
     tripId: 't1',
@@ -16,6 +17,7 @@ void main() async {
   ));
 
   // Crear una foto
+  // ignore: unused_local_variable
   final r2 = await entries.create(CreateEntryCommand(
     id: 'e2',
     tripId: 't1',

@@ -13,7 +13,6 @@ abstract class EntryService {
 }
 
 class DefaultEntryService implements EntryService {
-  final EntryRepository _repo;
   final CreateEntryUseCase _createUC;
   final GetEntryByIdUseCase _getUC;
   final DeleteEntryUseCase _deleteUC;
@@ -27,8 +26,7 @@ class DefaultEntryService implements EntryService {
     DeleteEntryUseCase? deleteUC,
     ListEntriesUseCase? listUC,
     WatchEntriesUseCase? watchUC,
-  })  : _repo = repo,
-        _createUC = createUC ?? CreateEntryUseCase(repo),
+  })  : _createUC = createUC ?? CreateEntryUseCase(repo),
         _getUC = getUC ?? GetEntryByIdUseCase(repo),
         _deleteUC = deleteUC ?? DeleteEntryUseCase(repo),
         _listUC = listUC ?? ListEntriesUseCase(repo),

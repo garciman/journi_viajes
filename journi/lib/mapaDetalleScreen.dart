@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:journi/data/local/drift/app_database.dart';
-import 'package:journi/data/local/drift/drift_trip_repository.dart';
 import 'package:journi/domain/trip.dart';
-import 'package:journi/application/trip_service.dart';
-import 'package:journi/application/shared/result.dart';
-
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';

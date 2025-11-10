@@ -15,7 +15,6 @@ class MockImagePicker extends ImagePicker {
     required ImageSource source,
   }) async {
     // Crear un archivo temporal fake
-    final tempDir = Directory.systemTemp;
     final image = img.Image(width: 100, height: 100);
     img.fill(image, color: img.ColorRgb8(255, 0, 0));
 

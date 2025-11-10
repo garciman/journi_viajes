@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:latlong2/latlong.dart';
 
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/entry_service.dart';
@@ -13,10 +12,7 @@ import 'package:journi/domain/trip.dart' hide Ok;
 
 import 'application/shared/result.dart';
 import 'editar_viaje.dart';
-import 'package:image_picker/image_picker.dart';
-import 'video_player_widget.dart';
 import 'select_location_screen.dart';
-import 'package:journi/mi_perfil.dart';
 import 'package:journi/login_screen.dart';
 
 class Pantalla_Viaje extends StatefulWidget {

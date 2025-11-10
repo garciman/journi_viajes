@@ -8,13 +8,9 @@ import 'package:journi/data/local/drift/app_database.dart';
 import 'package:journi/data/local/drift/drift_entry_repository.dart';
 import 'package:journi/data/local/drift/drift_trip_repository.dart';
 import 'application/entry_service.dart';
-import 'application/use_cases/use_cases.dart';
-import 'data/memory/in_memory_trip_repository.dart';
-import 'data/memory/in_memory_entry_repository.dart';
 import 'domain/trip.dart';
 import 'application/trip_service.dart';
 import 'map_screen.dart';
-import 'integration_test/mockIImagePicker.dart';
 import 'mockImagePicker.dart';
 
 // Puertos (interfaces)
@@ -22,13 +18,8 @@ import 'package:journi/domain/ports/entry_repository.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
 
 // Dominio / aplicación
-import 'package:journi/domain/trip.dart';
-import 'package:journi/application/trip_service.dart';
-import 'package:journi/application/entry_service.dart';
 import 'package:journi/application/shared/result.dart';
 
-import 'map_screen.dart'; // <- para leer Ok/Err en la carga inicial
-import 'package:journi/mi_perfil.dart';
 import 'package:journi/login_screen.dart';
 
 void main() {
