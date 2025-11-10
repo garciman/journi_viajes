@@ -295,14 +295,6 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MiPerfil(),
-                ),
-              );
-            } else {
-              // Sin sesión → ir a pantalla de login
-              Navigator.push(
-                context,
-                MaterialPageRoute(
                   builder: (context) => const LoginScreen(),
                 ),
               );

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 
 
 import 'package:journi/application/trip_service.dart';
@@ -117,6 +118,65 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
       ),
     );
   }
+
+  void _editarUbicacion(Entry entry) async {
+    final nameController = TextEditingController(text: entry.text);
+
+    // Abre un cuadro de diálogo simple para cambiar el nombre
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar ubicación'),
+          content: TextField(
+            controller: nameController,
+            decoration: const InputDecoration(
+              hintText: 'Nuevo nombre de la ubicación',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final nuevoNombre = nameController.text.trim();
+                if (nuevoNombre.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('El nombre no puede estar vacío')),
+                  );
+                  return;
+                }
+
+                // Simula "actualizar" la ubicación eliminando y recreando
+                await widget.entryService.deleteById(entry.id);
+
+                final cmd = CreateEntryCommand(
+                  id: UniqueKey().toString(),
+                  tripId: widget.viajes[widget.num_viaje].id,
+                  type: EntryType.location,
+                  text: nuevoNombre,
+                );
+                await widget.entryService.create(cmd);
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Ubicación actualizada')),
+                  );
+                  setState(() {});
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -285,7 +345,6 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
             icon: const Icon(Icons.location_on, color: Colors.black),
             tooltip: 'Añadir ubicación',
             onPressed: () async {
-              // Abrimos la pantalla de seleccionar ubicación
               final result = await Navigator.push<SelectedLocation>(
                 context,
                 MaterialPageRoute(
@@ -293,30 +352,21 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                 ),
               );
 
-              // Si el usuario ha pulsado GUARDAR (no cancelar / back)
               if (result != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Ubicación guardada: ${result.name} '
-                          '(${result.position.latitude.toStringAsFixed(4)}, '
-                          '${result.position.longitude.toStringAsFixed(4)})',
-                    ),
-                  ),
+                // ✅ Guardamos como nueva Entry en la base de datos
+                final cmd = CreateEntryCommand(
+                  id: UniqueKey().toString(),
+                  tripId: widget.viajes[widget.num_viaje].id,
+                  type: EntryType.location,
+                  text:
+                  '${result.name} (${result.position.latitude.toStringAsFixed(4)}, ${result.position.longitude.toStringAsFixed(4)})',
                 );
 
-                // 👉 Aquí podrías guardar en BD creando una Entry nueva
-                // cuando amplíes tu modelo para soportar ubicaciones.
-                // Por ejemplo:
-                // final cmd = CreateEntryCommand(
-                //   id: UniqueKey().toString(),
-                //   tripId: widget.viajes[widget.num_viaje].id,
-                //   type: EntryType.location,
-                //   text: result.name,
-                //   lat: result.position.latitude,
-                //   lng: result.position.longitude,
-                // );
-                // await widget.entryService.create(cmd);
+                await widget.entryService.create(cmd);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Ubicación añadida correctamente')),
+                );
               }
             },
           ),
@@ -403,6 +453,35 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         await widget.entryService.deleteById(e.id);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Texto eliminado')),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              }
+
+              // Ubicación
+              if (e.type == EntryType.location && e.text != null) {
+                final fecha = e.createdAt.toLocal();
+                final fechaFormateada =
+                    "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
+                    "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+
+                return Card(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  child: ListTile(
+                    leading: const Icon(Icons.location_on, color: Colors.teal),
+                    title: Text(e.text!),
+                    subtitle: Text('Añadida el $fechaFormateada'),
+                    onTap: () => _editarUbicacion(e), // 👈 NUEVO: editar al tocar
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () async {
+                        await widget.entryService.deleteById(e.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Ubicación eliminada')),
                         );
                       },
                     ),

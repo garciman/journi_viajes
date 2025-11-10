@@ -1,7 +1,7 @@
 import 'package:journi/application/shared/result.dart';
 
 /// Tipos de entrada soportados.
-enum EntryType { note, photo, video }
+enum EntryType { note, photo, video, location }
 
 /// Ubicación opcional asociada a la entrada.
 class EntryLocation {
@@ -59,20 +59,27 @@ class Entry {
     }
 
     // Reglas según tipo
+
     switch (type) {
       case EntryType.note:
         if (text == null || text.trim().isEmpty) {
           errors.add(ValidationError('Una nota debe tener texto'));
         }
         break;
+
       case EntryType.photo:
       case EntryType.video:
         if (mediaUri == null || mediaUri.trim().isEmpty) {
           errors.add(ValidationError('mediaUri requerido para foto/vídeo'));
         }
         break;
-    }
 
+      case EntryType.location:
+        if (text == null || text.trim().isEmpty) {
+          errors.add(ValidationError('Una ubicación debe tener texto o coordenadas'));
+        }
+        break;
+    }
     // Validación de ubicación
     if (location != null) {
       final lat = location.lat;
