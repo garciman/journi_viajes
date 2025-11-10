@@ -13,7 +13,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version-file: pubspec.yaml  # fija versión del proyecto
+          flutter-version-file: ./journi/pubspec.yaml  # fija versión del proyecto
           cache: true
       - run: flutter --version
       - run: flutter pub get
