@@ -9,20 +9,17 @@ import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/domain/trip.dart';
 
 class Crear_Viaje extends StatefulWidget {
-  int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
-  int num_viaje;
-  List<Trip> viajes;
+  // 🔒 Los campos del Widget deben ser inmutables (final)
+  final int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
+  final int num_viaje;
+  final List<Trip> viajes;
 
-  // 👉 Ahora usamos el puerto (interfaz), no el repo in-memory
+  // Servicios/puertos (también inmutables)
   final TripRepository repo;
   final TripService tripService;
   final EntryService entryService;
 
-  final _titulo = TextEditingController();
-  final _fecha_ini = TextEditingController();
-  final _fecha_fin = TextEditingController();
-
-  Crear_Viaje({
+  const Crear_Viaje({
     super.key,
     required this.selectedIndex,
     required this.viajes,
@@ -37,6 +34,44 @@ class Crear_Viaje extends StatefulWidget {
 }
 
 class _CrearViajeState extends State<Crear_Viaje> {
+  // 🔁 Estado mutable aquí (no en el Widget)
+  late int _selectedIndex;
+
+  // Controladores deben vivir en el State y hacerse dispose()
+  late final TextEditingController _titulo;
+  late final TextEditingController _fecha_ini;
+  late final TextEditingController _fecha_fin;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
+
+    _titulo = TextEditingController();
+    _fecha_ini = TextEditingController();
+    _fecha_fin = TextEditingController();
+
+    // Rellena campos si venimos en modo edición
+    if (widget.num_viaje >= 0) {
+      final trip = widget.viajes[widget.num_viaje];
+      final fechaInicial =
+          DateFormat('dd-MM-yyyy').format(trip.startDate ?? DateTime.now());
+      final fechaFinal =
+          DateFormat('dd-MM-yyyy').format(trip.endDate ?? DateTime.now());
+      _titulo.text = trip.title;
+      _fecha_ini.text = fechaInicial;
+      _fecha_fin.text = fechaFinal;
+    }
+  }
+
+  @override
+  void dispose() {
+    _titulo.dispose();
+    _fecha_ini.dispose();
+    _fecha_fin.dispose();
+    super.dispose();
+  }
+
   DateTime? _parseDdMmYyyy(String input) {
     try {
       return DateFormat('dd-MM-yyyy').parseStrict(input);
@@ -52,8 +87,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
         title: const Text('Error'),
         content: Text(message),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('OK')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK')),
         ],
       ),
     );
@@ -61,18 +95,6 @@ class _CrearViajeState extends State<Crear_Viaje> {
 
   @override
   Widget build(BuildContext context) {
-    // Rellena campos si venimos en modo edición
-    if (widget.num_viaje >= 0) {
-      final trip = widget.viajes[widget.num_viaje];
-      final fechaInicial =
-          DateFormat('dd-MM-yyyy').format(trip.startDate ?? DateTime.now());
-      final fechaFinal =
-          DateFormat('dd-MM-yyyy').format(trip.endDate ?? DateTime.now());
-      widget._titulo.text = trip.title;
-      widget._fecha_ini.text = fechaInicial;
-      widget._fecha_fin.text = fechaFinal;
-    }
-
     return Scaffold(
       backgroundColor: Colors.teal[200],
       appBar: AppBar(
@@ -93,7 +115,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               InputField(
                 key: const Key('tituloField'),
-                controller: widget._titulo,
+                controller: _titulo,
                 hintText: 'Titulo del viaje',
               ),
               const SizedBox(height: 10),
@@ -102,7 +124,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
               const SizedBox(height: 10),
               InputField(
                 key: const Key('fechaIniField'),
-                controller: widget._fecha_ini,
+                controller: _fecha_ini,
                 hintText: 'Fecha de inicio de viaje (DD-MM-YYYY)',
               ),
               const SizedBox(height: 10),
@@ -111,40 +133,37 @@ class _CrearViajeState extends State<Crear_Viaje> {
               const SizedBox(height: 10),
               InputField(
                 key: const Key('fechaFinField'),
-                controller: widget._fecha_fin,
+                controller: _fecha_fin,
                 hintText: 'Fecha de fin de viaje (DD-MM-YYYY)',
               ),
               const SizedBox(height: 10),
             ]),
             Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              RoundedButton(
+              RoundedButton
+              (
                 key: const Key('guardarButton'),
                 text: 'Guardar',
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
                 onPressed: () async {
-                  final titulo = widget._titulo.text.trim();
-                  final ini = _parseDdMmYyyy(widget._fecha_ini.text.trim());
-                  final fin = _parseDdMmYyyy(widget._fecha_fin.text.trim());
+                  final titulo = _titulo.text.trim();
+                  final ini = _parseDdMmYyyy(_fecha_ini.text.trim());
+                  final fin = _parseDdMmYyyy(_fecha_fin.text.trim());
 
                   if (titulo.isEmpty || ini == null || fin == null) {
-                    _showError(
-                        'Rellena todos los campos con formato válido (DD-MM-YYYY).');
+                    _showError('Rellena todos los campos con formato válido (DD-MM-YYYY).');
                     return;
                   }
                   if (ini.isAfter(fin)) {
-                    _showError(
-                        'La fecha de inicio no puede ser posterior a la final');
+                    _showError('La fecha de inicio no puede ser posterior a la final');
                     return;
                   }
                   if (titulo.length > Trip.titleMax) {
-                    _showError(
-                        'El título debe contener entre 1 y ${Trip.titleMax} caracteres');
+                    _showError('El título debe contener entre 1 y ${Trip.titleMax} caracteres');
                     return;
                   }
 
-                  final nuevoId =
-                      DateTime.now().millisecondsSinceEpoch.toString();
+                  final nuevoId = DateTime.now().millisecondsSinceEpoch.toString();
                   final cmd = CreateTripCommand(
                     id: nuevoId,
                     title: titulo,
@@ -153,18 +172,18 @@ class _CrearViajeState extends State<Crear_Viaje> {
                     endDate: fin,
                   );
 
-                  // ✅ usamos el servicio de aplicación
+                  // Servicio de aplicación
                   final result = await widget.tripService.create(cmd);
+
+                  if (!mounted) return; // evita usar context tras async gap
 
                   if (result is Ok<Trip>) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Viaje creado correctamente')),
+                      const SnackBar(content: Text('Viaje creado correctamente')),
                     );
                     Navigator.pop(context); // vuelve a la lista
                   } else if (result is Err<Trip>) {
-                    final errors =
-                        result.errors.map((e) => e.message).join('\n');
+                    final errors = result.errors.map((e) => e.message).join('\n');
                     _showError('Error al crear viaje:\n$errors');
                   }
                 },
@@ -174,15 +193,14 @@ class _CrearViajeState extends State<Crear_Viaje> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: widget.selectedIndex,
+        currentIndex: _selectedIndex,
         backgroundColor: const Color(0xFFEDE5D0),
         unselectedItemColor: Colors.black,
         selectedItemColor: Colors.teal[500],
         iconSize: 35,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.folder), label: 'Mis viajes'),
+          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Mis viajes'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Nuevo viaje'),
           BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
@@ -190,12 +208,11 @@ class _CrearViajeState extends State<Crear_Viaje> {
         ],
         onTap: (int inIndex) {
           setState(() {
-            widget.selectedIndex = inIndex;
-            if (widget.selectedIndex == 0) {
-              // ✅ volvemos a la home existente
-              Navigator.pop(context);
-            }
+            _selectedIndex = inIndex; // muta el estado, no el widget
           });
+          if (_selectedIndex == 0) {
+            Navigator.pop(context);
+          }
         },
       ),
     );
@@ -232,8 +249,7 @@ class InputField extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
               controller: controller,
               decoration: const InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 hintText: '',
                 filled: true,
                 fillColor: Colors.transparent,
@@ -272,8 +288,7 @@ class RoundedButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
         ),
         child: Text(text, style: TextStyle(color: textColor)),
       ),
