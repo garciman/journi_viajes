@@ -6,7 +6,9 @@ class MiPerfil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.teal[200],
       appBar: AppBar(
+        backgroundColor: Colors.teal[200],
         title: const Text('Mi perfil'),
       ),
       body: const Center(

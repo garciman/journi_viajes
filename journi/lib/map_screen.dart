@@ -1,19 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:journi/data/local/drift/app_database.dart';
 import 'package:journi/data/local/drift/drift_trip_repository.dart';
+import 'package:journi/domain/ports/entry_repository.dart';
 import 'package:journi/domain/trip.dart';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'application/entry_service.dart';
+import 'application/trip_service.dart';
+import 'crear_viaje.dart';
 import 'domain/ports/trip_repository.dart';
+import 'login_screen.dart';
 
 //
 // 🔹 Pantalla principal: lista de viajes
 //
 class MapaPaisScreen extends StatefulWidget {
-  const MapaPaisScreen({Key? key}) : super(key: key);
+
+
+  int selectedIndex;
+  final TripRepository tripRepo;
+  final EntryRepository entryRepo;
+  final TripService tripService;
+  final EntryService entryService;
+
+  MapaPaisScreen({
+    super.key,
+    required this.selectedIndex,
+    required this.tripRepo,
+    required this.entryRepo,
+    required this.tripService,
+    required this.entryService
+  });
 
   @override
   State<MapaPaisScreen> createState() => _MapaPaisScreenState();
@@ -45,7 +65,12 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
   @override
   Widget build(BuildContext context) {
     if (_viajes == null) {
-      return const Scaffold(
+      return Scaffold(
+        backgroundColor: Colors.teal[200],
+        appBar: AppBar(
+          title: const Text('Recorrido de viajes'),
+          backgroundColor: Colors.teal[200],
+        ),
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -95,6 +120,64 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                 );
               },
             ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: widget.selectedIndex,
+        backgroundColor: const Color(0xFFEDE5D0),
+        unselectedItemColor: Colors.black,
+        selectedItemColor: Colors.teal[500],
+        iconSize: 35,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.folder), label: 'Mis viajes'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Nuevo viaje'),
+          BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Mi perfil'),
+        ],
+        onTap: (int index) {
+          setState(() {
+            widget.selectedIndex = index;
+            if (widget.selectedIndex == 2) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Crear_Viaje(
+                    selectedIndex: widget.selectedIndex,
+                    viajes: _viajes!,
+                    num_viaje: -1,
+                    repo: widget.tripRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
+                ),
+              );
+            } else if (index == 1) {
+              // Ir al mapa
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MapaPaisScreen(
+                    selectedIndex: index,
+                    tripRepo: widget.tripRepo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
+                ),
+              );
+            } else if (index == 4) {
+              //mi perfil
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ),
+              );
+            }
+          });
+        },
+      ),
     );
   }
 }
@@ -161,6 +244,7 @@ class OpcionesViajeScreen extends StatelessWidget {
           ],
         ),
       ),
+
     );
   }
 }
@@ -242,6 +326,7 @@ class _MapaDetalleScreenState extends State<MapaDetalleScreen> {
                 ),
               ],
             ),
+
     );
   }
 }

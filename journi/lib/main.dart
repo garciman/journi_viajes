@@ -277,7 +277,13 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MapaPaisScreen(),
+                  builder: (context) => MapaPaisScreen(
+                    selectedIndex: index,
+                    tripRepo: widget.tripRepo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
                 ),
               );
             } else if (index == 4) {
