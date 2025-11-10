@@ -10,20 +10,17 @@ import 'application/use_cases/use_cases.dart';
 import 'domain/trip.dart';
 
 class Editar_viaje extends StatefulWidget {
-  int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
-  int num_viaje;
-  List<Trip> viajes;
+  // ❗ Los campos del widget deben ser inmutables (final)
+  final int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
+  final int num_viaje;
+  final List<Trip> viajes;
 
   // 👉 Puerto (interfaz) en lugar del repo in-memory
   final TripRepository repo;
   final TripService tripService;
   final EntryService entryService;
 
-  final _titulo = TextEditingController();
-  final _fecha_ini = TextEditingController();
-  final _fecha_fin = TextEditingController();
-
-  Editar_viaje({
+  const Editar_viaje({
     super.key,
     required this.selectedIndex,
     required this.viajes,
@@ -38,6 +35,12 @@ class Editar_viaje extends StatefulWidget {
 }
 
 class _EditarViajeState extends State<Editar_viaje> {
+  // ✅ Lo mutable vive en el State
+  late int _selectedIndex;
+  late final TextEditingController _titulo;
+  late final TextEditingController _fechaIni;
+  late final TextEditingController _fechaFin;
+
   DateTime? _parseDdMmYyyy(String input) {
     try {
       return DateFormat('dd-MM-yyyy').parseStrict(input);
@@ -53,27 +56,40 @@ class _EditarViajeState extends State<Editar_viaje> {
         title: const Text('Error'),
         content: Text(message),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('OK')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK')),
         ],
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
+    _titulo = TextEditingController();
+    _fechaIni = TextEditingController();
+    _fechaFin = TextEditingController();
+
     // Rellena campos si venimos en modo edición
     if (widget.num_viaje >= 0) {
       final trip = widget.viajes[widget.num_viaje];
-      final fechaInicial =
-          DateFormat('dd-MM-yyyy').format(trip.startDate ?? DateTime.now());
-      final fechaFinal =
-          DateFormat('dd-MM-yyyy').format(trip.endDate ?? DateTime.now());
-      widget._titulo.text = trip.title;
-      widget._fecha_ini.text = fechaInicial;
-      widget._fecha_fin.text = fechaFinal;
+      _titulo.text = trip.title;
+      _fechaIni.text = DateFormat('dd-MM-yyyy').format(trip.startDate ?? DateTime.now());
+      _fechaFin.text = DateFormat('dd-MM-yyyy').format(trip.endDate ?? DateTime.now());
     }
+  }
 
+  @override
+  void dispose() {
+    // 📌 Importante para evitar fugas de memoria
+    _titulo.dispose();
+    _fechaIni.dispose();
+    _fechaFin.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.teal[200],
       appBar: AppBar(
@@ -93,7 +109,7 @@ class _EditarViajeState extends State<Editar_viaje> {
           children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               InputField(
-                controller: widget._titulo,
+                controller: _titulo,
                 hintText: 'Titulo del viaje',
               ),
               const SizedBox(height: 10),
@@ -101,7 +117,7 @@ class _EditarViajeState extends State<Editar_viaje> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 10),
               InputField(
-                controller: widget._fecha_ini,
+                controller: _fechaIni,
                 hintText: 'Fecha de inicio de viaje (DD-MM-YYYY)',
               ),
               const SizedBox(height: 10),
@@ -109,7 +125,7 @@ class _EditarViajeState extends State<Editar_viaje> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 10),
               InputField(
-                controller: widget._fecha_fin,
+                controller: _fechaFin,
                 hintText: 'Fecha de fin de viaje (DD-MM-YYYY)',
               ),
               const SizedBox(height: 10),
@@ -120,23 +136,20 @@ class _EditarViajeState extends State<Editar_viaje> {
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
                 onPressed: () async {
-                  final titulo = widget._titulo.text.trim();
-                  final ini = _parseDdMmYyyy(widget._fecha_ini.text.trim());
-                  final fin = _parseDdMmYyyy(widget._fecha_fin.text.trim());
+                  final titulo = _titulo.text.trim();
+                  final ini = _parseDdMmYyyy(_fechaIni.text.trim());
+                  final fin = _parseDdMmYyyy(_fechaFin.text.trim());
 
                   if (titulo.isEmpty || ini == null || fin == null) {
-                    _showError(
-                        'Rellena todos los campos con formato válido (DD-MM-YYYY).');
+                    _showError('Rellena todos los campos con formato válido (DD-MM-YYYY).');
                     return;
                   }
                   if (ini.isAfter(fin)) {
-                    _showError(
-                        'La fecha de inicio no puede ser posterior a la final');
+                    _showError('La fecha de inicio no puede ser posterior a la final');
                     return;
                   }
                   if (titulo.length > Trip.titleMax) {
-                    _showError(
-                        'El título debe contener entre 1 y ${Trip.titleMax} caracteres');
+                    _showError('El título debe contener entre 1 y ${Trip.titleMax} caracteres');
                     return;
                   }
 
@@ -150,15 +163,15 @@ class _EditarViajeState extends State<Editar_viaje> {
 
                   final result = await widget.tripService.patch(cmd);
 
+                  if (!mounted) return; // evita usar context tras async si desmonta
+
                   if (result is Ok<Trip>) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Viaje actualizado correctamente')),
+                      const SnackBar(content: Text('Viaje actualizado correctamente')),
                     );
                     Navigator.pop(context); // volver a la lista
                   } else if (result is Err<Trip>) {
-                    final errors =
-                        result.errors.map((e) => e.message).join('\n');
+                    final errors = result.errors.map((e) => e.message).join('\n');
                     _showError('Error al editar el viaje:\n$errors');
                   }
                 },
@@ -168,28 +181,24 @@ class _EditarViajeState extends State<Editar_viaje> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: widget.selectedIndex,
+        currentIndex: _selectedIndex, // ✅ usa estado, no muta el widget
         backgroundColor: const Color(0xFFEDE5D0),
         unselectedItemColor: Colors.black,
         selectedItemColor: Colors.teal[500],
         iconSize: 35,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.folder), label: 'Mis viajes'),
+          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Mis viajes'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Nuevo viaje'),
           BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Mi perfil'),
         ],
         onTap: (int inIndex) {
-          setState(() {
-            widget.selectedIndex = inIndex;
-            if (widget.selectedIndex == 0) {
-              // ✅ volver a la Home existente
-              Navigator.pop(context);
-            }
-          });
+          setState(() => _selectedIndex = inIndex);
+          if (_selectedIndex == 0) {
+            Navigator.pop(context); // volver a la Home existente
+          }
         },
       ),
     );
@@ -226,8 +235,7 @@ class InputField extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
               controller: controller,
               decoration: const InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 hintText: '',
                 filled: true,
                 fillColor: Colors.transparent,
@@ -266,8 +274,7 @@ class RoundedButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
         ),
         child: Text(text, style: TextStyle(color: textColor)),
       ),
