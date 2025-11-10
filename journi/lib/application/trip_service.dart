@@ -8,7 +8,7 @@ import 'package:journi/application/use_cases/use_cases.dart';
 abstract class TripService {
   Future<Result<Trip>> create(CreateTripCommand cmd);
   Future<Result<Trip>> patch(UpdateTripCommand cmd);
-  Future<Result<Unit>> deleteById(String id);   // 👈 Unit unificado
+  Future<Result<Unit>> deleteById(String id); // 👈 Unit unificado
 
   /// Helper que resuelve el `current` por id y delega en UpdateTripTitleUseCase.
   Future<Result<Trip>> updateTitleById(String id, String newTitle);
@@ -62,7 +62,8 @@ class DefaultTripService implements TripService {
   }
 
   @override
-  Future<Result<Unit>> deleteById(String id) {     // 👈 Unit unificado
+  Future<Result<Unit>> deleteById(String id) {
+    // 👈 Unit unificado
     return _deleteUC(id);
   }
 

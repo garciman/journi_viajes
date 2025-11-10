@@ -123,26 +123,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 8),
 
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const RegisterScreen(),
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RegisterScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Aun no tengo cuenta creada',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      decoration: TextDecoration.underline,
                     ),
-                  );
-                },
-                child: const Text(
-                  'Aun no tengo cuenta creada',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
-            ),
 
               const Spacer(),
 

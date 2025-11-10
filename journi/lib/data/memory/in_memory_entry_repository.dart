@@ -76,8 +76,6 @@ class InMemoryEntryRepository implements EntryRepository {
     return out.stream;
   }
 
-
-
   void dispose() {
     _changes.close();
   }

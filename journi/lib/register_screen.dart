@@ -171,11 +171,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildInput(
-      TextEditingController controller,
-      String hintText, {
-        bool obscureText = false,
-        TextInputType keyboardType = TextInputType.text,
-      }) {
+    TextEditingController controller,
+    String hintText, {
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFEDE5D0),

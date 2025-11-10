@@ -11,7 +11,7 @@ import 'package:journi/domain/ports/entry_repository.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/main.dart';
 
-void main(){
+void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('🧭 Pruebas de integración: Listar_Viaje', () {
@@ -38,10 +38,11 @@ void main(){
           title: 'JOURNI',
           viajes: [],
           tripService: tripService,
-          entryService: entryService, tripRepo: tRepo, entryRepo: eRepo,
+          entryService: entryService,
+          tripRepo: tRepo,
+          entryRepo: eRepo,
         ),
       ));
-
 
 // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
@@ -62,7 +63,8 @@ void main(){
       );
 
       await tester.tap(find.byKey(const Key('guardarButton')));
-      await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
+      await tester.pumpAndSettle(
+          const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
@@ -70,16 +72,19 @@ void main(){
       expect(find.byKey(const Key('id0')), findsOneWidget);
     });
 
-    testWidgets('❌ Error: El usuario ha cancelado la creacion, por lo que no se lista nada', (WidgetTester tester) async {
+    testWidgets(
+        '❌ Error: El usuario ha cancelado la creacion, por lo que no se lista nada',
+        (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
           viajes: [],
           tripService: tripService,
-          entryService: entryService, tripRepo: tRepo, entryRepo: eRepo,
+          entryService: entryService,
+          tripRepo: tRepo,
+          entryRepo: eRepo,
         ),
       ));
-
 
 // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
@@ -100,7 +105,8 @@ void main(){
       );
 
       await tester.tap(find.byKey(const Key('volver')));
-      await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
+      await tester.pumpAndSettle(
+          const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible

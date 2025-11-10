@@ -15,12 +15,12 @@ class Entry {
   final String id;
   final String tripId;
   final EntryType type;
-  final String? text;          // Para notas o pie de foto
-  final String? mediaUri;      // Para foto/vídeo (URI local por ahora)
+  final String? text; // Para notas o pie de foto
+  final String? mediaUri; // Para foto/vídeo (URI local por ahora)
   final EntryLocation? location;
-  final List<String> tags;     // Etiquetas/categorías opcionales
-  final DateTime createdAt;    // UTC
-  final DateTime updatedAt;    // UTC
+  final List<String> tags; // Etiquetas/categorías opcionales
+  final DateTime createdAt; // UTC
+  final DateTime updatedAt; // UTC
 
   const Entry._({
     required this.id,
@@ -76,7 +76,8 @@ class Entry {
 
       case EntryType.location:
         if (text == null || text.trim().isEmpty) {
-          errors.add(ValidationError('Una ubicación debe tener texto o coordenadas'));
+          errors.add(
+              ValidationError('Una ubicación debe tener texto o coordenadas'));
         }
         break;
     }
@@ -90,9 +91,8 @@ class Entry {
     }
 
     // Normaliza etiquetas (trim + dedup + sin vacíos)
-    final normTags = {
-      for (final t in tags) t.trim()
-    }..removeWhere((t) => t.isEmpty);
+    final normTags = {for (final t in tags) t.trim()}
+      ..removeWhere((t) => t.isEmpty);
 
     if (errors.isNotEmpty) return Err<Entry>(errors);
 

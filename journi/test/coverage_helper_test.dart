@@ -18,4 +18,5 @@ import 'package:journi/editar_viaje.dart';
 import 'package:journi/example/entries_usage_example.dart';
 import 'package:journi/map_screen.dart';
 import 'package:journi/pantalla_viaje.dart';
+
 void main() {}

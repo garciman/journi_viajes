@@ -19,7 +19,7 @@ class TripServiceMock implements TripService {
       description: cmd.description,
       startDate: cmd.startDate,
       endDate: cmd.endDate,
-      createdAt: DateTime.now(),  // obligatorio
+      createdAt: DateTime.now(), // obligatorio
       updatedAt: DateTime.now(),
     );
     repo.upsert(trip); // agrega al repo en memoria si quieres

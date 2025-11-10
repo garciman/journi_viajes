@@ -1,7 +1,14 @@
 import 'package:journi/application/shared/result.dart';
 export 'package:journi/application/shared/result.dart'
-    show Result, Ok, Err, AppError, ValidationError, RepoError, UnexpectedError, Unit;
-
+    show
+        Result,
+        Ok,
+        Err,
+        AppError,
+        ValidationError,
+        RepoError,
+        UnexpectedError,
+        Unit;
 
 class Trip {
   static const int titleMax = 100;

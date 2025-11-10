@@ -62,10 +62,11 @@ class FakeTripRepository implements TripRepository {
   }
 
   @override
-  Future<Result<Unit>> deleteById(String id) async { // 👈 Unit unificado
+  Future<Result<Unit>> deleteById(String id) async {
+    // 👈 Unit unificado
     _store.remove(id);
     _emit();
-    return const Ok(unit);                             // 👈 Ok<Unit>
+    return const Ok(unit); // 👈 Ok<Unit>
   }
 
   void dispose() {

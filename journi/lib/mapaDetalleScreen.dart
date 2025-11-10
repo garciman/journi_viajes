@@ -53,32 +53,32 @@ class _MapaDetalleScreenState extends State<MapaDetalleScreen> {
       body: _posicionUsuario == null
           ? const Center(child: CircularProgressIndicator())
           : FlutterMap(
-        options: MapOptions(
-          initialCenter: _posicionUsuario!,
-          initialZoom: 6,
-        ),
-        children: [
-          TileLayer(
-            urlTemplate:
-            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: const ['a', 'b', 'c'],
-          ),
-          MarkerLayer(
-            markers: [
-              Marker(
-                width: 80,
-                height: 80,
-                point: _posicionUsuario!,
-                child: const Icon(
-                  Icons.location_pin,
-                  color: Colors.red,
-                  size: 40,
-                ),
+              options: MapOptions(
+                initialCenter: _posicionUsuario!,
+                initialZoom: 6,
               ),
-            ],
-          ),
-        ],
-      ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  subdomains: const ['a', 'b', 'c'],
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      width: 80,
+                      height: 80,
+                      point: _posicionUsuario!,
+                      child: const Icon(
+                        Icons.location_pin,
+                        color: Colors.red,
+                        size: 40,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
     );
   }
 }

@@ -43,15 +43,15 @@ void main() {
           title: 'JOURNI',
           viajes: [],
           tripService: tripService,
-          entryService: entryService, tripRepo: tRepo, entryRepo: eRepo,
+          entryService: entryService,
+          tripRepo: tRepo,
+          entryRepo: eRepo,
         ),
       ));
-
 
 // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
       await tester.pumpAndSettle();
-
 
       // 🧩 Rellenar los campos
       await tester.enterText(
@@ -68,7 +68,8 @@ void main() {
       );
 
       await tester.tap(find.byKey(const Key('guardarButton')));
-      await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
+      await tester.pumpAndSettle(
+          const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
       await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('anadirEntrada')));
@@ -96,7 +97,9 @@ void main() {
           title: 'JOURNI',
           viajes: [],
           tripService: tripService,
-          entryService: entryService, tripRepo: tRepo, entryRepo: eRepo,
+          entryService: entryService,
+          tripRepo: tRepo,
+          entryRepo: eRepo,
         ),
       ));
 
@@ -130,7 +133,6 @@ void main() {
       );
       await tester.tap(find.byKey(const Key('aceptarButton')));
       expect(find.byKey(const Key('eid0')), findsNothing);
-
     });
   });
 }

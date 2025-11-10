@@ -12,16 +12,17 @@ import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/main.dart';
 
 extension WidgetTesterExtension on WidgetTester {
-  Future<void> pumpUntilFound(Finder finder, WidgetTester tester, {Duration timeout = const Duration(seconds: 5)}) async {
+  Future<void> pumpUntilFound(Finder finder, WidgetTester tester,
+      {Duration timeout = const Duration(seconds: 5)}) async {
     final end = DateTime.now().add(timeout);
     while (DateTime.now().isBefore(end)) {
       await pump(const Duration(milliseconds: 100));
       if (any(finder)) return;
     }
-    throw Exception('Widget ${finder.description} no encontrado tras ${timeout.inSeconds}s');
+    throw Exception(
+        'Widget ${finder.description} no encontrado tras ${timeout.inSeconds}s');
   }
 }
-
 
 void main() {
   // 🔧 Inicializa el entorno de test (sustituye al antiguo IntegrationTestWidgetsFlutterBinding)
@@ -51,10 +52,11 @@ void main() {
           title: 'JOURNI',
           viajes: [],
           tripService: tripService,
-          entryService: entryService, tripRepo: tRepo, entryRepo: eRepo,
+          entryService: entryService,
+          tripRepo: tRepo,
+          entryRepo: eRepo,
         ),
       ));
-
 
 // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
@@ -75,7 +77,8 @@ void main() {
       );
 
       await tester.tap(find.byKey(const Key('guardarButton')));
-      await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
+      await tester.pumpAndSettle(
+          const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
       await tester.tap(find.byKey(const Key('anadirButton')));
       await tester.pumpAndSettle();
@@ -95,7 +98,8 @@ void main() {
       );
 
       await tester.tap(find.byKey(const Key('guardarButton')));
-      await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
+      await tester.pumpAndSettle(
+          const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
       await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
@@ -110,16 +114,18 @@ void main() {
       expectLater(find.byKey(const Key('id0')), findsAny);
     });
 
-    testWidgets('❌ No se elimina viaje porque se cancela', (WidgetTester tester) async {
+    testWidgets('❌ No se elimina viaje porque se cancela',
+        (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
           viajes: [],
           tripService: tripService,
-          entryService: entryService, tripRepo: tRepo, entryRepo: eRepo,
+          entryService: entryService,
+          tripRepo: tRepo,
+          entryRepo: eRepo,
         ),
       ));
-
 
 // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
@@ -140,7 +146,8 @@ void main() {
       );
 
       await tester.tap(find.byKey(const Key('guardarButton')));
-      await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
+      await tester.pumpAndSettle(
+          const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
       await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.delete));
@@ -148,7 +155,8 @@ void main() {
 
       await tester.tap(find.byKey(const Key('cancelarButton')));
 
-      await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
+      await tester.pumpAndSettle(
+          const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
       // ❌ Verificar error
       expect(find.byIcon(Icons.delete), findsOneWidget);

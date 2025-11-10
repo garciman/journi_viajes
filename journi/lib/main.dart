@@ -31,7 +31,6 @@ import 'map_screen.dart'; // <- para leer Ok/Err en la carga inicial
 import 'package:journi/mi_perfil.dart';
 import 'package:journi/login_screen.dart';
 
-
 void main() {
   final db = AppDatabase();
   final TripRepository tripRepo = DriftTripRepository(db);
@@ -168,7 +167,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-
       body: StreamBuilder<List<Trip>>(
         stream: widget.tripRepo.watchAll(),
         builder: (context, snapshot) {
@@ -215,9 +213,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (viaje.startDate != null)
-                        Text('Inicio: ${viaje.startDate!.toLocal().toString().split(' ')[0]}'),
+                        Text(
+                            'Inicio: ${viaje.startDate!.toLocal().toString().split(' ')[0]}'),
                       if (viaje.endDate != null)
-                        Text('Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
+                        Text(
+                            'Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
                       const SizedBox(height: 4),
                     ],
                   ),
@@ -244,13 +244,11 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         },
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: _createNewTravel,
         tooltip: 'Nuevo viaje',
         child: const Icon(key: Key('anadirButton'), Icons.add),
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         backgroundColor: const Color(0xFFEDE5D0),
@@ -259,7 +257,8 @@ class _MyHomePageState extends State<MyHomePage> {
         iconSize: 35,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Mis viajes'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.folder), label: 'Mis viajes'),
           BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Nuevo viaje'),
           BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
@@ -282,7 +281,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               );
-            }else if (index == 1) {
+            } else if (index == 1) {
               // Ir al mapa
               Navigator.push(
                 context,
@@ -290,7 +289,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   builder: (context) => const MapaPaisScreen(),
                 ),
               );
-            }else if (index == 4) {
+            } else if (index == 4) {
               //mi perfil
               Navigator.push(
                 context,
@@ -299,10 +298,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               );
             }
-          }
-
-
-          );
+          });
         },
       ),
     );

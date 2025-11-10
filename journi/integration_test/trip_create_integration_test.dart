@@ -43,10 +43,11 @@ void main() {
           title: 'JOURNI',
           viajes: [],
           tripService: tripService,
-          entryService: entryService, tripRepo: tRepo, entryRepo: eRepo,
+          entryService: entryService,
+          tripRepo: tRepo,
+          entryRepo: eRepo,
         ),
       ));
-
 
 // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
@@ -67,7 +68,8 @@ void main() {
       );
 
       await tester.tap(find.byKey(const Key('guardarButton')));
-      await tester.pumpAndSettle(const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
+      await tester.pumpAndSettle(
+          const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
@@ -75,7 +77,8 @@ void main() {
       expect(find.text('Error'), findsNothing);
     });
 
-    testWidgets('❌ Error: fecha de inicio posterior a fecha final', (WidgetTester tester) async {
+    testWidgets('❌ Error: fecha de inicio posterior a fecha final',
+        (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: Crear_Viaje(
           selectedIndex: 2,
@@ -108,7 +111,8 @@ void main() {
 
       // ❌ Verificar error
       expect(find.text('Error'), findsOneWidget);
-      expect(find.text('La fecha de inicio no puede ser posterior a la final'), findsOneWidget);
+      expect(find.text('La fecha de inicio no puede ser posterior a la final'),
+          findsOneWidget);
       expect(find.text('Viaje creado correctamente'), findsNothing);
     });
   });

@@ -10,7 +10,10 @@ void main() {
     final svc = makeEntryService(repo);
 
     final r = await svc.create(const CreateEntryCommand(
-      id: 'e1', tripId: 't1', type: EntryType.note, text: 'hola',
+      id: 'e1',
+      tripId: 't1',
+      type: EntryType.note,
+      text: 'hola',
     ));
     expect(r.isOk, isTrue);
 
@@ -32,7 +35,10 @@ void main() {
     );
 
     await svc.create(const CreateEntryCommand(
-      id: 'e1', tripId: 't1', type: EntryType.note, text: 'hola',
+      id: 'e1',
+      tripId: 't1',
+      type: EntryType.note,
+      text: 'hola',
     ));
 
     await expectation;

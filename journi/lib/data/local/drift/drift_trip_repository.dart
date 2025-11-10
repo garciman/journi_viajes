@@ -98,7 +98,8 @@ class DriftTripRepository implements TripRepository {
   }
 
   @override
-  Future<Result<Unit>> deleteById(String id) async { // <- Unit
+  Future<Result<Unit>> deleteById(String id) async {
+    // <- Unit
     await (_db.delete(_db.trips)..where((t) => t.id.equals(id))).go();
     return const Ok(unit);
   }

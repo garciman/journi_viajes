@@ -9,7 +9,8 @@ import 'package:journi/main.dart';
 import 'package:journi/pantalla_viaje.dart';
 
 void main() {
-  testWidgets('Muestra CircularProgressIndicator mientras se cargan los viajes', (tester) async {
+  testWidgets('Muestra CircularProgressIndicator mientras se cargan los viajes',
+      (tester) async {
     // Simulamos un stream que todavía no ha emitido nada
     final repo = InMemoryTripRepository();
     final entryRepo = InMemoryEntryRepository();

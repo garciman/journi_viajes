@@ -54,45 +54,49 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
 
     return Scaffold(
       backgroundColor: Colors.teal[200],
-      appBar: AppBar(title: const Text('Recorrido de viajes'), backgroundColor: Colors.teal[200],),
+      appBar: AppBar(
+        title: const Text('Recorrido de viajes'),
+        backgroundColor: Colors.teal[200],
+      ),
       body: _viajes!.isEmpty
           ? const Center(child: Text('No hay viajes para mostrar.'))
           : ListView.builder(
-        itemCount: _viajes!.length,
-        itemBuilder: (context, index) {
-          final viaje = _viajes![index];
-          return Card(
-            margin:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: ListTile(
-              leading: const Icon(Icons.map, color: Colors.teal),
-              title: Text(
-                viaje.title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (viaje.startDate != null)
-                    Text(
-                        'Inicio: ${viaje.startDate!.toLocal().toString().split(' ')[0]}'),
-                  if (viaje.endDate != null)
-                    Text(
-                        'Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
-                ],
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => OpcionesViajeScreen(viaje: viaje),
+              itemCount: _viajes!.length,
+              itemBuilder: (context, index) {
+                final viaje = _viajes![index];
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: ListTile(
+                    leading: const Icon(Icons.map, color: Colors.teal),
+                    title: Text(
+                      viaje.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (viaje.startDate != null)
+                          Text(
+                              'Inicio: ${viaje.startDate!.toLocal().toString().split(' ')[0]}'),
+                        if (viaje.endDate != null)
+                          Text(
+                              'Fin: ${viaje.endDate!.toLocal().toString().split(' ')[0]}'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              OpcionesViajeScreen(viaje: viaje),
+                        ),
+                      );
+                    },
                   ),
                 );
               },
             ),
-          );
-        },
-      ),
     );
   }
 }
@@ -109,7 +113,13 @@ class OpcionesViajeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.teal[200],
-      appBar: AppBar(title: Text(viaje.title, textAlign: TextAlign.center,), backgroundColor: Colors.teal[200],),
+      appBar: AppBar(
+        title: Text(
+          viaje.title,
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: Colors.teal[200],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -179,7 +189,6 @@ class _MapaDetalleScreenState extends State<MapaDetalleScreen> {
     _obtenerUbicacion();
   }
 
-
   Future<void> _obtenerUbicacion() async {
     bool permiso = await Geolocator.isLocationServiceEnabled();
     if (!permiso) return;
@@ -202,36 +211,39 @@ class _MapaDetalleScreenState extends State<MapaDetalleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.teal,
-      appBar: AppBar(title: Text('Mapa: ${widget.viaje.title}'), backgroundColor: Colors.teal,),
+      appBar: AppBar(
+        title: Text('Mapa: ${widget.viaje.title}'),
+        backgroundColor: Colors.teal,
+      ),
       body: _posicionUsuario == null
           ? const Center(child: CircularProgressIndicator())
           : FlutterMap(
-        options: MapOptions(
-          initialCenter: _posicionUsuario!,
-          initialZoom: 6,
-        ),
-        children: [
-          TileLayer(
-            urlTemplate:
-            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: const ['a', 'b', 'c'],
-          ),
-          MarkerLayer(
-            markers: [
-              Marker(
-                width: 80,
-                height: 80,
-                point: _posicionUsuario!,
-                child: const Icon(
-                  Icons.location_pin,
-                  color: Colors.red,
-                  size: 40,
-                ),
+              options: MapOptions(
+                initialCenter: _posicionUsuario!,
+                initialZoom: 6,
               ),
-            ],
-          ),
-        ],
-      ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  subdomains: const ['a', 'b', 'c'],
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      width: 80,
+                      height: 80,
+                      point: _posicionUsuario!,
+                      child: const Icon(
+                        Icons.location_pin,
+                        color: Colors.red,
+                        size: 40,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
     );
   }
 }
@@ -248,7 +260,12 @@ class LineaTemporalScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.teal,
-      appBar: AppBar(title: Text('Línea temporal: ${viaje.title}',), backgroundColor: Colors.teal,),
+      appBar: AppBar(
+        title: Text(
+          'Línea temporal: ${viaje.title}',
+        ),
+        backgroundColor: Colors.teal,
+      ),
       body: const Center(
         child: Text(
           'Este viaje no tiene eventos.',

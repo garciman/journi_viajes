@@ -43,7 +43,8 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
 
     try {
       final response = await http.get(url, headers: {
-        'User-Agent': 'journi/1.0 (your_email@example.com)', // requerido por Nominatim
+        'User-Agent':
+            'journi/1.0 (your_email@example.com)', // requerido por Nominatim
       });
 
       if (response.statusCode == 200) {
@@ -115,7 +116,8 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                       ),
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 12),
                     ),
                   ),
                 ),
@@ -166,7 +168,8 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                         point: _selected!,
                         width: 40,
                         height: 40,
-                        child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+                        child: const Icon(Icons.location_on,
+                            color: Colors.red, size: 40),
                       ),
                     ],
                   ),
@@ -183,7 +186,8 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                 FloatingActionButton(
                   heroTag: 'zoom_in',
                   onPressed: () {
-                    _mapController.move(_mapController.camera.center, _mapController.camera.zoom + 1);
+                    _mapController.move(_mapController.camera.center,
+                        _mapController.camera.zoom + 1);
                   },
                   child: const Icon(Icons.add),
                 ),
@@ -197,7 +201,8 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                 FloatingActionButton(
                   heroTag: 'zoom_out',
                   onPressed: () {
-                    _mapController.move(_mapController.camera.center, _mapController.camera.zoom - 1);
+                    _mapController.move(_mapController.camera.center,
+                        _mapController.camera.zoom - 1);
                   },
                   child: const Icon(Icons.remove),
                 ),
