@@ -5,13 +5,16 @@ import 'package:image_picker/image_picker.dart';
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/entry_service.dart';
 import 'package:journi/application/use_cases/entry_use_cases.dart';
+import 'package:journi/domain/ports/entry_repository.dart';
 
 import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/domain/entry.dart';
 import 'package:journi/domain/trip.dart' hide Ok;
 
 import 'application/shared/result.dart';
+import 'crear_viaje.dart';
 import 'editar_viaje.dart';
+import 'map_screen.dart';
 import 'select_location_screen.dart';
 import 'package:journi/login_screen.dart';
 
@@ -23,6 +26,7 @@ class Pantalla_Viaje extends StatefulWidget {
 
   // 👉 Puerto (interfaz) en lugar del repo in-memory
   final TripRepository repo;
+  final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
 
@@ -32,6 +36,7 @@ class Pantalla_Viaje extends StatefulWidget {
       required this.viajes,
       required this.num_viaje,
       required this.repo,
+        required this.entryRepo,
       required this.tripService,
       required this.entryService,
       this.picker});
@@ -268,6 +273,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     viajes: widget.viajes,
                     num_viaje: widget.num_viaje,
                     repo: widget.repo, // TripRepository (puerto)
+                    entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
                   ),
@@ -531,13 +537,50 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
             if (widget.selectedIndex == 0) {
               // ✅ Volver a la home existente
               Navigator.pop(context);
-            }
-            if (widget.selectedIndex == 4) {
+            } else if (widget.selectedIndex == 1) {
+              // Ir al mapa
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MapaPaisScreen(
+                    selectedIndex: widget.selectedIndex,
+                    viajes: widget.viajes,
+                    tripRepo: widget.repo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
+                ),
+              );
+            } else if (widget.selectedIndex == 2) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Crear_Viaje(
+                    selectedIndex: widget.selectedIndex,
+                    viajes: widget.viajes,
+                    num_viaje: -1,
+                    repo: widget.repo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
+                ),
+              );
+            } else if (widget.selectedIndex == 4) {
+              inIndex = 0;
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                  builder: (context) => const LoginScreen(),
+                  builder: (context) => LoginScreen(
+                    selectedIndex: 0,
+                    viajes: widget.viajes,
+                    tripRepo: widget.repo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
                 ),
               );
             }

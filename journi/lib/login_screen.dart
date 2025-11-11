@@ -1,9 +1,29 @@
 import 'package:flutter/material.dart';
+import 'application/entry_service.dart';
+import 'application/trip_service.dart';
+import 'domain/ports/entry_repository.dart';
+import 'domain/ports/trip_repository.dart';
+import 'domain/trip.dart';
 import 'mi_perfil.dart'; // importa tu pantalla de perfil
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  int selectedIndex;
+  List<Trip> viajes;
+  final TripRepository tripRepo;
+  final EntryRepository entryRepo;
+  final TripService tripService;
+  final EntryService entryService;
+
+  LoginScreen({
+    super.key,
+    required this.viajes,
+    required this.selectedIndex,
+    required this.tripRepo,
+    required this.entryRepo,
+    required this.tripService,
+    required this.entryService
+  });
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -53,7 +73,14 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => const MiPerfil(),
+        builder: (_) => MiPerfil(
+          selectedIndex: 4,
+          viajes: widget.viajes,
+          tripRepo: widget.tripRepo,
+          entryRepo: widget.entryRepo,
+          tripService: widget.tripService,
+          entryService: widget.entryService,
+        ),
       ),
     );
   }
@@ -151,7 +178,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const RegisterScreen(),
+                        builder: (_) => RegisterScreen(
+                          selectedIndex: widget.selectedIndex,
+                          viajes: widget.viajes,
+                          tripRepo: widget.tripRepo,
+                          entryRepo: widget.entryRepo,
+                          tripService: widget.tripService,
+                          entryService: widget.entryService,
+                        ),
                       ),
                     );
                   },

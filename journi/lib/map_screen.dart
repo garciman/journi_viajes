@@ -13,14 +13,15 @@ import 'application/trip_service.dart';
 import 'crear_viaje.dart';
 import 'domain/ports/trip_repository.dart';
 import 'login_screen.dart';
+import 'main.dart';
 
 //
 // 🔹 Pantalla principal: lista de viajes
 //
 class MapaPaisScreen extends StatefulWidget {
 
-
   int selectedIndex;
+  List<Trip> viajes;
   final TripRepository tripRepo;
   final EntryRepository entryRepo;
   final TripService tripService;
@@ -28,6 +29,7 @@ class MapaPaisScreen extends StatefulWidget {
 
   MapaPaisScreen({
     super.key,
+    required this.viajes,
     required this.selectedIndex,
     required this.tripRepo,
     required this.entryRepo,
@@ -72,6 +74,90 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
           backgroundColor: Colors.teal[200],
         ),
         body: Center(child: CircularProgressIndicator()),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: widget.selectedIndex,
+          backgroundColor: const Color(0xFFEDE5D0),
+          unselectedItemColor: Colors.black,
+          selectedItemColor: Colors.teal[500],
+          iconSize: 35,
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.folder), label: 'Mis viajes'),
+            BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Mapa'),
+            BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Nuevo viaje'),
+            BottomNavigationBarItem(icon: Icon(Icons.equalizer), label: 'Datos'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Mi perfil'),
+          ],
+          onTap: (int index) {
+            setState(() {
+              widget.selectedIndex = index;
+              if (widget.selectedIndex == 0) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
+                    builder: (context) => MyApp(
+                      tripRepo: widget.tripRepo,
+                      entryRepo: widget.entryRepo,
+                      tripService: widget.tripService,
+                      entryService: widget.entryService,
+                    ),
+                  ),
+                );
+              } else if (widget.selectedIndex == 2) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Crear_Viaje(
+                      selectedIndex: widget.selectedIndex,
+                      viajes: _viajes!,
+                      num_viaje: -1,
+                      repo: widget.tripRepo,
+                      entryRepo: widget.entryRepo,
+                      tripService: widget.tripService,
+                      entryService: widget.entryService,
+                    ),
+                  ),
+                );
+              }
+              /* DESCOMENTAR SI FUERA NECESARIO
+            else if (index == 1) {
+              // Ir al mapa
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MapaPaisScreen(
+                    selectedIndex: index,
+                    viajes: _viajes!,
+                    tripRepo: widget.tripRepo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
+                ),
+              );
+            }
+            */ else if (index == 4) {
+                //mi perfil
+                index = 1;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(
+                      selectedIndex: 1,
+                      tripRepo: widget.tripRepo,
+                      viajes: widget.viajes,
+                      entryRepo: widget.entryRepo,
+                      tripService: widget.tripService,
+                      entryService: widget.entryService,
+                    ),
+                  ),
+                );
+              }
+            });
+          },
+        ),
       );
     }
 
@@ -138,7 +224,20 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
         onTap: (int index) {
           setState(() {
             widget.selectedIndex = index;
-            if (widget.selectedIndex == 2) {
+            if (widget.selectedIndex == 0) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
+                  builder: (context) => MyApp(
+                    tripRepo: widget.tripRepo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
+                ),
+              );
+            } else if (widget.selectedIndex == 2) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -147,18 +246,22 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                     viajes: _viajes!,
                     num_viaje: -1,
                     repo: widget.tripRepo,
+                    entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
                   ),
                 ),
               );
-            } else if (index == 1) {
+            }
+            /* DESCOMENTAR SI FUERA NECESARIO
+            else if (index == 1) {
               // Ir al mapa
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => MapaPaisScreen(
                     selectedIndex: index,
+                    viajes: _viajes!,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
@@ -166,12 +269,21 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                   ),
                 ),
               );
-            } else if (index == 4) {
+            }
+            */ else if (index == 4) {
               //mi perfil
+              index = 1;
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
+                  builder: (context) => LoginScreen(
+                    selectedIndex: 1,
+                    tripRepo: widget.tripRepo,
+                    viajes: widget.viajes,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
                 ),
               );
             }

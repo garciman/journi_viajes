@@ -88,6 +88,7 @@ void main() {
           viajes: [],
           num_viaje: -1,
           repo: tripRepo,
+          entryRepo: entryRepo,
           tripService: tripService,
           entryService: entryService,
         ),

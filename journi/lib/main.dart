@@ -135,6 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
           viajes: const [],
           num_viaje: -1,
           repo: widget.tripRepo,
+          entryRepo: widget.entryRepo,
           tripService: widget.tripService,
           entryService: widget.entryService,
         ),
@@ -222,6 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           viajes: items,
                           num_viaje: index,
                           repo: widget.tripRepo,
+                          entryRepo: widget.entryRepo,
                           tripService: widget.tripService,
                           entryService: widget.entryService,
                           picker: widget.picker,
@@ -267,6 +269,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     viajes: widget.viajes,
                     num_viaje: -1,
                     repo: widget.tripRepo,
+                    entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
                   ),
@@ -279,6 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 MaterialPageRoute(
                   builder: (context) => MapaPaisScreen(
                     selectedIndex: index,
+                    viajes: widget.viajes,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
@@ -288,10 +292,18 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             } else if (index == 4) {
               //mi perfil
+              index = 0;
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
+                  builder: (context) => LoginScreen(
+                    selectedIndex: 0,
+                    viajes: widget.viajes,
+                    tripRepo: widget.tripRepo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
                 ),
               );
             }

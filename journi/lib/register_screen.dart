@@ -1,8 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:journi/login_screen.dart'; // para poder ir al login
+import 'package:journi/login_screen.dart';
+
+import 'application/entry_service.dart';
+import 'application/trip_service.dart';
+import 'domain/ports/entry_repository.dart';
+import 'domain/ports/trip_repository.dart';
+import 'domain/trip.dart'; // para poder ir al login
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+
+  int selectedIndex;
+  List<Trip> viajes;
+  final TripRepository tripRepo;
+  final EntryRepository entryRepo;
+  final TripService tripService;
+  final EntryService entryService;
+
+  RegisterScreen({
+    super.key,
+    required this.viajes,
+    required this.selectedIndex,
+    required this.tripRepo,
+    required this.entryRepo,
+    required this.tripService,
+    required this.entryService
+  });
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -50,7 +72,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => const LoginScreen(),
+        builder: (_) => LoginScreen(
+          selectedIndex: widget.selectedIndex,
+          viajes: widget.viajes,
+          tripRepo: widget.tripRepo,
+          entryRepo: widget.entryRepo,
+          tripService: widget.tripService,
+          entryService: widget.entryService,
+        ),
       ),
     );
   }
@@ -59,7 +88,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => const LoginScreen(),
+        builder: (_) => LoginScreen(
+          selectedIndex: widget.selectedIndex,
+          viajes: widget.viajes,
+          tripRepo: widget.tripRepo,
+          entryRepo: widget.entryRepo,
+          tripService: widget.tripService,
+          entryService: widget.entryService,
+        ),
       ),
     );
   }
