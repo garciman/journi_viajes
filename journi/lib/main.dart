@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:journi/crear_viaje.dart';
+import 'package:journi/mi_perfil.dart';
 import 'package:journi/pantalla_viaje.dart';
 
 // Infra BD (Drift)
@@ -297,21 +298,39 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             } else if (index == 4) {
               //mi perfil
+                if (widget.inicionSesiada){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MiPerfil(
+                        selectedIndex: index,
+                        inicionSesiada: widget.inicionSesiada,
+                        viajes: widget.viajes,
+                        tripRepo: widget.tripRepo,
+                        entryRepo: widget.entryRepo,
+                        tripService: widget.tripService,
+                        entryService: widget.entryService,
+                      ),
+                    ),
+                  );
+                }
+                else{
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(
+                        selectedIndex: index,
+                        inicionSesiada: widget.inicionSesiada,
+                        viajes: widget.viajes,
+                        tripRepo: widget.tripRepo,
+                        entryRepo: widget.entryRepo,
+                        tripService: widget.tripService,
+                        entryService: widget.entryService,
+                      ),
+                    ),
+                  );
+                }
 
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoginScreen(
-                    selectedIndex: index,
-                    inicionSesiada: widget.inicionSesiada,
-                    viajes: widget.viajes,
-                    tripRepo: widget.tripRepo,
-                    entryRepo: widget.entryRepo,
-                    tripService: widget.tripService,
-                    entryService: widget.entryService,
-                  ),
-                ),
-              );
             }
           });
         },

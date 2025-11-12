@@ -43,8 +43,8 @@ void main() {
           viajes: [],
           tripService: tripService,
           entryService: entryService,
-          tripRepo: tRepo,
-          entryRepo: eRepo,
+          tripRepo: tripRepo,
+          entryRepo: entryRepo,
         ),
       ));
 

@@ -14,6 +14,7 @@ import 'crear_viaje.dart';
 import 'domain/ports/trip_repository.dart';
 import 'login_screen.dart';
 import 'main.dart';
+import 'mi_perfil.dart';
 
 //
 // 🔹 Pantalla principal: lista de viajes
@@ -145,21 +146,38 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
             }
             */ else if (index == 4) {
                 //mi perfil
-                index = 1;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginScreen(
-                      selectedIndex: 1,
-                      inicionSesiada: widget.inicionSesiada,
-                      tripRepo: widget.tripRepo,
-                      viajes: widget.viajes,
-                      entryRepo: widget.entryRepo,
-                      tripService: widget.tripService,
-                      entryService: widget.entryService,
+                if (widget.inicionSesiada){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MiPerfil(
+                        selectedIndex: index,
+                        inicionSesiada: widget.inicionSesiada,
+                        viajes: widget.viajes,
+                        tripRepo: widget.tripRepo,
+                        entryRepo: widget.entryRepo,
+                        tripService: widget.tripService,
+                        entryService: widget.entryService,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
+                else{
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(
+                        selectedIndex: index,
+                        inicionSesiada: widget.inicionSesiada,
+                        viajes: widget.viajes,
+                        tripRepo: widget.tripRepo,
+                        entryRepo: widget.entryRepo,
+                        tripService: widget.tripService,
+                        entryService: widget.entryService,
+                      ),
+                    ),
+                  );
+                }
               }
             });
           },
@@ -282,20 +300,38 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
             }
             */ else if (index == 4) {
               //mi perfil
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoginScreen(
-                    selectedIndex: index,
-                    inicionSesiada: widget.inicionSesiada,
-                    tripRepo: widget.tripRepo,
-                    viajes: widget.viajes,
-                    entryRepo: widget.entryRepo,
-                    tripService: widget.tripService,
-                    entryService: widget.entryService,
+              if (widget.inicionSesiada){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MiPerfil(
+                      selectedIndex: index,
+                      inicionSesiada: widget.inicionSesiada,
+                      viajes: widget.viajes,
+                      tripRepo: widget.tripRepo,
+                      entryRepo: widget.entryRepo,
+                      tripService: widget.tripService,
+                      entryService: widget.entryService,
+                    ),
                   ),
-                ),
-              );
+                );
+              }
+              else{
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(
+                      selectedIndex: index,
+                      inicionSesiada: widget.inicionSesiada,
+                      viajes: widget.viajes,
+                      tripRepo: widget.tripRepo,
+                      entryRepo: widget.entryRepo,
+                      tripService: widget.tripService,
+                      entryService: widget.entryService,
+                    ),
+                  ),
+                );
+              }
             }
           });
         },

@@ -12,6 +12,7 @@ import 'crear_viaje.dart';
 import 'domain/trip.dart';
 import 'login_screen.dart';
 import 'map_screen.dart';
+import 'mi_perfil.dart';
 
 class Editar_viaje extends StatefulWidget {
   // ❗ Los campos del widget deben ser inmutables (final)
@@ -116,6 +117,7 @@ class _EditarViajeState extends State<Editar_viaje> {
           children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               InputField(
+                key: const Key('tituloField'),
                 controller: _titulo,
                 hintText: 'Titulo del viaje',
               ),
@@ -124,6 +126,7 @@ class _EditarViajeState extends State<Editar_viaje> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 10),
               InputField(
+                key: const Key('fechaIniField'),
                 controller: _fechaIni,
                 hintText: 'Fecha de inicio de viaje (DD-MM-YYYY)',
               ),
@@ -132,6 +135,7 @@ class _EditarViajeState extends State<Editar_viaje> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 10),
               InputField(
+                key: const Key('fechaFinField'),
                 controller: _fechaFin,
                 hintText: 'Fecha de fin de viaje (DD-MM-YYYY)',
               ),
@@ -139,6 +143,7 @@ class _EditarViajeState extends State<Editar_viaje> {
             ]),
             Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
               RoundedButton(
+                key: const Key('guardarButton'),
                 text: 'Guardar',
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
@@ -239,21 +244,38 @@ class _EditarViajeState extends State<Editar_viaje> {
             );
           } else if (_selectedIndex == 4) {
             //mi perfil
-            inIndex = 0;
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginScreen(
-                  selectedIndex: 0,
-                  inicionSesiada: widget.inicionSesiada,
-                  viajes: widget.viajes,
-                  tripRepo: widget.repo,
-                  entryRepo: widget.entryRepo,
-                  tripService: widget.tripService,
-                  entryService: widget.entryService,
+            if (widget.inicionSesiada){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MiPerfil(
+                    selectedIndex: _selectedIndex,
+                    inicionSesiada: widget.inicionSesiada,
+                    viajes: widget.viajes,
+                    tripRepo: widget.repo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
                 ),
-              ),
-            );
+              );
+            }
+            else{
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginScreen(
+                    selectedIndex: _selectedIndex,
+                    inicionSesiada: widget.inicionSesiada,
+                    viajes: widget.viajes,
+                    tripRepo: widget.repo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
+                ),
+              );
+            }
           }
         },
       ),

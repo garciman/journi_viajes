@@ -16,6 +16,7 @@ import 'application/shared/result.dart';
 import 'crear_viaje.dart';
 import 'editar_viaje.dart';
 import 'map_screen.dart';
+import 'mi_perfil.dart';
 import 'select_location_screen.dart';
 import 'package:journi/login_screen.dart';
 
@@ -310,6 +311,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
         ),
         actions: [
           IconButton(
+            key: const Key('anadirEntrada'),
             icon: const Icon(Icons.add, color: Colors.black),
             tooltip: 'Añadir texto',
             onPressed: () {
@@ -320,6 +322,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   return AlertDialog(
                     title: const Text('Introduce un texto'),
                     content: TextField(
+                      key: const Key('textoEntrada'),
                       controller: _textoController,
                       maxLines: 5,
                       decoration: const InputDecoration(
@@ -329,9 +332,11 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     ),
                     actions: [
                       TextButton(
+                          key: const Key('cancelarButton'),
                           onPressed: () => Navigator.pop(context),
                           child: const Text('Cancelar')),
                       TextButton(
+                        key: const Key('aceptarButton'),
                         onPressed: () async {
                           final texto = _textoController.text.trim();
                           if (texto.isEmpty) return;
@@ -620,7 +625,6 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
 
                 return Card(
-                  key: ValueKey('eid$index'),
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
@@ -628,6 +632,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   child: Column(
                     children: [
                       Stack(
+                        key: ValueKey('eid$index'),
                         alignment: Alignment.topRight,
                         children: [
                           GestureDetector(
@@ -732,22 +737,38 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                 ),
               );
             } else if (widget.selectedIndex == 4) {
-              inIndex = 0;
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                  builder: (context) => LoginScreen(
-                    selectedIndex: 0,
-                    inicionSesiada: widget.inicionSesiada,
-                    viajes: widget.viajes,
-                    tripRepo: widget.repo,
-                    entryRepo: widget.entryRepo,
-                    tripService: widget.tripService,
-                    entryService: widget.entryService,
+              if (widget.inicionSesiada){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MiPerfil(
+                      selectedIndex: widget.selectedIndex,
+                      inicionSesiada: widget.inicionSesiada,
+                      viajes: widget.viajes,
+                      tripRepo: widget.repo,
+                      entryRepo: widget.entryRepo,
+                      tripService: widget.tripService,
+                      entryService: widget.entryService,
+                    ),
                   ),
-                ),
-              );
+                );
+              }
+              else{
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(
+                      selectedIndex: widget.selectedIndex,
+                      inicionSesiada: widget.inicionSesiada,
+                      viajes: widget.viajes,
+                      tripRepo: widget.repo,
+                      entryRepo: widget.entryRepo,
+                      tripService: widget.tripService,
+                      entryService: widget.entryService,
+                    ),
+                  ),
+                );
+              }
             }
           });
         },

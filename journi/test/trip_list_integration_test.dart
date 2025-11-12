@@ -40,8 +40,8 @@ void main() {
           viajes: [],
           tripService: tripService,
           entryService: entryService,
-          tripRepo: tRepo,
-          entryRepo: eRepo,
+          tripRepo: tripRepo,
+          entryRepo: entryRepo,
         ),
       ));
 
@@ -83,8 +83,8 @@ void main() {
           viajes: [],
           tripService: tripService,
           entryService: entryService,
-          tripRepo: tRepo,
-          entryRepo: eRepo,
+          tripRepo: tripRepo,
+          entryRepo: entryRepo,
         ),
       ));
 
@@ -106,7 +106,7 @@ void main() {
         '10-01-2025',
       );
 
-      await tester.tap(find.byKey(const Key('volver')));
+      await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle(
           const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 

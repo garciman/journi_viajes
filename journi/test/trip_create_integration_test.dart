@@ -43,10 +43,11 @@ void main() {
           viajes: [],
           tripService: tripService,
           entryService: entryService,
-          tripRepo: tRepo,
-          entryRepo: eRepo,
+          tripRepo: tripRepo,
+          entryRepo: entryRepo,
         ),
       ));
+
 
 // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
@@ -67,8 +68,7 @@ void main() {
       );
 
       await tester.tap(find.byKey(const Key('guardarButton')));
-      await tester.pumpAndSettle(
-          const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
+      await tester.pumpAndSettle(); // Espera a que el SnackBar aparezca
 
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
@@ -84,8 +84,8 @@ void main() {
           inicionSesiada: false,
           viajes: [],
           num_viaje: -1,
-          repo: tripRepo,
-          entryRepo: entryRepo,
+          repo: tRepo,
+          entryRepo: eRepo,
           tripService: tripService,
           entryService: entryService,
         ),

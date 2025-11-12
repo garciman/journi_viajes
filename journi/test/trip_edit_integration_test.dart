@@ -10,6 +10,7 @@ import 'package:journi/application/entry_service.dart';
 import 'package:journi/domain/ports/entry_repository.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/main.dart';
+import 'package:journi/pantalla_viaje.dart';
 
 extension WidgetTesterExtension on WidgetTester {
   Future<void> pumpUntilFound(Finder finder, WidgetTester tester,
@@ -54,8 +55,8 @@ void main() {
           viajes: [],
           tripService: tripService,
           entryService: entryService,
-          tripRepo: tRepo,
-          entryRepo: eRepo,
+          tripRepo: tripRepo,
+          entryRepo: entryRepo,
         ),
       ));
 
@@ -99,7 +100,7 @@ void main() {
 
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
-      expect(find.byType(MyHomePage), findsOneWidget);
+      expect(find.byType(Pantalla_Viaje), findsOneWidget);
       expect(find.text('Error'), findsNothing);
     });
 
@@ -112,8 +113,8 @@ void main() {
           viajes: [],
           tripService: tripService,
           entryService: entryService,
-          tripRepo: tRepo,
-          entryRepo: eRepo,
+          tripRepo: tripRepo,
+          entryRepo: entryRepo,
         ),
       ));
 
@@ -138,7 +139,7 @@ void main() {
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(
           const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
-      await tester.tap(find.byKey(const Key('id1')));
+      await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.edit));
       await tester.pumpAndSettle();

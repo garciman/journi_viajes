@@ -12,6 +12,7 @@ import 'package:journi/domain/trip.dart';
 import 'login_screen.dart';
 import 'main.dart';
 import 'map_screen.dart';
+import 'mi_perfil.dart';
 
 class Crear_Viaje extends StatefulWidget {
   // 🔒 Los campos del Widget deben ser inmutables (final)
@@ -253,20 +254,38 @@ class _CrearViajeState extends State<Crear_Viaje> {
           } else if (_selectedIndex == 4) {
             //mi perfil
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginScreen(
-                  selectedIndex: _selectedIndex,
-                  inicionSesiada: widget.inicionSesiada,
-                  viajes: widget.viajes,
-                  tripRepo: widget.repo,
-                  entryRepo: widget.entryRepo,
-                  tripService: widget.tripService,
-                  entryService: widget.entryService,
+            if (widget.inicionSesiada){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MiPerfil(
+                    selectedIndex: _selectedIndex,
+                    inicionSesiada: widget.inicionSesiada,
+                    viajes: widget.viajes,
+                    tripRepo: widget.repo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
                 ),
-              ),
-            );
+              );
+            }
+            else{
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginScreen(
+                    selectedIndex: _selectedIndex,
+                    inicionSesiada: widget.inicionSesiada,
+                    viajes: widget.viajes,
+                    tripRepo: widget.repo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                  ),
+                ),
+              );
+            }
           }
         },
       ),
