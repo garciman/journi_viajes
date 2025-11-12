@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 
+
 /// Lo que devolvemos al guardar
 class SelectedLocation {
   final String name;
@@ -17,8 +18,13 @@ class SelectedLocation {
 
 class SelectLocationScreen extends StatefulWidget {
   final String? initialName;
+  final LatLng? initialPosition;
 
-  const SelectLocationScreen({super.key, this.initialName});
+  const SelectLocationScreen({
+    super.key,
+    this.initialPosition,
+    this.initialName,
+  });
 
   @override
   State<SelectLocationScreen> createState() => _SelectLocationScreenState();
@@ -29,8 +35,18 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
   final TextEditingController _nameController = TextEditingController();
   final MapController _mapController = MapController();
 
-  LatLng _center = LatLng(40.4168, -3.7038); // Madrid por defecto
+  late LatLng _center;
   LatLng? _selected;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Si se pasa una posición inicial, úsala; si no, usa Madrid
+    _center = widget.initialPosition ?? LatLng(40.4168, -3.7038);
+    _selected = widget.initialPosition;
+    _nameController.text = widget.initialName ?? '';
+  }
 
   /// 🔍 Buscar dirección en Nominatim (OpenStreetMap)
   Future<void> _searchLocation() async {

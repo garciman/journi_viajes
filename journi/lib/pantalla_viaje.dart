@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/entry_service.dart';
@@ -107,6 +108,186 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
         );
       },
     );
+  }
+
+  Future<void> _editarTexto(Entry e, String textoSinUbicacion, String? ubicacionActual) async {
+    final controller = TextEditingController(text: textoSinUbicacion);
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Editar texto'),
+        content: TextField(
+          controller: controller,
+          maxLines: 5,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () async {
+              final nuevoTexto = controller.text.trim();
+              if (nuevoTexto.isEmpty) return;
+
+              // Re-creamos la entrada manteniendo la ubicación si había
+              await widget.entryService.deleteById(e.id);
+              final cmd = CreateEntryCommand(
+                id: UniqueKey().toString(),
+                tripId: widget.viajes[widget.num_viaje].id,
+                type: EntryType.note,
+                text: ubicacionActual != null ? '$nuevoTexto\n$ubicacionActual' : nuevoTexto,
+              );
+              await widget.entryService.create(cmd);
+
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _mostrarAccionesEntradaTexto(Entry e) async {
+    // Separa texto y ubicación si existe
+    final partes = (e.text ?? '').split('📍');
+    final textoSinUbicacion = partes.first.trim();
+    final ubicacionActual = partes.length > 1 ? '📍${partes.last.trim()}' : null;
+
+    await showDialog(
+      context: context,
+      builder: (_) => SimpleDialog(
+        title: const Text('¿Qué quieres editar?'),
+        children: [
+          ListTile(
+            leading: const Icon(Icons.edit),
+            title: const Text('Editar texto'),
+            onTap: () async {
+              Navigator.pop(context);
+              await _editarTexto(e, textoSinUbicacion, ubicacionActual);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: Text(ubicacionActual == null ? 'Añadir ubicación' : 'Editar ubicación'),
+            onTap: () async {
+              Navigator.pop(context);
+              await _asignarUbicacionAEntrada(e); // reusa tu flujo de ubicación
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _mostrarAccionesImagen(Entry e) async {
+    // Si el texto contiene una ubicación tipo "📍 ..."
+    final partes = (e.text ?? '').split('📍');
+    final ubicacionActual = partes.length > 1 ? '📍${partes.last.trim()}' : null;
+
+    await showDialog(
+      context: context,
+      builder: (_) => SimpleDialog(
+        title: const Text('Opciones de imagen'),
+        children: [
+          ListTile(
+            leading: const Icon(Icons.visibility),
+            title: const Text('Ver imagen'),
+            onTap: () {
+              Navigator.pop(context);
+              showDialog(
+                context: context,
+                builder: (context) => Dialog(
+                  child: InteractiveViewer(
+                    panEnabled: true,
+                    child: Image.file(File(e.mediaUri!), fit: BoxFit.contain),
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: Text(ubicacionActual == null ? 'Añadir ubicación' : 'Editar ubicación'),
+            onTap: () async {
+              Navigator.pop(context);
+              await _asignarUbicacionAEntrada(e); // reusa tu método existente
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: const Text('Eliminar imagen'),
+            onTap: () async {
+              Navigator.pop(context);
+              await widget.entryService.deleteById(e.id);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Foto eliminada')),
+              );
+              setState(() {});
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _asignarUbicacionAEntrada(Entry entry) async {
+    // Abrimos la pantalla de selección de ubicación
+    final result = await Navigator.push<SelectedLocation>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SelectLocationScreen(),
+      ),
+    );
+
+    if (result != null) {
+      // Creamos un texto de ubicación como hacías antes
+      final ubicacionTexto =
+          '${result.name} (${result.position.latitude.toStringAsFixed(4)}, ${result.position.longitude.toStringAsFixed(4)})';
+
+      // Eliminamos la entrada anterior y la recreamos con la ubicación añadida
+      // (más simple que crear un comando de actualización)
+      await widget.entryService.deleteById(entry.id);
+
+      final cmd = CreateEntryCommand(
+        id: UniqueKey().toString(),
+        tripId: widget.viajes[widget.num_viaje].id,
+        type: entry.type,
+        text: '${entry.text ?? ''}\n📍 $ubicacionTexto', // añadimos ubicación al texto existente
+        mediaUri: entry.mediaUri,
+      );
+
+      await widget.entryService.create(cmd);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ubicación añadida a la entrada')),
+        );
+        setState(() {});
+      }
+    }
+  }
+  void _abrirUbicacionDesdeTexto(String ubicacionTexto) {
+    // Intenta extraer latitud y longitud del texto (formato: 📍 Nombre (lat, lng))
+    final regex = RegExp(r'\(([0-9\.\-]+),\s*([0-9\.\-]+)\)');
+    final match = regex.firstMatch(ubicacionTexto);
+    if (match != null) {
+      final lat = double.tryParse(match.group(1)!);
+      final lng = double.tryParse(match.group(2)!);
+      if (lat != null && lng != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SelectLocationScreen(
+              initialPosition: LatLng(lat, lng),
+              initialName: ubicacionTexto.split('📍').last.trim(),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -282,36 +463,6 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.location_on, color: Colors.black),
-            tooltip: 'Añadir ubicación',
-            onPressed: () async {
-              final result = await Navigator.push<SelectedLocation>(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const SelectLocationScreen(),
-                ),
-              );
-
-              if (result != null) {
-                // ✅ Guardamos como nueva Entry en la base de datos
-                final cmd = CreateEntryCommand(
-                  id: UniqueKey().toString(),
-                  tripId: widget.viajes[widget.num_viaje].id,
-                  type: EntryType.location,
-                  text:
-                      '${result.name} (${result.position.latitude.toStringAsFixed(4)}, ${result.position.longitude.toStringAsFixed(4)})',
-                );
-
-                await widget.entryService.create(cmd);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Ubicación añadida correctamente')),
-                );
-              }
-            },
-          ),
-          IconButton(
             icon: const Icon(Icons.delete, color: Colors.black),
             tooltip: 'Eliminar',
             onPressed: () {
@@ -388,59 +539,74 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
                     "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
 
+                // Detectamos si hay ubicación en el texto
+                final partes = e.text!.split('📍');
+                final textoSinUbicacion = partes.first.trim();
+                final ubicacionActual = partes.length > 1 ? '📍${partes.last.trim()}' : null;
+
                 return Card(
                   color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
                     key: ValueKey('eid$index'),
                     leading: const Icon(Icons.notes, color: Colors.teal),
-                    title: Text(e.text!),
+
+                    // 👈 AQUÍ el onTap (en el ListTile, no fuera)
+                    onTap: () => _mostrarAccionesEntradaTexto(e),
+
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          textoSinUbicacion,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+
+                        // Ubicación clicable (abre mapa centrado)
+                        if (ubicacionActual != null)
+                          GestureDetector(
+                            onTap: () => _abrirUbicacionDesdeTexto(ubicacionActual),
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 6.0),
+                              child: Text(
+                                ubicacionActual,
+                                style: const TextStyle(
+                                  color: Colors.teal,
+                                  fontStyle: FontStyle.italic,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+
                     subtitle: Text('Añadido el $fechaFormateada'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () async {
-                        await widget.entryService.deleteById(e.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Texto eliminado')),
-                        );
-                      },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.location_on, color: Colors.teal),
+                          tooltip: ubicacionActual == null ? 'Añadir ubicación' : 'Editar ubicación',
+                          onPressed: () => _asignarUbicacionAEntrada(e),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                          onPressed: () async {
+                            await widget.entryService.deleteById(e.id);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Texto eliminado')),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 );
               }
 
-              // Ubicación
-              if (e.type == EntryType.location && e.text != null) {
-                final fecha = e.createdAt.toLocal();
-                final fechaFormateada =
-                    "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
-                    "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
 
-                return Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    leading: const Icon(Icons.location_on, color: Colors.teal),
-                    title: Text(e.text!),
-                    subtitle: Text('Añadida el $fechaFormateada'),
-                    onTap: () =>
-                        _editarUbicacion(e), // 👈 NUEVO: editar al tocar
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () async {
-                        await widget.entryService.deleteById(e.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Ubicación eliminada')),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              }
 
               // Imagen
               if (e.type == EntryType.photo && e.mediaUri != null) {
@@ -462,23 +628,9 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         alignment: Alignment.topRight,
                         children: [
                           GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return Dialog(
-                                    child: InteractiveViewer(
-                                      panEnabled: true,
-                                      child:
-                                          Image.file(file, fit: BoxFit.contain),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
+                            onTap: () => _mostrarAccionesImagen(e), // 👈 NUEVO: muestra el menú contextual
                             child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(15)),
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
                               child: Image.file(
                                 file,
                                 height: 200,
@@ -486,6 +638,11 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                                 fit: BoxFit.cover,
                               ),
                             ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.location_on, color: Colors.teal),
+                            tooltip: 'Añadir ubicación',
+                            onPressed: () => _asignarUbicacionAEntrada(e),
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
@@ -497,7 +654,9 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                             },
                           ),
                         ],
+
                       ),
+
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Text(
