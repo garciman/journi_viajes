@@ -28,7 +28,7 @@ void main() {
   // 🔧 Inicializa el entorno de test (sustituye al antiguo IntegrationTestWidgetsFlutterBinding)
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('🧭 Pruebas de integración: Eliminar_viaje', () {
+  group('🧭 Pruebas de integración: Editar_Viaje', () {
     late InMemoryTripRepository tripRepo;
     late InMemoryEntryRepository entryRepo;
     late DefaultTripService tripService;
@@ -46,10 +46,11 @@ void main() {
       eRepo = DriftEntryRepository(db);
     });
 
-    testWidgets('✅ Eliminar viaje correctamente', (WidgetTester tester) async {
+    testWidgets('✅ Editar viaje correctamente', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
+          inicionSesiada: false,
           viajes: [],
           tripService: tripService,
           entryService: entryService,
@@ -79,46 +80,35 @@ void main() {
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(
           const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
-
-      await tester.tap(find.byKey(const Key('anadirButton')));
+      await tester.tap(find.byKey(const Key('id0')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.edit));
       await tester.pumpAndSettle();
 
-      // 🧩 Rellenar los campos
+      await tester.tap(find.byKey(const Key('tituloField')));
+      await tester.pumpAndSettle();
+
       await tester.enterText(
         find.byKey(const Key('tituloField')),
-        'Vacaciones 2026',
+        'Vacaciones 2025 Zaragoza',
       );
-      await tester.enterText(
-        find.byKey(const Key('fechaIniField')),
-        '01-02-2025',
-      );
-      await tester.enterText(
-        find.byKey(const Key('fechaFinField')),
-        '10-02-2025',
-      );
-
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(
           const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
-      await tester.tap(find.byKey(const Key('id0')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.delete));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('aceptarButton')));
-
-      await tester.pumpAndSettle();
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
-      expectLater(find.byKey(const Key('id0')), findsAny);
+      expect(find.byType(MyHomePage), findsOneWidget);
+      expect(find.text('Error'), findsNothing);
     });
 
-    testWidgets('❌ No se elimina viaje porque se cancela',
+    testWidgets('❌ Error: fecha de inicio posterior a fecha final',
         (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
+          inicionSesiada: false,
           viajes: [],
           tripService: tripService,
           entryService: entryService,
@@ -148,18 +138,27 @@ void main() {
       await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(
           const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
-      await tester.tap(find.byKey(const Key('id0')));
+      await tester.tap(find.byKey(const Key('id1')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byIcon(Icons.delete));
+      await tester.tap(find.byIcon(Icons.edit));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const Key('cancelarButton')));
-
+      await tester.tap(find.byKey(const Key('fechaIniField')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('fechaIniField')),
+        '10-01-2026',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('guardarButton')));
       await tester.pumpAndSettle(
           const Duration(seconds: 1)); // Espera a que el SnackBar aparezca
 
       // ❌ Verificar error
-      expect(find.byIcon(Icons.delete), findsOneWidget);
+      expect(find.text('Error'), findsOneWidget);
+      expect(find.text('La fecha de inicio no puede ser posterior a la final'),
+          findsOneWidget);
+      expect(find.text('Viaje creado correctamente'), findsNothing);
     });
   });
 }

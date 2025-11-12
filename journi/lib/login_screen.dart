@@ -10,6 +10,7 @@ import 'register_screen.dart';
 class LoginScreen extends StatefulWidget {
   int selectedIndex;
   List<Trip> viajes;
+  final bool inicionSesiada;
   final TripRepository tripRepo;
   final EntryRepository entryRepo;
   final TripService tripService;
@@ -17,6 +18,7 @@ class LoginScreen extends StatefulWidget {
 
   LoginScreen({
     super.key,
+    required this.inicionSesiada,
     required this.viajes,
     required this.selectedIndex,
     required this.tripRepo,
@@ -74,7 +76,8 @@ class _LoginScreenState extends State<LoginScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => MiPerfil(
-          selectedIndex: 4,
+          selectedIndex: widget.selectedIndex,
+          inicionSesiada: true,
           viajes: widget.viajes,
           tripRepo: widget.tripRepo,
           entryRepo: widget.entryRepo,
@@ -87,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: const Color(0xFF1C7470), // verde como en la imagen
       body: SafeArea(
@@ -180,6 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       MaterialPageRoute(
                         builder: (_) => RegisterScreen(
                           selectedIndex: widget.selectedIndex,
+                          inicionSesiada: widget.inicionSesiada,
                           viajes: widget.viajes,
                           tripRepo: widget.tripRepo,
                           entryRepo: widget.entryRepo,

@@ -18,7 +18,7 @@ class Editar_viaje extends StatefulWidget {
   final int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   final int num_viaje;
   final List<Trip> viajes;
-
+  final bool inicionSesiada;
   // 👉 Puerto (interfaz) en lugar del repo in-memory
   final TripRepository repo;
   final EntryRepository entryRepo;
@@ -28,6 +28,7 @@ class Editar_viaje extends StatefulWidget {
   const Editar_viaje({
     super.key,
     required this.selectedIndex,
+    required this.inicionSesiada,
     required this.viajes,
     required this.num_viaje,
     required this.repo,
@@ -210,6 +211,7 @@ class _EditarViajeState extends State<Editar_viaje> {
               MaterialPageRoute(
                 builder: (context) => Crear_Viaje(
                   selectedIndex: _selectedIndex,
+                  inicionSesiada: widget.inicionSesiada,
                   viajes: widget.viajes,
                   num_viaje: -1,
                   repo: widget.repo,
@@ -226,6 +228,7 @@ class _EditarViajeState extends State<Editar_viaje> {
               MaterialPageRoute(
                 builder: (context) => MapaPaisScreen(
                   selectedIndex: _selectedIndex,
+                  inicionSesiada: widget.inicionSesiada,
                   viajes: widget.viajes,
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,
@@ -242,6 +245,7 @@ class _EditarViajeState extends State<Editar_viaje> {
               MaterialPageRoute(
                 builder: (context) => LoginScreen(
                   selectedIndex: 0,
+                  inicionSesiada: widget.inicionSesiada,
                   viajes: widget.viajes,
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,

@@ -63,6 +63,7 @@ class MyApp extends StatelessWidget {
       ),
       home: MyHomePage(
         title: 'JOURNI',
+        inicionSesiada: false,
         viajes: const [],
         tripRepo: tripRepo,
         tripService: tripService,
@@ -77,6 +78,7 @@ class MyHomePage extends StatefulWidget {
   MyHomePage({
     super.key,
     required this.title,
+    required this.inicionSesiada,
     required this.viajes,
     required this.tripRepo,
     required this.tripService,
@@ -85,7 +87,7 @@ class MyHomePage extends StatefulWidget {
   });
 
   final String title;
-
+  final bool inicionSesiada;
   final TripRepository tripRepo;
   final TripService tripService;
 
@@ -131,6 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(
         builder: (context) => Crear_Viaje(
           selectedIndex: _selectedIndex,
+          inicionSesiada: widget.inicionSesiada,
           viajes: const [],
           num_viaje: -1,
           repo: widget.tripRepo,
@@ -219,6 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder: (context) => Pantalla_Viaje(
                           selectedIndex: _selectedIndex,
+                          inicionSesiada: widget.inicionSesiada,
                           viajes: items,
                           num_viaje: index,
                           repo: widget.tripRepo,
@@ -265,6 +269,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 MaterialPageRoute(
                   builder: (context) => Crear_Viaje(
                     selectedIndex: _selectedIndex,
+                    inicionSesiada: widget.inicionSesiada,
                     viajes: widget.viajes,
                     num_viaje: -1,
                     repo: widget.tripRepo,
@@ -281,6 +286,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 MaterialPageRoute(
                   builder: (context) => MapaPaisScreen(
                     selectedIndex: index,
+                    inicionSesiada: widget.inicionSesiada,
                     viajes: widget.viajes,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
@@ -297,6 +303,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 MaterialPageRoute(
                   builder: (context) => LoginScreen(
                     selectedIndex: index,
+                    inicionSesiada: widget.inicionSesiada,
                     viajes: widget.viajes,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,

@@ -19,7 +19,7 @@ import 'main.dart';
 // 🔹 Pantalla principal: lista de viajes
 //
 class MapaPaisScreen extends StatefulWidget {
-
+  final bool inicionSesiada;
   int selectedIndex;
   List<Trip> viajes;
   final TripRepository tripRepo;
@@ -30,6 +30,7 @@ class MapaPaisScreen extends StatefulWidget {
   MapaPaisScreen({
     super.key,
     required this.viajes,
+    required this.inicionSesiada,
     required this.selectedIndex,
     required this.tripRepo,
     required this.entryRepo,
@@ -100,6 +101,7 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                     builder: (context) => MyHomePage(
                       title: 'JOURNI',
                       viajes: widget.viajes,
+                      inicionSesiada: widget.inicionSesiada,
                       tripRepo: widget.tripRepo,
                       entryRepo: widget.entryRepo,
                       tripService: widget.tripService,
@@ -113,6 +115,7 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                   MaterialPageRoute(
                     builder: (context) => Crear_Viaje(
                       selectedIndex: widget.selectedIndex,
+                      inicionSesiada: widget.inicionSesiada,
                       viajes: _viajes!,
                       num_viaje: -1,
                       repo: widget.tripRepo,
@@ -148,6 +151,7 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                   MaterialPageRoute(
                     builder: (context) => LoginScreen(
                       selectedIndex: 1,
+                      inicionSesiada: widget.inicionSesiada,
                       tripRepo: widget.tripRepo,
                       viajes: widget.viajes,
                       entryRepo: widget.entryRepo,
@@ -233,6 +237,7 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                   // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
                   builder: (context) => MyHomePage(
                     title: 'JOURNI',
+                    inicionSesiada: widget.inicionSesiada,
                     viajes: widget.viajes,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
@@ -247,6 +252,7 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                 MaterialPageRoute(
                   builder: (context) => Crear_Viaje(
                     selectedIndex: widget.selectedIndex,
+                    inicionSesiada: widget.inicionSesiada,
                     viajes: _viajes!,
                     num_viaje: -1,
                     repo: widget.tripRepo,
@@ -281,6 +287,7 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                 MaterialPageRoute(
                   builder: (context) => LoginScreen(
                     selectedIndex: index,
+                    inicionSesiada: widget.inicionSesiada,
                     tripRepo: widget.tripRepo,
                     viajes: widget.viajes,
                     entryRepo: widget.entryRepo,

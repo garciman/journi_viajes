@@ -28,6 +28,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Pantalla_Viaje(
         selectedIndex: 0,
+        inicionSesiada: false,
         viajes: [trip],
         num_viaje: 0,
         repo: tripRepo,
@@ -60,6 +61,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Pantalla_Viaje(
         selectedIndex: 0,
+        inicionSesiada: false,
         viajes: [trip],
         num_viaje: 0,
         repo: tripRepo,
@@ -116,6 +118,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Pantalla_Viaje(
         selectedIndex: 0,
+        inicionSesiada: false,
         viajes: [trip],
         num_viaje: 0,
         repo: tripRepo,
@@ -161,6 +164,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Pantalla_Viaje(
         selectedIndex: 0,
+        inicionSesiada: false,
         viajes: [trip],
         num_viaje: 0,
         repo: tripRepo,

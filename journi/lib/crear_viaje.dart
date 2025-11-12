@@ -18,7 +18,7 @@ class Crear_Viaje extends StatefulWidget {
   final int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   final int num_viaje;
   final List<Trip> viajes;
-
+  final bool inicionSesiada;
   // Servicios/puertos (también inmutables)
   final TripRepository repo;
   final EntryRepository entryRepo;
@@ -28,6 +28,7 @@ class Crear_Viaje extends StatefulWidget {
   const Crear_Viaje({
     super.key,
     required this.selectedIndex,
+    required this.inicionSesiada,
     required this.viajes,
     required this.num_viaje,
     required this.repo,
@@ -224,6 +225,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
                 // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
                 builder: (context) => MyHomePage(
                   title: 'JOURNI',
+                  inicionSesiada: widget.inicionSesiada,
                   viajes: widget.viajes,
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,
@@ -239,6 +241,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
               MaterialPageRoute(
                 builder: (context) => MapaPaisScreen(
                   selectedIndex: _selectedIndex,
+                  inicionSesiada: widget.inicionSesiada,
                   viajes: widget.viajes,
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,
@@ -255,6 +258,7 @@ class _CrearViajeState extends State<Crear_Viaje> {
               MaterialPageRoute(
                 builder: (context) => LoginScreen(
                   selectedIndex: _selectedIndex,
+                  inicionSesiada: widget.inicionSesiada,
                   viajes: widget.viajes,
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,

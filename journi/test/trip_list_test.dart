@@ -20,6 +20,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: MyHomePage(
         title: 'JOURNI',
+        inicionSesiada: false,
         viajes: const [],
         tripRepo: repo,
         tripService: tripService,
@@ -41,6 +42,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: MyHomePage(
         title: 'JOURNI',
+        inicionSesiada: false,
         viajes: const [],
         tripRepo: repo,
         tripService: tripService,
@@ -83,6 +85,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: MyHomePage(
         title: 'JOURNI',
+        inicionSesiada: false,
         viajes: const [],
         tripRepo: repo,
         tripService: tripService,
@@ -116,6 +119,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: MyHomePage(
         title: 'JOURNI',
+        inicionSesiada: false,
         viajes: const [],
         tripRepo: repo,
         tripService: tripService,
