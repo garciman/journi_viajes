@@ -8,21 +8,31 @@ import 'package:path_provider/path_provider.dart';
 // El enum y tipos de dominio que referencian los converters/tabl
 import 'package:journi/domain/entry.dart';
 
-part 'app_database.g.dart'; // generado por drift
-part 'converters.dart'; // converters formarán parte de esta librería
-part 'tables.dart'; // tablas formarán parte de esta librería
+part 'app_database.g.dart';
+part 'converters.dart';
+part 'tables.dart';
 
-@DriftDatabase(tables: [Trips, Entries])
+@DriftDatabase(tables: [Trips, Entries, Users])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openLazy());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3; // ⬆️ bump a v3
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) async => m.createAll(),
-      );
+    onCreate: (m) async => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.createTable(users);
+      }
+      if (from < 3) {
+        // añadimos columnas de password
+        await m.addColumn(users, users.passwordHash);
+        await m.addColumn(users, users.passwordSalt);
+      }
+    },
+  );
 }
 
 LazyDatabase _openLazy() {
