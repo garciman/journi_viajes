@@ -16,6 +16,8 @@ part 'tables.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openLazy());
 
+  AppDatabase.forTesting(QueryExecutor e) : super(e);
+
   @override
   int get schemaVersion => 3; // ⬆️ bump a v3
 
