@@ -81,6 +81,8 @@ class MyApp extends StatelessWidget {
         tripService: tripService,
         entryRepo: entryRepo,
         entryService: entryService,
+        userRepo: userRepo,
+        userService: userService,
       ),
     );
   }
@@ -95,6 +97,7 @@ class MyHomePage extends StatefulWidget {
     required this.tripService,
     required this.entryRepo,
     required this.entryService,
+    required this.userRepo, required this.userService,
   });
 
   final String title;
@@ -108,6 +111,9 @@ class MyHomePage extends StatefulWidget {
   final EntryService entryService;
 
   List<Trip> viajes = [];
+
+  UserRepository userRepo;
+  UserService userService;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -151,6 +157,8 @@ class _MyHomePageState extends State<MyHomePage> {
           entryRepo: widget.entryRepo,
           tripService: widget.tripService,
           entryService: widget.entryService,
+          userRepo: widget.userRepo,
+          userService: widget.userService,
         ),
       ),
     );
@@ -240,6 +248,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           tripService: widget.tripService,
                           entryService: widget.entryService,
                           picker: widget.picker,
+                          userRepo: widget.userRepo,
+                          userService: widget.userService,
                         ),
                       ),
                     );
@@ -285,6 +295,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -300,6 +312,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -316,6 +330,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
+
                   ),
                 ),
               );

@@ -9,6 +9,8 @@ import 'package:journi/domain/ports/entry_repository.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/domain/trip.dart';
 
+import 'application/user_service.dart';
+import 'domain/ports/user_repository.dart';
 import 'login_screen.dart';
 import 'main.dart';
 import 'map_screen.dart';
@@ -24,6 +26,8 @@ class Crear_Viaje extends StatefulWidget {
   final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
+  final UserRepository userRepo;
+  final UserService userService;
 
   const Crear_Viaje({
     super.key,
@@ -34,6 +38,8 @@ class Crear_Viaje extends StatefulWidget {
     required this.entryRepo,
     required this.tripService,
     required this.entryService,
+    required this.userRepo,
+    required this.userService
   });
 
   @override
@@ -227,6 +233,8 @@ class _CrearViajeState extends State<Crear_Viaje> {
                   entryRepo: widget.entryRepo,
                   tripService: widget.tripService,
                   entryService: widget.entryService,
+                  userRepo: widget.userRepo,
+                  userService: widget.userService,
                 ),
               ),
             );
@@ -242,6 +250,8 @@ class _CrearViajeState extends State<Crear_Viaje> {
                   entryRepo: widget.entryRepo,
                   tripService: widget.tripService,
                   entryService: widget.entryService,
+                  userRepo: widget.userRepo,
+                  userService: widget.userService,
                 ),
               ),
             );
@@ -258,6 +268,8 @@ class _CrearViajeState extends State<Crear_Viaje> {
                   entryRepo: widget.entryRepo,
                   tripService: widget.tripService,
                   entryService: widget.entryService,
+                  userRepo: widget.userRepo,
+                  userService: widget.userService,
                 ),
               ),
             );

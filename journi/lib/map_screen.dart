@@ -10,8 +10,11 @@ import 'package:geolocator/geolocator.dart';
 
 import 'application/entry_service.dart';
 import 'application/trip_service.dart';
+import 'application/user_service.dart';
 import 'crear_viaje.dart';
+import 'data/local/drift/drift_user_repository.dart';
 import 'domain/ports/trip_repository.dart';
+import 'domain/ports/user_repository.dart';
 import 'login_screen.dart';
 import 'main.dart';
 
@@ -26,6 +29,9 @@ class MapaPaisScreen extends StatefulWidget {
   final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
+  final UserRepository userRepo;
+  final UserService userService;
+
 
   MapaPaisScreen({
     super.key,
@@ -34,7 +40,10 @@ class MapaPaisScreen extends StatefulWidget {
     required this.tripRepo,
     required this.entryRepo,
     required this.tripService,
-    required this.entryService
+    required this.entryService,
+    required this.userRepo,
+    required this.userService,
+    re
   });
 
   @override
@@ -43,12 +52,15 @@ class MapaPaisScreen extends StatefulWidget {
 
 class _MapaPaisScreenState extends State<MapaPaisScreen> {
   final TripRepository tripRepo = DriftTripRepository(AppDatabase());
+  final UserRepository userRepo = DriftUserRepository(AppDatabase());
+  late final userService;
   List<Trip>? _viajes;
 
   @override
   void initState() {
     super.initState();
     _cargarViajes();
+    userService = makeUserService(userRepo);
   }
 
   Future<void> _cargarViajes() async {
@@ -102,6 +114,8 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                       entryRepo: widget.entryRepo,
                       tripService: widget.tripService,
                       entryService: widget.entryService,
+                      userRepo: userRepo,
+                      userService: userService,
                     ),
                   ),
                 );
@@ -117,6 +131,8 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                       entryRepo: widget.entryRepo,
                       tripService: widget.tripService,
                       entryService: widget.entryService,
+                      userRepo: userRepo,
+                      userService: userService,
                     ),
                   ),
                 );
@@ -151,6 +167,8 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                       entryRepo: widget.entryRepo,
                       tripService: widget.tripService,
                       entryService: widget.entryService,
+                      userRepo: widget.userRepo,
+                      userService: widget.userService,
                     ),
                   ),
                 );
@@ -234,6 +252,8 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: userRepo,
+                    userService: userService,
                   ),
                 ),
               );
@@ -249,6 +269,8 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: userRepo,
+                    userService: userService,
                   ),
                 ),
               );
@@ -283,6 +305,8 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );

@@ -12,7 +12,11 @@ import 'package:journi/domain/entry.dart';
 import 'package:journi/domain/trip.dart' hide Ok;
 
 import 'application/shared/result.dart';
+import 'application/user_service.dart';
 import 'crear_viaje.dart';
+import 'data/local/drift/app_database.dart';
+import 'data/local/drift/drift_user_repository.dart';
+import 'domain/ports/user_repository.dart';
 import 'editar_viaje.dart';
 import 'map_screen.dart';
 import 'select_location_screen.dart';
@@ -29,6 +33,8 @@ class Pantalla_Viaje extends StatefulWidget {
   final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
+  final UserRepository userRepo;
+  final UserService userService;
 
   Pantalla_Viaje(
       {super.key,
@@ -39,13 +45,16 @@ class Pantalla_Viaje extends StatefulWidget {
         required this.entryRepo,
       required this.tripService,
       required this.entryService,
-      this.picker});
+      this.picker,
+      required this.userRepo,
+      required this.userService});
 
   @override
   _PantallaViajeState createState() => _PantallaViajeState();
 }
 
 class _PantallaViajeState extends State<Pantalla_Viaje> {
+
   final ImagePicker _picker = ImagePicker();
   final List<Map<String, dynamic>> _textos = []; // {texto, fecha}
   final TextEditingController _textoController = TextEditingController();
@@ -276,6 +285,8 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -549,6 +560,8 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -564,6 +577,8 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -580,6 +595,8 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
