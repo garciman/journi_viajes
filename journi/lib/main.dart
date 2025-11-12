@@ -91,7 +91,6 @@ class MyHomePage extends StatefulWidget {
 
   final EntryRepository entryRepo;
   final MockImagePicker picker = MockImagePicker();
-
   final EntryService entryService;
 
   List<Trip> viajes = [];
@@ -292,12 +291,12 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             } else if (index == 4) {
               //mi perfil
-              index = 0;
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => LoginScreen(
-                    selectedIndex: 0,
+                    selectedIndex: index,
                     viajes: widget.viajes,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,

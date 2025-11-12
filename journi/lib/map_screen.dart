@@ -97,7 +97,9 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                   context,
                   MaterialPageRoute(
                     // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                    builder: (context) => MyApp(
+                    builder: (context) => MyHomePage(
+                      title: 'JOURNI',
+                      viajes: widget.viajes,
                       tripRepo: widget.tripRepo,
                       entryRepo: widget.entryRepo,
                       tripService: widget.tripService,
@@ -229,7 +231,9 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                 context,
                 MaterialPageRoute(
                   // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                  builder: (context) => MyApp(
+                  builder: (context) => MyHomePage(
+                    title: 'JOURNI',
+                    viajes: widget.viajes,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
@@ -272,12 +276,11 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
             }
             */ else if (index == 4) {
               //mi perfil
-              index = 1;
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => LoginScreen(
-                    selectedIndex: 1,
+                    selectedIndex: index,
                     tripRepo: widget.tripRepo,
                     viajes: widget.viajes,
                     entryRepo: widget.entryRepo,

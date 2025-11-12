@@ -222,7 +222,9 @@ class _CrearViajeState extends State<Crear_Viaje> {
               context,
               MaterialPageRoute(
                 // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                builder: (context) => MyApp(
+                builder: (context) => MyHomePage(
+                  title: 'JOURNI',
+                  viajes: widget.viajes,
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,
                   tripService: widget.tripService,
@@ -247,12 +249,12 @@ class _CrearViajeState extends State<Crear_Viaje> {
             );
           } else if (_selectedIndex == 4) {
             //mi perfil
-            inIndex = 2;
+
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => LoginScreen(
-                  selectedIndex: 2,
+                  selectedIndex: _selectedIndex,
                   viajes: widget.viajes,
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,

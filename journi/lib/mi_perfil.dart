@@ -68,7 +68,9 @@ class _MiPerfilState extends State<MiPerfil> {
                 context,
                 MaterialPageRoute(
                   // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                  builder: (context) => MyApp(
+                  builder: (context) => MyHomePage(
+                    title: 'JOURNI',
+                    viajes: widget.viajes,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
