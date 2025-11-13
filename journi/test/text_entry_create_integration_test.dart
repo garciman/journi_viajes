@@ -72,11 +72,13 @@ void main() {
       await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('anadirEntrada')));
+      await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('textoEntrada')),
         'Que grande que eres Nano',
       );
       await tester.tap(find.byKey(const Key('aceptarButton')));
+      await tester.pumpAndSettle();
       expect(find.byKey(const Key('eid0')), findsOneWidget);
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
@@ -84,18 +86,19 @@ void main() {
 
     testWidgets('❌ Error: Entrada vacía', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
-        home: Crear_Viaje(
-          selectedIndex: 2,
+        home: MyHomePage(
+          title: 'JOURNI',
           inicionSesiada: false,
           viajes: [],
-          num_viaje: -1,
-          repo: tripRepo,
-          entryRepo: entryRepo,
           tripService: tripService,
           entryService: entryService,
+          tripRepo: tripRepo,
+          entryRepo: entryRepo,
         ),
       ));
 
+// Pulsa el BottomNavigationBarItem "Nuevo viaje"
+      await tester.tap(find.byKey(const Key('anadirButton')));
       await tester.pumpAndSettle();
 
       // 🧩 Campos con fechas inválidas
@@ -118,11 +121,13 @@ void main() {
       await tester.tap(find.byKey(const Key('id0')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('anadirEntrada')));
+      await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('textoEntrada')),
         '',
       );
       await tester.tap(find.byKey(const Key('aceptarButton')));
+      await tester.pumpAndSettle();
       expect(find.byKey(const Key('eid0')), findsNothing);
     });
   });

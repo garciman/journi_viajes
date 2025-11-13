@@ -381,8 +381,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         key: const Key('adjuntarFoto'),
                         onPressed: () async {
                           Navigator.pop(context);
-                          final XFile? pickedFile = await _picker.pickImage(
-                              source: ImageSource.gallery);
+                          final XFile? pickedFile = await (widget.picker ?? _picker).pickImage(source: ImageSource.gallery);
                           if (pickedFile != null) {
                             final cmd = CreateEntryCommand(
                               id: UniqueKey().toString(),
