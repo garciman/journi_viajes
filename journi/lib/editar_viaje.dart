@@ -21,7 +21,7 @@ class Editar_viaje extends StatefulWidget {
   final int num_viaje;
   final List<Trip> viajes;
 
-  // 👉 Puerto (interfaz) en lugar del repo in-memory
+  // 👉 Puerto (interfaz) en lugar del repo in-memory 
   final TripRepository repo;
   final EntryRepository entryRepo;
   final TripService tripService;
