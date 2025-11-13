@@ -3,8 +3,12 @@ import 'package:journi/login_screen.dart';
 
 import 'application/entry_service.dart';
 import 'application/trip_service.dart';
+import 'application/user_service.dart';
+import 'data/local/drift/app_database.dart';
+import 'data/local/drift/drift_user_repository.dart';
 import 'domain/ports/entry_repository.dart';
 import 'domain/ports/trip_repository.dart';
+import 'domain/ports/user_repository.dart';
 import 'domain/trip.dart'; // para poder ir al login
 
 class RegisterScreen extends StatefulWidget {
@@ -15,6 +19,8 @@ class RegisterScreen extends StatefulWidget {
   final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
+  final UserRepository userRepo;
+  final UserService userService;
 
   RegisterScreen({
     super.key,
@@ -24,7 +30,9 @@ class RegisterScreen extends StatefulWidget {
     required this.tripRepo,
     required this.entryRepo,
     required this.tripService,
-    required this.entryService
+    required this.entryService,
+    required this.userRepo,
+    required this.userService
   });
 
   @override
@@ -36,6 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _apellidosController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
 
   @override
   void dispose() {
@@ -81,6 +90,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           entryRepo: widget.entryRepo,
           tripService: widget.tripService,
           entryService: widget.entryService,
+          userRepo: widget.userRepo,
+          userService: widget.userService,
         ),
       ),
     );
@@ -98,6 +109,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           entryRepo: widget.entryRepo,
           tripService: widget.tripService,
           entryService: widget.entryService,
+          userRepo: widget.userRepo,
+          userService: widget.userService,
         ),
       ),
     );

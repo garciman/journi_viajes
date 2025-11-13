@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:latlong2/latlong.dart';
 
 import 'package:journi/application/trip_service.dart';
 import 'package:journi/application/entry_service.dart';
@@ -13,15 +12,17 @@ import 'package:journi/domain/entry.dart';
 import 'package:journi/domain/trip.dart' hide Ok;
 
 import 'application/shared/result.dart';
+import 'application/user_service.dart';
 import 'crear_viaje.dart';
+import 'data/local/drift/app_database.dart';
+import 'data/local/drift/drift_user_repository.dart';
+import 'domain/ports/user_repository.dart';
 import 'editar_viaje.dart';
 import 'map_screen.dart';
-import 'mi_perfil.dart';
 import 'select_location_screen.dart';
 import 'package:journi/login_screen.dart';
 
 class Pantalla_Viaje extends StatefulWidget {
-  final bool inicionSesiada;
   int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   List<Trip> viajes;
   int num_viaje;
@@ -32,24 +33,28 @@ class Pantalla_Viaje extends StatefulWidget {
   final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
+  final UserRepository userRepo;
+  final UserService userService;
 
   Pantalla_Viaje(
       {super.key,
       required this.selectedIndex,
-        required this.inicionSesiada,
       required this.viajes,
       required this.num_viaje,
       required this.repo,
         required this.entryRepo,
       required this.tripService,
       required this.entryService,
-      this.picker});
+      this.picker,
+      required this.userRepo,
+      required this.userService});
 
   @override
   _PantallaViajeState createState() => _PantallaViajeState();
 }
 
 class _PantallaViajeState extends State<Pantalla_Viaje> {
+
   final ImagePicker _picker = ImagePicker();
   final List<Map<String, dynamic>> _textos = []; // {texto, fecha}
   final TextEditingController _textoController = TextEditingController();
@@ -113,186 +118,6 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
     );
   }
 
-  Future<void> _editarTexto(Entry e, String textoSinUbicacion, String? ubicacionActual) async {
-    final controller = TextEditingController(text: textoSinUbicacion);
-
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Editar texto'),
-        content: TextField(
-          controller: controller,
-          maxLines: 5,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          TextButton(
-            onPressed: () async {
-              final nuevoTexto = controller.text.trim();
-              if (nuevoTexto.isEmpty) return;
-
-              // Re-creamos la entrada manteniendo la ubicación si había
-              await widget.entryService.deleteById(e.id);
-              final cmd = CreateEntryCommand(
-                id: UniqueKey().toString(),
-                tripId: widget.viajes[widget.num_viaje].id,
-                type: EntryType.note,
-                text: ubicacionActual != null ? '$nuevoTexto\n$ubicacionActual' : nuevoTexto,
-              );
-              await widget.entryService.create(cmd);
-
-              if (context.mounted) Navigator.pop(context);
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _mostrarAccionesEntradaTexto(Entry e) async {
-    // Separa texto y ubicación si existe
-    final partes = (e.text ?? '').split('📍');
-    final textoSinUbicacion = partes.first.trim();
-    final ubicacionActual = partes.length > 1 ? '📍${partes.last.trim()}' : null;
-
-    await showDialog(
-      context: context,
-      builder: (_) => SimpleDialog(
-        title: const Text('¿Qué quieres editar?'),
-        children: [
-          ListTile(
-            leading: const Icon(Icons.edit),
-            title: const Text('Editar texto'),
-            onTap: () async {
-              Navigator.pop(context);
-              await _editarTexto(e, textoSinUbicacion, ubicacionActual);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.location_on),
-            title: Text(ubicacionActual == null ? 'Añadir ubicación' : 'Editar ubicación'),
-            onTap: () async {
-              Navigator.pop(context);
-              await _asignarUbicacionAEntrada(e); // reusa tu flujo de ubicación
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _mostrarAccionesImagen(Entry e) async {
-    // Si el texto contiene una ubicación tipo "📍 ..."
-    final partes = (e.text ?? '').split('📍');
-    final ubicacionActual = partes.length > 1 ? '📍${partes.last.trim()}' : null;
-
-    await showDialog(
-      context: context,
-      builder: (_) => SimpleDialog(
-        title: const Text('Opciones de imagen'),
-        children: [
-          ListTile(
-            leading: const Icon(Icons.visibility),
-            title: const Text('Ver imagen'),
-            onTap: () {
-              Navigator.pop(context);
-              showDialog(
-                context: context,
-                builder: (context) => Dialog(
-                  child: InteractiveViewer(
-                    panEnabled: true,
-                    child: Image.file(File(e.mediaUri!), fit: BoxFit.contain),
-                  ),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.location_on),
-            title: Text(ubicacionActual == null ? 'Añadir ubicación' : 'Editar ubicación'),
-            onTap: () async {
-              Navigator.pop(context);
-              await _asignarUbicacionAEntrada(e); // reusa tu método existente
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title: const Text('Eliminar imagen'),
-            onTap: () async {
-              Navigator.pop(context);
-              await widget.entryService.deleteById(e.id);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Foto eliminada')),
-              );
-              setState(() {});
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _asignarUbicacionAEntrada(Entry entry) async {
-    // Abrimos la pantalla de selección de ubicación
-    final result = await Navigator.push<SelectedLocation>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const SelectLocationScreen(),
-      ),
-    );
-
-    if (result != null) {
-      // Creamos un texto de ubicación como hacías antes
-      final ubicacionTexto =
-          '${result.name} (${result.position.latitude.toStringAsFixed(4)}, ${result.position.longitude.toStringAsFixed(4)})';
-
-      // Eliminamos la entrada anterior y la recreamos con la ubicación añadida
-      // (más simple que crear un comando de actualización)
-      await widget.entryService.deleteById(entry.id);
-
-      final cmd = CreateEntryCommand(
-        id: UniqueKey().toString(),
-        tripId: widget.viajes[widget.num_viaje].id,
-        type: entry.type,
-        text: '${entry.text ?? ''}\n📍 $ubicacionTexto', // añadimos ubicación al texto existente
-        mediaUri: entry.mediaUri,
-      );
-
-      await widget.entryService.create(cmd);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ubicación añadida a la entrada')),
-        );
-        setState(() {});
-      }
-    }
-  }
-  void _abrirUbicacionDesdeTexto(String ubicacionTexto) {
-    // Intenta extraer latitud y longitud del texto (formato: 📍 Nombre (lat, lng))
-    final regex = RegExp(r'\(([0-9\.\-]+),\s*([0-9\.\-]+)\)');
-    final match = regex.firstMatch(ubicacionTexto);
-    if (match != null) {
-      final lat = double.tryParse(match.group(1)!);
-      final lng = double.tryParse(match.group(2)!);
-      if (lat != null && lng != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => SelectLocationScreen(
-              initialPosition: LatLng(lat, lng),
-              initialName: ubicacionTexto.split('📍').last.trim(),
-            ),
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final currentTrip = widget.viajes[widget.num_viaje];
@@ -311,7 +136,6 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
         ),
         actions: [
           IconButton(
-            key: const Key('anadirEntrada'),
             icon: const Icon(Icons.add, color: Colors.black),
             tooltip: 'Añadir texto',
             onPressed: () {
@@ -322,7 +146,6 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   return AlertDialog(
                     title: const Text('Introduce un texto'),
                     content: TextField(
-                      key: const Key('textoEntrada'),
                       controller: _textoController,
                       maxLines: 5,
                       decoration: const InputDecoration(
@@ -332,11 +155,9 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     ),
                     actions: [
                       TextButton(
-                          key: const Key('cancelarButton'),
                           onPressed: () => Navigator.pop(context),
                           child: const Text('Cancelar')),
                       TextButton(
-                        key: const Key('aceptarButton'),
                         onPressed: () async {
                           final texto = _textoController.text.trim();
                           if (texto.isEmpty) return;
@@ -381,7 +202,8 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         key: const Key('adjuntarFoto'),
                         onPressed: () async {
                           Navigator.pop(context);
-                          final XFile? pickedFile = await (widget.picker ?? _picker).pickImage(source: ImageSource.gallery);
+                          final XFile? pickedFile = await _picker.pickImage(
+                              source: ImageSource.gallery);
                           if (pickedFile != null) {
                             final cmd = CreateEntryCommand(
                               id: UniqueKey().toString(),
@@ -457,16 +279,47 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                 MaterialPageRoute(
                   builder: (context) => Editar_viaje(
                     selectedIndex: 2,
-                    inicionSesiada: widget.inicionSesiada,
                     viajes: widget.viajes,
                     num_viaje: widget.num_viaje,
                     repo: widget.repo, // TripRepository (puerto)
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.location_on, color: Colors.black),
+            tooltip: 'Añadir ubicación',
+            onPressed: () async {
+              final result = await Navigator.push<SelectedLocation>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SelectLocationScreen(),
+                ),
+              );
+
+              if (result != null) {
+                // ✅ Guardamos como nueva Entry en la base de datos
+                final cmd = CreateEntryCommand(
+                  id: UniqueKey().toString(),
+                  tripId: widget.viajes[widget.num_viaje].id,
+                  type: EntryType.location,
+                  text:
+                      '${result.name} (${result.position.latitude.toStringAsFixed(4)}, ${result.position.longitude.toStringAsFixed(4)})',
+                );
+
+                await widget.entryService.create(cmd);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Ubicación añadida correctamente')),
+                );
+              }
             },
           ),
           IconButton(
@@ -546,74 +399,59 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
                     "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
 
-                // Detectamos si hay ubicación en el texto
-                final partes = e.text!.split('📍');
-                final textoSinUbicacion = partes.first.trim();
-                final ubicacionActual = partes.length > 1 ? '📍${partes.last.trim()}' : null;
-
                 return Card(
                   color: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
                     key: ValueKey('eid$index'),
                     leading: const Icon(Icons.notes, color: Colors.teal),
-
-                    // 👈 AQUÍ el onTap (en el ListTile, no fuera)
-                    onTap: () => _mostrarAccionesEntradaTexto(e),
-
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          textoSinUbicacion,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-
-                        // Ubicación clicable (abre mapa centrado)
-                        if (ubicacionActual != null)
-                          GestureDetector(
-                            onTap: () => _abrirUbicacionDesdeTexto(ubicacionActual),
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 6.0),
-                              child: Text(
-                                ubicacionActual,
-                                style: const TextStyle(
-                                  color: Colors.teal,
-                                  fontStyle: FontStyle.italic,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-
+                    title: Text(e.text!),
                     subtitle: Text('Añadido el $fechaFormateada'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.location_on, color: Colors.teal),
-                          tooltip: ubicacionActual == null ? 'Añadir ubicación' : 'Editar ubicación',
-                          onPressed: () => _asignarUbicacionAEntrada(e),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Colors.red),
-                          onPressed: () async {
-                            await widget.entryService.deleteById(e.id);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Texto eliminado')),
-                            );
-                          },
-                        ),
-                      ],
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () async {
+                        await widget.entryService.deleteById(e.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Texto eliminado')),
+                        );
+                      },
                     ),
                   ),
                 );
               }
 
+              // Ubicación
+              if (e.type == EntryType.location && e.text != null) {
+                final fecha = e.createdAt.toLocal();
+                final fechaFormateada =
+                    "${fecha.day.toString().padLeft(2, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.year} "
+                    "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
 
+                return Card(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  child: ListTile(
+                    leading: const Icon(Icons.location_on, color: Colors.teal),
+                    title: Text(e.text!),
+                    subtitle: Text('Añadida el $fechaFormateada'),
+                    onTap: () =>
+                        _editarUbicacion(e), // 👈 NUEVO: editar al tocar
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () async {
+                        await widget.entryService.deleteById(e.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Ubicación eliminada')),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              }
 
               // Imagen
               if (e.type == EntryType.photo && e.mediaUri != null) {
@@ -624,6 +462,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                     "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
 
                 return Card(
+                  key: ValueKey('eid$index'),
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
@@ -635,9 +474,23 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                         alignment: Alignment.topRight,
                         children: [
                           GestureDetector(
-                            onTap: () => _mostrarAccionesImagen(e), // 👈 NUEVO: muestra el menú contextual
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return Dialog(
+                                    child: InteractiveViewer(
+                                      panEnabled: true,
+                                      child:
+                                          Image.file(file, fit: BoxFit.contain),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                             child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                              borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(15)),
                               child: Image.file(
                                 file,
                                 height: 200,
@@ -645,11 +498,6 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                                 fit: BoxFit.cover,
                               ),
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.location_on, color: Colors.teal),
-                            tooltip: 'Añadir ubicación',
-                            onPressed: () => _asignarUbicacionAEntrada(e),
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
@@ -661,9 +509,7 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                             },
                           ),
                         ],
-
                       ),
-
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Text(
@@ -710,12 +556,13 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                 MaterialPageRoute(
                   builder: (context) => MapaPaisScreen(
                     selectedIndex: widget.selectedIndex,
-                    inicionSesiada: widget.inicionSesiada,
                     viajes: widget.viajes,
                     tripRepo: widget.repo,
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -725,49 +572,35 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                 MaterialPageRoute(
                   builder: (context) => Crear_Viaje(
                     selectedIndex: widget.selectedIndex,
-                    inicionSesiada: widget.inicionSesiada,
                     viajes: widget.viajes,
                     num_viaje: -1,
                     repo: widget.repo,
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
             } else if (widget.selectedIndex == 4) {
-              if (widget.inicionSesiada){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MiPerfil(
-                      selectedIndex: widget.selectedIndex,
-                      inicionSesiada: widget.inicionSesiada,
-                      viajes: widget.viajes,
-                      tripRepo: widget.repo,
-                      entryRepo: widget.entryRepo,
-                      tripService: widget.tripService,
-                      entryService: widget.entryService,
-                    ),
+              inIndex = 0;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
+                  builder: (context) => LoginScreen(
+                    selectedIndex: 0,
+                    viajes: widget.viajes,
+                    tripRepo: widget.repo,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
-                );
-              }
-              else{
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginScreen(
-                      selectedIndex: widget.selectedIndex,
-                      inicionSesiada: widget.inicionSesiada,
-                      viajes: widget.viajes,
-                      tripRepo: widget.repo,
-                      entryRepo: widget.entryRepo,
-                      tripService: widget.tripService,
-                      entryService: widget.entryService,
-                    ),
-                  ),
-                );
-              }
+                ),
+              );
             }
           });
         },

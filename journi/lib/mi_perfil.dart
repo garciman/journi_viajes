@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'application/entry_service.dart';
 import 'application/trip_service.dart';
+import 'application/user_service.dart';
 import 'crear_viaje.dart';
+import 'data/local/drift/app_database.dart';
+import 'data/local/drift/drift_user_repository.dart';
 import 'domain/ports/entry_repository.dart';
 import 'domain/ports/trip_repository.dart';
+import 'domain/ports/user_repository.dart';
 import 'domain/trip.dart';
 import 'login_screen.dart';
 import 'main.dart';
@@ -18,6 +22,8 @@ class MiPerfil extends StatefulWidget{
   final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
+  final UserRepository userRepo;
+  final UserService userService;
 
   MiPerfil({
     super.key,
@@ -27,7 +33,9 @@ class MiPerfil extends StatefulWidget{
     required this.tripRepo,
     required this.entryRepo,
     required this.tripService,
-    required this.entryService
+    required this.entryService,
+    required this.userRepo,
+    required this.userService,
   });
 
   @override
@@ -78,6 +86,8 @@ class _MiPerfilState extends State<MiPerfil> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -94,6 +104,8 @@ class _MiPerfilState extends State<MiPerfil> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -110,6 +122,8 @@ class _MiPerfilState extends State<MiPerfil> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );

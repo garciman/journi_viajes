@@ -39,3 +39,21 @@ class Entries extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+@DataClassName('DbUser')
+class Users extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get lastName => text()();
+  TextColumn get email => text()(); // guarda lowercase SIEMPRE
+  TextColumn get passwordHash => text()(); // hex
+  TextColumn get passwordSalt => text()(); // base64
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<String> get customConstraints => ['UNIQUE(email)']; // email único
+}

@@ -10,33 +10,40 @@ import 'package:geolocator/geolocator.dart';
 
 import 'application/entry_service.dart';
 import 'application/trip_service.dart';
+import 'application/user_service.dart';
 import 'crear_viaje.dart';
+import 'data/local/drift/drift_user_repository.dart';
 import 'domain/ports/trip_repository.dart';
+import 'domain/ports/user_repository.dart';
 import 'login_screen.dart';
 import 'main.dart';
-import 'mi_perfil.dart';
 
 //
 // 🔹 Pantalla principal: lista de viajes
 //
 class MapaPaisScreen extends StatefulWidget {
-  final bool inicionSesiada;
+
   int selectedIndex;
   List<Trip> viajes;
   final TripRepository tripRepo;
   final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
+  final UserRepository userRepo;
+  final UserService userService;
+
 
   MapaPaisScreen({
     super.key,
     required this.viajes,
-    required this.inicionSesiada,
     required this.selectedIndex,
     required this.tripRepo,
     required this.entryRepo,
     required this.tripService,
-    required this.entryService
+    required this.entryService,
+    required this.userRepo,
+    required this.userService,
+    re
   });
 
   @override
@@ -45,12 +52,15 @@ class MapaPaisScreen extends StatefulWidget {
 
 class _MapaPaisScreenState extends State<MapaPaisScreen> {
   final TripRepository tripRepo = DriftTripRepository(AppDatabase());
+  final UserRepository userRepo = DriftUserRepository(AppDatabase());
+  late final userService;
   List<Trip>? _viajes;
 
   @override
   void initState() {
     super.initState();
     _cargarViajes();
+    userService = makeUserService(userRepo);
   }
 
   Future<void> _cargarViajes() async {
@@ -99,14 +109,13 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                   context,
                   MaterialPageRoute(
                     // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                    builder: (context) => MyHomePage(
-                      title: 'JOURNI',
-                      viajes: widget.viajes,
-                      inicionSesiada: widget.inicionSesiada,
+                    builder: (context) => MyApp(
                       tripRepo: widget.tripRepo,
                       entryRepo: widget.entryRepo,
                       tripService: widget.tripService,
                       entryService: widget.entryService,
+                      userRepo: userRepo,
+                      userService: userService,
                     ),
                   ),
                 );
@@ -116,13 +125,14 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                   MaterialPageRoute(
                     builder: (context) => Crear_Viaje(
                       selectedIndex: widget.selectedIndex,
-                      inicionSesiada: widget.inicionSesiada,
                       viajes: _viajes!,
                       num_viaje: -1,
                       repo: widget.tripRepo,
                       entryRepo: widget.entryRepo,
                       tripService: widget.tripService,
                       entryService: widget.entryService,
+                      userRepo: userRepo,
+                      userService: userService,
                     ),
                   ),
                 );
@@ -146,38 +156,22 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
             }
             */ else if (index == 4) {
                 //mi perfil
-                if (widget.inicionSesiada){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MiPerfil(
-                        selectedIndex: index,
-                        inicionSesiada: widget.inicionSesiada,
-                        viajes: widget.viajes,
-                        tripRepo: widget.tripRepo,
-                        entryRepo: widget.entryRepo,
-                        tripService: widget.tripService,
-                        entryService: widget.entryService,
-                      ),
+                index = 1;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(
+                      selectedIndex: 1,
+                      tripRepo: widget.tripRepo,
+                      viajes: widget.viajes,
+                      entryRepo: widget.entryRepo,
+                      tripService: widget.tripService,
+                      entryService: widget.entryService,
+                      userRepo: widget.userRepo,
+                      userService: widget.userService,
                     ),
-                  );
-                }
-                else{
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginScreen(
-                        selectedIndex: index,
-                        inicionSesiada: widget.inicionSesiada,
-                        viajes: widget.viajes,
-                        tripRepo: widget.tripRepo,
-                        entryRepo: widget.entryRepo,
-                        tripService: widget.tripService,
-                        entryService: widget.entryService,
-                      ),
-                    ),
-                  );
-                }
+                  ),
+                );
               }
             });
           },
@@ -253,14 +247,13 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                 context,
                 MaterialPageRoute(
                   // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                  builder: (context) => MyHomePage(
-                    title: 'JOURNI',
-                    inicionSesiada: widget.inicionSesiada,
-                    viajes: widget.viajes,
+                  builder: (context) => MyApp(
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: userRepo,
+                    userService: userService,
                   ),
                 ),
               );
@@ -270,13 +263,14 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
                 MaterialPageRoute(
                   builder: (context) => Crear_Viaje(
                     selectedIndex: widget.selectedIndex,
-                    inicionSesiada: widget.inicionSesiada,
                     viajes: _viajes!,
                     num_viaje: -1,
                     repo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: userRepo,
+                    userService: userService,
                   ),
                 ),
               );
@@ -300,38 +294,22 @@ class _MapaPaisScreenState extends State<MapaPaisScreen> {
             }
             */ else if (index == 4) {
               //mi perfil
-              if (widget.inicionSesiada){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MiPerfil(
-                      selectedIndex: index,
-                      inicionSesiada: widget.inicionSesiada,
-                      viajes: widget.viajes,
-                      tripRepo: widget.tripRepo,
-                      entryRepo: widget.entryRepo,
-                      tripService: widget.tripService,
-                      entryService: widget.entryService,
-                    ),
+              index = 1;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginScreen(
+                    selectedIndex: 1,
+                    tripRepo: widget.tripRepo,
+                    viajes: widget.viajes,
+                    entryRepo: widget.entryRepo,
+                    tripService: widget.tripService,
+                    entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
-                );
-              }
-              else{
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginScreen(
-                      selectedIndex: index,
-                      inicionSesiada: widget.inicionSesiada,
-                      viajes: widget.viajes,
-                      tripRepo: widget.tripRepo,
-                      entryRepo: widget.entryRepo,
-                      tripService: widget.tripService,
-                      entryService: widget.entryService,
-                    ),
-                  ),
-                );
-              }
+                ),
+              );
             }
           });
         },

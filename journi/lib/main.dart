@@ -8,7 +8,9 @@ import 'package:journi/pantalla_viaje.dart';
 import 'package:journi/data/local/drift/app_database.dart';
 import 'package:journi/data/local/drift/drift_entry_repository.dart';
 import 'package:journi/data/local/drift/drift_trip_repository.dart';
+import 'package:journi/data/local/drift/drift_user_repository.dart';
 import 'application/entry_service.dart';
+import 'package:journi/application/user_service.dart';
 import 'domain/trip.dart';
 import 'application/trip_service.dart';
 import 'map_screen.dart';
@@ -17,6 +19,8 @@ import 'mockImagePicker.dart';
 // Puertos (interfaces)
 import 'package:journi/domain/ports/entry_repository.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
+import 'package:journi/domain/ports/user_repository.dart';
+
 
 // Dominio / aplicación
 import 'package:journi/application/shared/result.dart';
@@ -27,24 +31,31 @@ void main() {
   final db = AppDatabase();
   final TripRepository tripRepo = DriftTripRepository(db);
   final EntryRepository entryRepo = DriftEntryRepository(db);
+  final UserRepository userRepo = DriftUserRepository(db);
+
 
   final tripService = makeTripService(tripRepo);
   final entryService = makeEntryService(entryRepo);
+  final userService = makeUserService(userRepo);
 
   runApp(MyApp(
     tripRepo: tripRepo,
     tripService: tripService,
     entryRepo: entryRepo,
     entryService: entryService,
+    userRepo: userRepo,
+    userService: userService,
   ));
 }
 
 class MyApp extends StatelessWidget {
-  final TripRepository tripRepo;
-  final TripService tripService;
-
-  final EntryRepository entryRepo;
   final EntryService entryService;
+  final TripService tripService;
+  final UserService userService;
+
+  final TripRepository tripRepo;
+  final EntryRepository entryRepo;
+  final UserRepository userRepo;
 
   const MyApp({
     super.key,
@@ -52,6 +63,8 @@ class MyApp extends StatelessWidget {
     required this.tripService,
     required this.entryRepo,
     required this.entryService,
+    required this.userRepo,
+    required this.userService,
   });
 
   @override
@@ -70,6 +83,8 @@ class MyApp extends StatelessWidget {
         tripService: tripService,
         entryRepo: entryRepo,
         entryService: entryService,
+        userRepo: userRepo,
+        userService: userService,
       ),
     );
   }
@@ -85,6 +100,7 @@ class MyHomePage extends StatefulWidget {
     required this.tripService,
     required this.entryRepo,
     required this.entryService,
+    required this.userRepo, required this.userService,
   });
 
   final String title;
@@ -94,9 +110,13 @@ class MyHomePage extends StatefulWidget {
 
   final EntryRepository entryRepo;
   final MockImagePicker picker = MockImagePicker();
+
   final EntryService entryService;
 
   List<Trip> viajes = [];
+
+  UserRepository userRepo;
+  UserService userService;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -141,6 +161,8 @@ class _MyHomePageState extends State<MyHomePage> {
           entryRepo: widget.entryRepo,
           tripService: widget.tripService,
           entryService: widget.entryService,
+          userRepo: widget.userRepo,
+          userService: widget.userService,
         ),
       ),
     );
@@ -230,6 +252,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           entryRepo: widget.entryRepo,
                           tripService: widget.tripService,
                           entryService: widget.entryService,
+                          picker: widget.picker,
+                          userRepo: widget.userRepo,
+                          userService: widget.userService,
                         ),
                       ),
                     );
@@ -276,6 +301,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -292,6 +319,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
                     entryService: widget.entryService,
+                    userRepo: widget.userRepo,
+                    userService: widget.userService,
                   ),
                 ),
               );
@@ -309,6 +338,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         entryRepo: widget.entryRepo,
                         tripService: widget.tripService,
                         entryService: widget.entryService,
+                        userRepo: widget.userRepo,
+                        userService: widget.userService,
+
                       ),
                     ),
                   );
@@ -325,6 +357,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         entryRepo: widget.entryRepo,
                         tripService: widget.tripService,
                         entryService: widget.entryService,
+                        userRepo: widget.userRepo,
+                        userService: widget.userService,
+
                       ),
                     ),
                   );

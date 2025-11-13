@@ -8,34 +8,38 @@ import 'package:journi/domain/ports/entry_repository.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
 
 import 'application/use_cases/use_cases.dart';
+import 'application/user_service.dart';
 import 'crear_viaje.dart';
+import 'domain/ports/user_repository.dart';
 import 'domain/trip.dart';
 import 'login_screen.dart';
 import 'map_screen.dart';
-import 'mi_perfil.dart';
 
 class Editar_viaje extends StatefulWidget {
   // ❗ Los campos del widget deben ser inmutables (final)
   final int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   final int num_viaje;
   final List<Trip> viajes;
-  final bool inicionSesiada;
+
   // 👉 Puerto (interfaz) en lugar del repo in-memory
   final TripRepository repo;
   final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
+  final UserRepository userRepo;
+  final UserService userService;
 
   const Editar_viaje({
     super.key,
     required this.selectedIndex,
-    required this.inicionSesiada,
     required this.viajes,
     required this.num_viaje,
     required this.repo,
     required this.entryRepo,
     required this.tripService,
     required this.entryService,
+    required this.userService,
+    required this.userRepo
   });
 
   @override
@@ -117,7 +121,6 @@ class _EditarViajeState extends State<Editar_viaje> {
           children: [
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               InputField(
-                key: const Key('tituloField'),
                 controller: _titulo,
                 hintText: 'Titulo del viaje',
               ),
@@ -126,7 +129,6 @@ class _EditarViajeState extends State<Editar_viaje> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 10),
               InputField(
-                key: const Key('fechaIniField'),
                 controller: _fechaIni,
                 hintText: 'Fecha de inicio de viaje (DD-MM-YYYY)',
               ),
@@ -135,7 +137,6 @@ class _EditarViajeState extends State<Editar_viaje> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               const SizedBox(height: 10),
               InputField(
-                key: const Key('fechaFinField'),
                 controller: _fechaFin,
                 hintText: 'Fecha de fin de viaje (DD-MM-YYYY)',
               ),
@@ -143,7 +144,6 @@ class _EditarViajeState extends State<Editar_viaje> {
             ]),
             Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
               RoundedButton(
-                key: const Key('guardarButton'),
                 text: 'Guardar',
                 backgroundColor: Colors.white,
                 textColor: Colors.black,
@@ -216,13 +216,14 @@ class _EditarViajeState extends State<Editar_viaje> {
               MaterialPageRoute(
                 builder: (context) => Crear_Viaje(
                   selectedIndex: _selectedIndex,
-                  inicionSesiada: widget.inicionSesiada,
                   viajes: widget.viajes,
                   num_viaje: -1,
                   repo: widget.repo,
                   entryRepo: widget.entryRepo,
                   tripService: widget.tripService,
                   entryService: widget.entryService,
+                  userRepo: widget.userRepo,
+                  userService: widget.userService,
                 ),
               ),
             );
@@ -233,49 +234,34 @@ class _EditarViajeState extends State<Editar_viaje> {
               MaterialPageRoute(
                 builder: (context) => MapaPaisScreen(
                   selectedIndex: _selectedIndex,
-                  inicionSesiada: widget.inicionSesiada,
                   viajes: widget.viajes,
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,
                   tripService: widget.tripService,
                   entryService: widget.entryService,
+                  userRepo: widget.userRepo,
+                  userService: widget.userService,
                 ),
               ),
             );
           } else if (_selectedIndex == 4) {
             //mi perfil
-            if (widget.inicionSesiada){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MiPerfil(
-                    selectedIndex: _selectedIndex,
-                    inicionSesiada: widget.inicionSesiada,
-                    viajes: widget.viajes,
-                    tripRepo: widget.repo,
-                    entryRepo: widget.entryRepo,
-                    tripService: widget.tripService,
-                    entryService: widget.entryService,
-                  ),
+            inIndex = 0;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginScreen(
+                  selectedIndex: 0,
+                  viajes: widget.viajes,
+                  tripRepo: widget.repo,
+                  entryRepo: widget.entryRepo,
+                  tripService: widget.tripService,
+                  entryService: widget.entryService,
+                  userRepo: widget.userRepo,
+                  userService: widget.userService,
                 ),
-              );
-            }
-            else{
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoginScreen(
-                    selectedIndex: _selectedIndex,
-                    inicionSesiada: widget.inicionSesiada,
-                    viajes: widget.viajes,
-                    tripRepo: widget.repo,
-                    entryRepo: widget.entryRepo,
-                    tripService: widget.tripService,
-                    entryService: widget.entryService,
-                  ),
-                ),
-              );
-            }
+              ),
+            );
           }
         },
       ),

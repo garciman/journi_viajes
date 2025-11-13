@@ -9,33 +9,37 @@ import 'package:journi/domain/ports/entry_repository.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/domain/trip.dart';
 
+import 'application/user_service.dart';
+import 'domain/ports/user_repository.dart';
 import 'login_screen.dart';
 import 'main.dart';
 import 'map_screen.dart';
-import 'mi_perfil.dart';
 
 class Crear_Viaje extends StatefulWidget {
   // 🔒 Los campos del Widget deben ser inmutables (final)
   final int selectedIndex; // primer item de la bottom navigation bar seleccionado por defecto
   final int num_viaje;
   final List<Trip> viajes;
-  final bool inicionSesiada;
+
   // Servicios/puertos (también inmutables)
   final TripRepository repo;
   final EntryRepository entryRepo;
   final TripService tripService;
   final EntryService entryService;
+  final UserRepository userRepo;
+  final UserService userService;
 
   const Crear_Viaje({
     super.key,
     required this.selectedIndex,
-    required this.inicionSesiada,
     required this.viajes,
     required this.num_viaje,
     required this.repo,
     required this.entryRepo,
     required this.tripService,
     required this.entryService,
+    required this.userRepo,
+    required this.userService
   });
 
   @override
@@ -224,14 +228,13 @@ class _CrearViajeState extends State<Crear_Viaje> {
               context,
               MaterialPageRoute(
                 // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                builder: (context) => MyHomePage(
-                  title: 'JOURNI',
-                  inicionSesiada: widget.inicionSesiada,
-                  viajes: widget.viajes,
+                builder: (context) => MyApp(
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,
                   tripService: widget.tripService,
                   entryService: widget.entryService,
+                  userRepo: widget.userRepo,
+                  userService: widget.userService,
                 ),
               ),
             );
@@ -242,50 +245,34 @@ class _CrearViajeState extends State<Crear_Viaje> {
               MaterialPageRoute(
                 builder: (context) => MapaPaisScreen(
                   selectedIndex: _selectedIndex,
-                  inicionSesiada: widget.inicionSesiada,
                   viajes: widget.viajes,
                   tripRepo: widget.repo,
                   entryRepo: widget.entryRepo,
                   tripService: widget.tripService,
                   entryService: widget.entryService,
+                  userRepo: widget.userRepo,
+                  userService: widget.userService,
                 ),
               ),
             );
           } else if (_selectedIndex == 4) {
             //mi perfil
-
-            if (widget.inicionSesiada){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MiPerfil(
-                    selectedIndex: _selectedIndex,
-                    inicionSesiada: widget.inicionSesiada,
-                    viajes: widget.viajes,
-                    tripRepo: widget.repo,
-                    entryRepo: widget.entryRepo,
-                    tripService: widget.tripService,
-                    entryService: widget.entryService,
-                  ),
+            inIndex = 2;
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginScreen(
+                  selectedIndex: 2,
+                  viajes: widget.viajes,
+                  tripRepo: widget.repo,
+                  entryRepo: widget.entryRepo,
+                  tripService: widget.tripService,
+                  entryService: widget.entryService,
+                  userRepo: widget.userRepo,
+                  userService: widget.userService,
                 ),
-              );
-            }
-            else{
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoginScreen(
-                    selectedIndex: _selectedIndex,
-                    inicionSesiada: widget.inicionSesiada,
-                    viajes: widget.viajes,
-                    tripRepo: widget.repo,
-                    entryRepo: widget.entryRepo,
-                    tripService: widget.tripService,
-                    entryService: widget.entryService,
-                  ),
-                ),
-              );
-            }
+              ),
+            );
           }
         },
       ),
