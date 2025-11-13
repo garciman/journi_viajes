@@ -628,10 +628,10 @@ class _PantallaViajeState extends State<Pantalla_Viaje> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   margin: const EdgeInsets.symmetric(vertical: 8),
+                  key: ValueKey('eid$index'),
                   child: Column(
                     children: [
                       Stack(
-                        key: ValueKey('eid$index'),
                         alignment: Alignment.topRight,
                         children: [
                           GestureDetector(

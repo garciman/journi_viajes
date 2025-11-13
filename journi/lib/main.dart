@@ -230,7 +230,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           entryRepo: widget.entryRepo,
                           tripService: widget.tripService,
                           entryService: widget.entryService,
-                          picker: widget.picker,
                         ),
                       ),
                     );

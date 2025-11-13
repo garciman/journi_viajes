@@ -60,7 +60,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
     try {
       final response = await http.get(url, headers: {
         'User-Agent':
-            'journi/1.0 (your_email@example.com)', // requerido por Nominatim
+            'journi/1.0 (developer@jorni.local)', // requerido por Nominatim
       });
 
       if (response.statusCode == 200) {

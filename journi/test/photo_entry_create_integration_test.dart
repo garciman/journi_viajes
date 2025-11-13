@@ -94,7 +94,8 @@ void main() {
 
           await tester.pumpAndSettle();
           await tester.tap(find.byKey(const Key('anadirFoto')));
-          await tester.tap(find.byTooltip('Back'));
+          await tester.pumpAndSettle();
+          Navigator.of(tester.element(find.byType(AlertDialog)), rootNavigator: true).pop();
           await tester.pumpAndSettle();
           expect(find.byKey(const Key('eid0')), findsNothing);
     });
