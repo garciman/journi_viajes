@@ -28,6 +28,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Pantalla_Viaje(
         selectedIndex: 0,
+        inicionSesiada: false,
         viajes: [trip],
         num_viaje: 0,
         repo: tripRepo,
@@ -60,6 +61,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Pantalla_Viaje(
         selectedIndex: 0,
+        inicionSesiada: false,
         viajes: [trip],
         num_viaje: 0,
         repo: tripRepo,
@@ -103,8 +105,8 @@ void main() {
     final e2 = Entry.create(
       id: 'e2',
       tripId: trip.id,
-      type: EntryType.location,
-      text: 'Madrid (40.4168, -3.7038)',
+      type: EntryType.note,
+      text: 'Madrid',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -116,6 +118,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Pantalla_Viaje(
         selectedIndex: 0,
+        inicionSesiada: false,
         viajes: [trip],
         num_viaje: 0,
         repo: tripRepo,
@@ -161,6 +164,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Pantalla_Viaje(
         selectedIndex: 0,
+        inicionSesiada: false,
         viajes: [trip],
         num_viaje: 0,
         repo: tripRepo,

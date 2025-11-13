@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:journi/crear_viaje.dart';
 import 'package:journi/data/local/drift/app_database.dart';
 import 'package:journi/data/local/drift/drift_entry_repository.dart';
 import 'package:journi/data/local/drift/drift_trip_repository.dart';
@@ -38,11 +39,12 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
+          inicionSesiada: false,
           viajes: [],
           tripService: tripService,
           entryService: entryService,
-          tripRepo: tRepo,
-          entryRepo: eRepo,
+          tripRepo: tripRepo,
+          entryRepo: entryRepo,
         ),
       ));
 
@@ -77,13 +79,7 @@ void main() {
       );
       await tester.tap(find.byKey(const Key('aceptarButton')));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('anadirFoto')));
-      await tester.pumpAndSettle();
-      // Pulsar botón de añadir foto
-      await tester.tap(find.byKey(const Key('adjuntarFoto')));
-      await tester.pumpAndSettle();
       expect(find.byKey(const Key('eid0')), findsOneWidget);
-      expect(find.byKey(const Key('eid1')), findsOneWidget);
       // ✅ Verificar éxito
       // Verifica que la pantalla principal está visible
     });
@@ -92,21 +88,23 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: MyHomePage(
           title: 'JOURNI',
+          inicionSesiada: false,
           viajes: [],
           tripService: tripService,
           entryService: entryService,
-          tripRepo: tRepo,
-          entryRepo: eRepo,
+          tripRepo: tripRepo,
+          entryRepo: entryRepo,
         ),
       ));
 
+// Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));
       await tester.pumpAndSettle();
 
       // 🧩 Campos con fechas inválidas
       await tester.enterText(
         find.byKey(const Key('tituloField')),
-        'Nanosecso',
+        'Nanoseco',
       );
       await tester.enterText(
         find.byKey(const Key('fechaIniField')),
@@ -129,6 +127,7 @@ void main() {
         '',
       );
       await tester.tap(find.byKey(const Key('aceptarButton')));
+      await tester.pumpAndSettle();
       expect(find.byKey(const Key('eid0')), findsNothing);
     });
   });

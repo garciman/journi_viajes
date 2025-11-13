@@ -16,6 +16,7 @@ import 'map_screen.dart';
 
 class MiPerfil extends StatefulWidget{
   int selectedIndex;
+  final bool inicionSesiada;
   List<Trip> viajes;
   final TripRepository tripRepo;
   final EntryRepository entryRepo;
@@ -26,6 +27,7 @@ class MiPerfil extends StatefulWidget{
 
   MiPerfil({
     super.key,
+    required this.inicionSesiada,
     required this.viajes,
     required this.selectedIndex,
     required this.tripRepo,
@@ -76,7 +78,10 @@ class _MiPerfilState extends State<MiPerfil> {
                 context,
                 MaterialPageRoute(
                   // cuando este con sesion iniciada habra que cambiarlo para que vaya directamente a la pantalla del perfil
-                  builder: (context) => MyApp(
+                  builder: (context) => MyHomePage(
+                    title: 'JOURNI',
+                    inicionSesiada: widget.inicionSesiada,
+                    viajes: widget.viajes,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
                     tripService: widget.tripService,
@@ -92,6 +97,7 @@ class _MiPerfilState extends State<MiPerfil> {
                 MaterialPageRoute(
                   builder: (context) => Crear_Viaje(
                     selectedIndex: index,
+                    inicionSesiada: widget.inicionSesiada,
                     viajes: widget.viajes,
                     num_viaje: -1,
                     repo: widget.tripRepo,
@@ -110,6 +116,7 @@ class _MiPerfilState extends State<MiPerfil> {
                 MaterialPageRoute(
                   builder: (context) => MapaPaisScreen(
                     selectedIndex: index,
+                    inicionSesiada: widget.inicionSesiada,
                     viajes: widget.viajes,
                     tripRepo: widget.tripRepo,
                     entryRepo: widget.entryRepo,
