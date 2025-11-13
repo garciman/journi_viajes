@@ -14,7 +14,7 @@ import 'login_screen.dart';
 import 'main.dart';
 import 'map_screen.dart';
 
-class MiPerfil extends StatefulWidget{
+class MiPerfil extends StatefulWidget {
   int selectedIndex;
   final bool inicionSesiada;
   List<Trip> viajes;
@@ -43,7 +43,6 @@ class MiPerfil extends StatefulWidget{
 }
 
 class _MiPerfilState extends State<MiPerfil> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +71,6 @@ class _MiPerfilState extends State<MiPerfil> {
         ],
         onTap: (int index) {
           setState(() {
-
             if (widget.selectedIndex == 0) {
               Navigator.push(
                 context,
@@ -128,7 +126,6 @@ class _MiPerfilState extends State<MiPerfil> {
                 ),
               );
             }
-
           });
         },
       ),

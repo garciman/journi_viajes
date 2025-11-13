@@ -18,7 +18,6 @@ void main() {
   // 🔧 Inicializa el entorno de test (sustituye al antiguo IntegrationTestWidgetsFlutterBinding)
   TestWidgetsFlutterBinding.ensureInitialized();
 
-
   group('🧭 Pruebas de integración: Crear_Foto_Entry', () {
     late InMemoryTripRepository tripRepo;
     late InMemoryEntryRepository entryRepo;
@@ -37,7 +36,6 @@ void main() {
       entryService = DefaultEntryService(repo: entryRepo);
       tRepo = DriftTripRepository(db);
       eRepo = DriftEntryRepository(db);
-
     });
 
     final trip = Trip(
@@ -78,26 +76,28 @@ void main() {
 
     testWidgets('❌ Error: Cancela operación de añadir foto',
         (WidgetTester tester) async {
-          await tester.pumpWidget(MaterialApp(
-            home: Pantalla_Viaje(
-              selectedIndex: 0,
-              num_viaje: 0,
-              inicionSesiada: false,
-              viajes: [trip],
-              tripService: tripService,
-              entryService: entryService,
-              repo: tripRepo,
-              entryRepo: entryRepo,
-              picker: mPicker,
-            ),
-          ));
+      await tester.pumpWidget(MaterialApp(
+        home: Pantalla_Viaje(
+          selectedIndex: 0,
+          num_viaje: 0,
+          inicionSesiada: false,
+          viajes: [trip],
+          tripService: tripService,
+          entryService: entryService,
+          repo: tripRepo,
+          entryRepo: entryRepo,
+          picker: mPicker,
+        ),
+      ));
 
-          await tester.pumpAndSettle();
-          await tester.tap(find.byKey(const Key('anadirFoto')));
-          await tester.pumpAndSettle();
-          Navigator.of(tester.element(find.byType(AlertDialog)), rootNavigator: true).pop();
-          await tester.pumpAndSettle();
-          expect(find.byKey(const Key('eid0')), findsNothing);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('anadirFoto')));
+      await tester.pumpAndSettle();
+      Navigator.of(tester.element(find.byType(AlertDialog)),
+              rootNavigator: true)
+          .pop();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('eid0')), findsNothing);
     });
   });
 }

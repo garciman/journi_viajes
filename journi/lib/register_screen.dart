@@ -22,18 +22,17 @@ class RegisterScreen extends StatefulWidget {
   final UserRepository userRepo;
   final UserService userService;
 
-  RegisterScreen({
-    super.key,
-    required this.inicionSesiada,
-    required this.viajes,
-    required this.selectedIndex,
-    required this.tripRepo,
-    required this.entryRepo,
-    required this.tripService,
-    required this.entryService,
-    required this.userRepo,
-    required this.userService
-  });
+  RegisterScreen(
+      {super.key,
+      required this.inicionSesiada,
+      required this.viajes,
+      required this.selectedIndex,
+      required this.tripRepo,
+      required this.entryRepo,
+      required this.tripService,
+      required this.entryService,
+      required this.userRepo,
+      required this.userService});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -44,7 +43,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _apellidosController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
 
   @override
   void dispose() {
