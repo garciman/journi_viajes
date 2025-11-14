@@ -1,0 +1,12 @@
+#!/bin/sh
+cd journi
+
+echo "Ejecutando dart format..."
+dart format .
+
+# Vuelve al root del repo
+cd ..
+
+# Si quieres, puedes mostrar qué archivos han cambiado:
+echo "Archivos modificados por dart format:"
+git diff --name-only

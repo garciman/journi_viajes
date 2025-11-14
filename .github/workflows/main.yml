@@ -1,6 +1,9 @@
 name: CI
+
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
 
 concurrency:
@@ -14,10 +17,12 @@ defaults:
 jobs:
   lint-test-build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      # Instala Flutter leyendo la versión del pubspec DENTRO de journi
+      # Instalar Flutter usando subosito/flutter-action (acción estándar de la comunidad)
+      # Doc: GitHub Marketplace / repo oficial de la action. :contentReference[oaicite:8]{index=8}
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -26,12 +31,21 @@ jobs:
 
       - run: flutter --version
       - run: flutter pub get
+
+      # 1) Comprobar formateo sin modificar archivos
+      # Doc oficial dart format + --set-exit-if-changed. :contentReference[oaicite:9]{index=9}
       - run: dart format -o none --set-exit-if-changed .
-      - run: flutter analyze
+
+      # 2) Análisis estático (fallando en warnings/errores; infos no fatales si quieres)
+      - run: flutter analyze --no-fatal-infos
+
+      # 3) Tests con cobertura
       - run: flutter test --coverage
+
+      # 4) Build de APK de debug (opcional, pero útil)
       - run: flutter build apk --debug
 
-      # Ojo: upload-artifact NO usa defaults.run, así que las rutas van desde la raíz del repo
+      # 5) Subir coverage y builds como artefacto
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-and-builds

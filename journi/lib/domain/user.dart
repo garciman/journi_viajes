@@ -35,7 +35,8 @@ class User {
 
     if (id.trim().isEmpty) errs.add(const ValidationError('id vacío'));
     if (name.trim().isEmpty) errs.add(const ValidationError('name vacío'));
-    if (lastName.trim().isEmpty) errs.add(const ValidationError('lastName vacío'));
+    if (lastName.trim().isEmpty)
+      errs.add(const ValidationError('lastName vacío'));
 
     final e = email.trim().toLowerCase();
     final emailRx = RegExp(r'^[\w\.\-]+@[\w\.\-]+\.[a-zA-Z]{2,}$');

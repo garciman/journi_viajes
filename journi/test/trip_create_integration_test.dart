@@ -14,7 +14,6 @@ import 'package:journi/domain/ports/entry_repository.dart';
 import 'package:journi/domain/ports/trip_repository.dart';
 import 'package:journi/main.dart';
 
-
 void main() {
   // 🔧 Inicializa el entorno de test (sustituye al antiguo IntegrationTestWidgetsFlutterBinding)
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -53,7 +52,6 @@ void main() {
           userService: userService,
         ),
       ));
-
 
 // Pulsa el BottomNavigationBarItem "Nuevo viaje"
       await tester.tap(find.byKey(const Key('anadirButton')));

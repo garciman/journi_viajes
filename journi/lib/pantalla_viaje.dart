@@ -43,7 +43,7 @@ class Pantalla_Viaje extends StatefulWidget {
       required this.viajes,
       required this.num_viaje,
       required this.repo,
-        required this.entryRepo,
+      required this.entryRepo,
       required this.tripService,
       required this.entryService,
       this.picker,
@@ -55,7 +55,6 @@ class Pantalla_Viaje extends StatefulWidget {
 }
 
 class _PantallaViajeState extends State<Pantalla_Viaje> {
-
   final ImagePicker _picker = ImagePicker();
   final List<Map<String, dynamic>> _textos = []; // {texto, fecha}
   final TextEditingController _textoController = TextEditingController();

@@ -44,7 +44,7 @@ class MapaPaisScreen extends StatefulWidget {
     required this.entryService,
     required this.userRepo,
     required this.userService,
-    re
+
   });
 
   @override
