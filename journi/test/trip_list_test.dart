@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:journi/application/entry_service.dart';
 import 'package:journi/application/trip_service.dart';
+import 'package:journi/application/user_service.dart';
+import 'package:journi/data/local/drift/app_database.dart';
+import 'package:journi/data/local/drift/drift_user_repository.dart';
 import 'package:journi/data/memory/in_memory_entry_repository.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/domain/trip.dart';
@@ -9,6 +12,7 @@ import 'package:journi/main.dart';
 import 'package:journi/pantalla_viaje.dart';
 
 void main() {
+  final db = AppDatabase();
   testWidgets('Muestra CircularProgressIndicator mientras se cargan los viajes',
       (tester) async {
     // Simulamos un stream que todavía no ha emitido nada
@@ -16,6 +20,9 @@ void main() {
     final entryRepo = InMemoryEntryRepository();
     final tripService = makeTripService(repo);
     final entryService = makeEntryService(entryRepo);
+
+    final userRepo = DriftUserRepository(db);
+    final userService = makeUserService(userRepo);
 
     await tester.pumpWidget(MaterialApp(
       home: MyHomePage(
@@ -26,6 +33,8 @@ void main() {
         tripService: tripService,
         entryRepo: entryRepo,
         entryService: entryService,
+        userRepo: userRepo,
+        userService: userService,
       ),
     ));
 
@@ -38,6 +47,8 @@ void main() {
     final entryRepo = InMemoryEntryRepository();
     final tripService = makeTripService(repo);
     final entryService = makeEntryService(entryRepo);
+    final userRepo = DriftUserRepository(db);
+    final userService = makeUserService(userRepo);
 
     await tester.pumpWidget(MaterialApp(
       home: MyHomePage(
@@ -48,6 +59,8 @@ void main() {
         tripService: tripService,
         entryRepo: entryRepo,
         entryService: entryService,
+        userRepo: userRepo,
+        userService: userService,
       ),
     ));
 
@@ -61,6 +74,8 @@ void main() {
     final entryRepo = InMemoryEntryRepository();
     final tripService = makeTripService(repo);
     final entryService = makeEntryService(entryRepo);
+    final userRepo = DriftUserRepository(db);
+    final userService = makeUserService(userRepo);
 
     // Insertamos algunos viajes
     final trip1 = Trip(
@@ -91,6 +106,8 @@ void main() {
         tripService: tripService,
         entryRepo: entryRepo,
         entryService: entryService,
+        userRepo: userRepo,
+        userService: userService,
       ),
     ));
 
@@ -105,6 +122,8 @@ void main() {
     final entryRepo = InMemoryEntryRepository();
     final tripService = makeTripService(repo);
     final entryService = makeEntryService(entryRepo);
+    final userRepo = DriftUserRepository(db);
+    final userService = makeUserService(userRepo);
 
     final trip = Trip(
       id: '1',
@@ -125,6 +144,8 @@ void main() {
         tripService: tripService,
         entryRepo: entryRepo,
         entryService: entryService,
+        userRepo: userRepo,
+        userService: userService,
       ),
     ));
 

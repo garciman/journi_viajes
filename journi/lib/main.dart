@@ -34,6 +34,7 @@ void main() {
   final UserRepository userRepo = DriftUserRepository(db);
 
 
+
   final tripService = makeTripService(tripRepo);
   final entryService = makeEntryService(entryRepo);
   final userService = makeUserService(userRepo);

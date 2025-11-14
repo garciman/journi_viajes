@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:journi/application/entry_service.dart';
 import 'package:journi/application/trip_service.dart';
+import 'package:journi/application/user_service.dart';
 import 'package:journi/data/local/drift/app_database.dart';
 import 'package:journi/data/local/drift/drift_entry_repository.dart';
 import 'package:journi/data/local/drift/drift_trip_repository.dart';
+import 'package:journi/data/local/drift/drift_user_repository.dart';
 import 'package:journi/data/memory/in_memory_entry_repository.dart';
 import 'package:journi/data/memory/in_memory_trip_repository.dart';
 import 'package:journi/domain/ports/entry_repository.dart';
@@ -22,6 +24,8 @@ void main() {
     late TripRepository tRepo;
     late EntryRepository eRepo;
     final db = AppDatabase();
+    final userRepo = DriftUserRepository(db);
+    final userService = makeUserService(userRepo);
 
     setUp(() {
       tripRepo = InMemoryTripRepository();
@@ -42,6 +46,8 @@ void main() {
           entryService: entryService,
           tripRepo: tripRepo,
           entryRepo: entryRepo,
+          userRepo: userRepo,
+          userService: userService,
         ),
       ));
 
@@ -85,6 +91,8 @@ void main() {
           entryService: entryService,
           tripRepo: tripRepo,
           entryRepo: entryRepo,
+          userRepo: userRepo,
+          userService: userService,
         ),
       ));
 
